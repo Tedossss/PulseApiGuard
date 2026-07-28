@@ -38,7 +38,9 @@ downSince: {
 
   interval: {
     type: Number,
-    default: 60
+    default: 60,
+    min: 30,
+    max: 86400
   },
 
   lastStatus: Number,

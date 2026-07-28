@@ -14,28 +14,29 @@ per-user dashboards.
 
 ```text
 Browser → Next.js UI → same-origin /api proxy → Express API → MongoDB
+                                             ↘ Redis rate limits
                                              ↘ monitoring worker → external endpoints
 ```
 
 The worker runs every five seconds and respects each monitor's configured interval
-between one second and 24 hours. A monitor moves to `DOWN` after three consecutive
+between 30 seconds and 24 hours. A monitor moves to `DOWN` after three consecutive
 failures. Requests time out after ten seconds.
 
 ## Security
 
 - Real `.env` files, build output, caches, logs, and dependencies are excluded.
 - JWT secrets must contain at least 32 characters; tokens expire after 12 hours by default.
-- Authentication and general API routes have in-memory rate limits.
+- Authentication, general API, and manual checks use Redis-backed shared rate limits.
+- Accounts are limited to 20 monitors by default and checks run no more often than every 30 seconds.
 - CORS uses an explicit origin allowlist.
 - Monitor ownership is checked before reads, updates, and deletes.
 - Update fields and HTTP methods are allowlisted.
 - Monitoring requests reject local/private network destinations, credentials in URLs,
   non-HTTP protocols, and redirects to reduce SSRF risk.
 
-The in-memory limiter is suitable for a single process. Use Redis or another shared
-store before running multiple API instances. Browser tokens currently use local storage;
-for a high-risk production environment, prefer short-lived access tokens plus rotated
-HttpOnly refresh cookies and CSRF protection.
+Set `TRUST_PROXY` to the exact number of trusted reverse proxies when deploying behind
+one. Browser tokens currently use local storage; for a high-risk production environment,
+prefer short-lived access tokens plus rotated HttpOnly refresh cookies and CSRF protection.
 
 ## Run with Docker
 

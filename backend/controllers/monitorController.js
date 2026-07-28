@@ -4,8 +4,16 @@ const mongoose = require("mongoose")
 const { normalizeTargetUrl, normalizeMethod } = require("../services/apiTester")
 
 const DEFAULT_INTERVAL_SECONDS = 60
-const MIN_INTERVAL_SECONDS = 1
+const MIN_INTERVAL_SECONDS = 30
 const MAX_INTERVAL_SECONDS = 86400
+const DEFAULT_MAX_MONITORS_PER_USER = 20
+
+const getMaxMonitorsPerUser = () => {
+  const configured = Number(process.env.MAX_MONITORS_PER_USER)
+  return Number.isInteger(configured) && configured > 0
+    ? configured
+    : DEFAULT_MAX_MONITORS_PER_USER
+}
 
 const normalizeInterval = (value) => {
   const interval = Number(value)
@@ -37,6 +45,10 @@ const normalizeName = (value, fallback) => {
 }
 
 const normalizeMonitorFields = (input = {}, { partial = false } = {}) => {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new Error("Request body must be a JSON object")
+  }
+
   const fields = {}
 
   if (!partial || input.url !== undefined) fields.url = normalizeTargetUrl(input.url)
@@ -63,6 +75,15 @@ exports.createMonitor = async (req, res) => {
 
   try {
     const userId = req.user
+
+    const monitorCount = await EndpointMonitor.countDocuments({ user: userId })
+    const monitorLimit = getMaxMonitorsPerUser()
+    if (monitorCount >= monitorLimit) {
+      return res.status(409).json({
+        error: `Monitor limit reached (${monitorLimit})`,
+        code: "MONITOR_LIMIT_REACHED",
+      })
+    }
 
     const monitor = new EndpointMonitor({
       user: userId,
@@ -253,3 +274,4 @@ exports.deleteMonitor = async (req, res) => {
 
 exports.normalizeInterval = normalizeInterval
 exports.normalizeMonitorFields = normalizeMonitorFields
+exports.getMaxMonitorsPerUser = getMaxMonitorsPerUser

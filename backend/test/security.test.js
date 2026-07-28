@@ -6,7 +6,11 @@ const {
   normalizeMethod,
   normalizeTargetUrl,
 } = require("../services/apiTester")
-const { normalizeInterval, normalizeMonitorFields } = require("../controllers/monitorController")
+const {
+  getMaxMonitorsPerUser,
+  normalizeInterval,
+  normalizeMonitorFields,
+} = require("../controllers/monitorController")
 
 test("private and local IP ranges are rejected", () => {
   for (const address of ["127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "::1", "fd00::1"]) {
@@ -28,7 +32,7 @@ test("monitor targets allow public HTTP URLs without credentials", () => {
 test("monitor methods and intervals are constrained", () => {
   assert.equal(normalizeMethod("head"), "HEAD")
   assert.throws(() => normalizeMethod("POST"), /Only GET and HEAD/)
-  assert.equal(normalizeInterval(-1), 1)
+  assert.equal(normalizeInterval(-1), 30)
   assert.equal(normalizeInterval(999999), 86400)
 })
 
@@ -50,4 +54,23 @@ test("monitor input is normalized and unknown fields are dropped", () => {
       name: "Main API",
     },
   )
+
+  assert.throws(() => normalizeMonitorFields([]), /JSON object/)
+  assert.throws(() => normalizeMonitorFields(null), /JSON object/)
+})
+
+test("monitor quotas use a safe default and accept a positive override", () => {
+  const originalValue = process.env.MAX_MONITORS_PER_USER
+
+  delete process.env.MAX_MONITORS_PER_USER
+  assert.equal(getMaxMonitorsPerUser(), 20)
+
+  process.env.MAX_MONITORS_PER_USER = "50"
+  assert.equal(getMaxMonitorsPerUser(), 50)
+
+  process.env.MAX_MONITORS_PER_USER = "invalid"
+  assert.equal(getMaxMonitorsPerUser(), 20)
+
+  if (originalValue === undefined) delete process.env.MAX_MONITORS_PER_USER
+  else process.env.MAX_MONITORS_PER_USER = originalValue
 })

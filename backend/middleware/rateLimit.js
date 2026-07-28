@@ -1,28 +1,23 @@
-const createRateLimiter = ({ windowMs, max, message }) => {
-  const buckets = new Map()
+const { rateLimit } = require("express-rate-limit")
+const { RedisStore } = require("rate-limit-redis")
+const { getRedisClient } = require("../config/redis")
 
-  return (req, res, next) => {
-    const now = Date.now()
-    const key = req.ip || req.socket.remoteAddress || "unknown"
-    const current = buckets.get(key)
-    const bucket = !current || current.resetAt <= now
-      ? { count: 0, resetAt: now + windowMs }
-      : current
+const createRateLimiter = ({ windowMs, max, message, prefix = "global" }) => {
+  const client = getRedisClient()
 
-    bucket.count += 1
-    buckets.set(key, bucket)
-
-    res.setHeader("RateLimit-Limit", max)
-    res.setHeader("RateLimit-Remaining", Math.max(0, max - bucket.count))
-    res.setHeader("RateLimit-Reset", Math.ceil(bucket.resetAt / 1000))
-
-    if (bucket.count > max) {
-      res.setHeader("Retry-After", Math.ceil((bucket.resetAt - now) / 1000))
+  return rateLimit({
+    windowMs,
+    limit: max,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    store: new RedisStore({
+      prefix: `pulseguard:rate-limit:${prefix}:`,
+      sendCommand: (...args) => client.sendCommand(args),
+    }),
+    handler(req, res) {
       return res.status(429).json({ message })
-    }
-
-    return next()
-  }
+    },
+  })
 }
 
 module.exports = createRateLimiter

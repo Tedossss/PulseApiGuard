@@ -10,6 +10,18 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./backend
     restart: unless-stopped
@@ -17,11 +29,16 @@ services:
       NODE_ENV: production
       PORT: 3001
       MONGO_URI: mongodb://mongo:27017/pulseguard
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       JWT_EXPIRES_IN: 12h
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      MAX_MONITORS_PER_USER: ${MAX_MONITORS_PER_USER:-20}
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/system/health"]
@@ -45,3 +62,4 @@ services:
 
 volumes:
   mongo_data:
+  redis_data:

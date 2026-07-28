@@ -113,7 +113,7 @@ const intervalOptions = [
 const normalizeIntervalValue = (value: string | number) => {
   const interval = Number(value);
   if (!Number.isFinite(interval)) return 60;
-  return Math.min(86400, Math.max(1, Math.round(interval)));
+  return Math.min(86400, Math.max(30, Math.round(interval)));
 };
 
 const formatInterval = (seconds?: number) => {
