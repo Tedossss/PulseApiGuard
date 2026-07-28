@@ -109,7 +109,7 @@ const processMonitorCheck = async (monitorId) => {
       statusCode: result.statusCode,
       responseTime: result.responseTime,
       success: isSuccess,
-      message: result.message,
+      message: String(result.message || "").slice(0, 500),
     })
 
     lastWorkerRun = new Date()

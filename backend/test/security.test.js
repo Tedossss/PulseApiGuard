@@ -12,6 +12,12 @@ const {
   normalizeMonitorFields,
 } = require("../controllers/monitorController")
 const { calculateMonitorState } = require("../workers/monitorWorker")
+const {
+  decodeCursor,
+  encodeCursor,
+  normalizeLogLimit,
+  normalizeTrendHours,
+} = require("../controllers/dashboardController")
 
 test("private and local IP ranges are rejected", () => {
   for (const address of ["127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "::1", "fd00::1"]) {
@@ -89,4 +95,25 @@ test("monitor state changes after three failures and recovers on success", () =>
     calculateMonitorState({ status: "DOWN", failureCount: 5 }, true),
     { nextFailureCount: 0, nextStatus: "UP" },
   )
+})
+
+test("dashboard query limits are bounded", () => {
+  assert.equal(normalizeLogLimit(undefined), 50)
+  assert.equal(normalizeLogLimit("0"), 1)
+  assert.equal(normalizeLogLimit("500"), 100)
+  assert.equal(normalizeTrendHours(undefined), 24)
+  assert.equal(normalizeTrendHours("999"), 168)
+})
+
+test("log cursors round-trip and reject malformed input", () => {
+  const log = {
+    _id: new (require("mongoose").Types.ObjectId)(),
+    createdAt: new Date("2026-01-01T12:00:00.000Z"),
+  }
+  const cursor = encodeCursor(log)
+  const decoded = decodeCursor(cursor)
+
+  assert.equal(decoded.id.toString(), log._id.toString())
+  assert.equal(decoded.createdAt.toISOString(), log.createdAt.toISOString())
+  assert.throws(() => decodeCursor("not-a-cursor"), /Invalid cursor/)
 })

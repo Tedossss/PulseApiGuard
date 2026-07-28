@@ -7,13 +7,14 @@ const EndpointMonitorSchema = new mongoose.Schema({
     required: true
   },
 
-  name: String,
-  url: String,
+  name: { type: String, required: true, trim: true, maxlength: 120 },
+  url: { type: String, required: true },
 
   status: { 
-    type: String, 
+    type: String,
     default: "PENDING",
-    uppercase: true // щоб завжди зберігало "UP" або "DOWN"
+    uppercase: true,
+    enum: ["PENDING", "UP", "DOWN"]
   },
 
 failureCount: {
@@ -28,12 +29,15 @@ downSince: {
 
   method: {
     type: String,
-    default: "GET"
+    default: "GET",
+    enum: ["GET", "HEAD"]
   },
 
   expectedStatus: {
     type: Number,
-    default: 200
+    default: 200,
+    min: 100,
+    max: 599
   },
 
   interval: {
@@ -47,6 +51,9 @@ downSince: {
   lastChecked: Date
 
 }, { timestamps: true })
+
+EndpointMonitorSchema.index({ user: 1, createdAt: -1 })
+EndpointMonitorSchema.index({ user: 1, status: 1 })
 
 module.exports = mongoose.model(
   "EndpointMonitor",
