@@ -11,6 +11,7 @@ const {
   normalizeInterval,
   normalizeMonitorFields,
 } = require("../controllers/monitorController")
+const { calculateMonitorState } = require("../workers/monitorWorker")
 
 test("private and local IP ranges are rejected", () => {
   for (const address of ["127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "::1", "fd00::1"]) {
@@ -73,4 +74,19 @@ test("monitor quotas use a safe default and accept a positive override", () => {
 
   if (originalValue === undefined) delete process.env.MAX_MONITORS_PER_USER
   else process.env.MAX_MONITORS_PER_USER = originalValue
+})
+
+test("monitor state changes after three failures and recovers on success", () => {
+  assert.deepEqual(
+    calculateMonitorState({ status: "UP", failureCount: 1 }, false),
+    { nextFailureCount: 2, nextStatus: "UP" },
+  )
+  assert.deepEqual(
+    calculateMonitorState({ status: "UP", failureCount: 2 }, false),
+    { nextFailureCount: 3, nextStatus: "DOWN" },
+  )
+  assert.deepEqual(
+    calculateMonitorState({ status: "DOWN", failureCount: 5 }, true),
+    { nextFailureCount: 0, nextStatus: "UP" },
+  )
 })

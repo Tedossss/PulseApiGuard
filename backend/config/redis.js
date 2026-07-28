@@ -30,8 +30,27 @@ const closeRedis = async () => {
   if (client?.isOpen) await client.quit()
 }
 
+const getBullConnectionOptions = ({ worker = false } = {}) => {
+  const redisUrl = new URL(process.env.REDIS_URL)
+  if (!["redis:", "rediss:"].includes(redisUrl.protocol)) {
+    throw new Error("REDIS_URL must use redis:// or rediss://")
+  }
+
+  const database = redisUrl.pathname.replace(/^\//, "")
+  return {
+    host: redisUrl.hostname,
+    port: Number(redisUrl.port || 6379),
+    username: redisUrl.username ? decodeURIComponent(redisUrl.username) : undefined,
+    password: redisUrl.password ? decodeURIComponent(redisUrl.password) : undefined,
+    db: database ? Number(database) : 0,
+    tls: redisUrl.protocol === "rediss:" ? {} : undefined,
+    maxRetriesPerRequest: worker ? null : 1,
+  }
+}
+
 module.exports = {
   getRedisClient,
+  getBullConnectionOptions,
   connectRedis,
   closeRedis,
 }

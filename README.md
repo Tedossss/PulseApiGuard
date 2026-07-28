@@ -15,12 +15,13 @@ per-user dashboards.
 ```text
 Browser → Next.js UI → same-origin /api proxy → Express API → MongoDB
                                              ↘ Redis rate limits
-                                             ↘ monitoring worker → external endpoints
+Express API → BullMQ job schedulers → Redis → monitoring workers → external endpoints
 ```
 
-The worker runs every five seconds and respects each monitor's configured interval
-between 30 seconds and 24 hours. A monitor moves to `DOWN` after three consecutive
-failures. Requests time out after ten seconds.
+Each monitor has a BullMQ job scheduler that respects its configured interval between
+30 seconds and 24 hours. Dedicated workers use distributed per-monitor locks, controlled
+concurrency, and exponential retry for infrastructure failures. A monitor moves to `DOWN`
+after three consecutive failures. HTTP checks time out after ten seconds.
 
 ## Security
 
@@ -28,6 +29,8 @@ failures. Requests time out after ten seconds.
 - JWT secrets must contain at least 32 characters; tokens expire after 12 hours by default.
 - Authentication, general API, and manual checks use Redis-backed shared rate limits.
 - Accounts are limited to 20 monitors by default and checks run no more often than every 30 seconds.
+- API and worker processes are separate; workers can scale horizontally without running
+  the same monitor concurrently.
 - CORS uses an explicit origin allowlist.
 - Monitor ownership is checked before reads, updates, and deletes.
 - Update fields and HTTP methods are allowlisted.

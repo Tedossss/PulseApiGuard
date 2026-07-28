@@ -2,6 +2,7 @@ require("dotenv").config()
 
 const connectDB = require("./config/db")
 const { connectRedis, closeRedis } = require("./config/redis")
+const { closeMonitorQueue } = require("./queues/monitorQueue")
 
 const PORT = process.env.PORT || 3001
 
@@ -27,16 +28,14 @@ const start = async () => {
   await connectRedis()
 
   const app = require("./app")
-  const { startWorker } = require("./workers/monitorWorker")
   const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
 
-  startWorker()
-
   const shutdown = async (signal) => {
     console.log(`${signal} received, shutting down`)
     server.close(async () => {
+      await closeMonitorQueue()
       await closeRedis()
       process.exit(0)
     })

@@ -2,6 +2,10 @@ const EndpointMonitor = require("../models/EndpointMonitor")
 const MonitoringLog = require("../models/MonitoringLog")
 const mongoose = require("mongoose")
 const { normalizeTargetUrl, normalizeMethod } = require("../services/apiTester")
+const {
+  removeMonitorSchedule,
+  scheduleMonitor,
+} = require("../queues/monitorQueue")
 
 const DEFAULT_INTERVAL_SECONDS = 60
 const MIN_INTERVAL_SECONDS = 30
@@ -93,6 +97,18 @@ exports.createMonitor = async (req, res) => {
     })
 
     await monitor.save()
+
+    try {
+      await scheduleMonitor(monitor)
+    } catch (error) {
+      await monitor.deleteOne()
+      try {
+        await removeMonitorSchedule(monitor._id)
+      } catch (cleanupError) {
+        console.error("CreateMonitor schedule cleanup error:", cleanupError)
+      }
+      throw error
+    }
 
     return res.status(201).json({
       message: "Endpoint created",
@@ -207,9 +223,29 @@ exports.updateMonitor = async (req, res) => {
       })
     }
 
-    Object.assign(monitor, fields)
+    const previousFields = {
+      name: monitor.name,
+      url: monitor.url,
+      method: monitor.method,
+      expectedStatus: monitor.expectedStatus,
+      interval: monitor.interval,
+    }
 
+    Object.assign(monitor, fields)
     await monitor.save()
+
+    try {
+      await scheduleMonitor(monitor)
+    } catch (error) {
+      Object.assign(monitor, previousFields)
+      await monitor.save()
+      try {
+        await scheduleMonitor(monitor, { runImmediately: false })
+      } catch (rollbackError) {
+        console.error("UpdateMonitor schedule rollback error:", rollbackError)
+      }
+      throw error
+    }
 
     return res.json({
       message: "Monitor updated",
@@ -258,6 +294,13 @@ exports.deleteMonitor = async (req, res) => {
     })
 
     await monitor.deleteOne()
+
+    try {
+      await removeMonitorSchedule(id)
+    } catch (scheduleError) {
+      // A queued check for a deleted monitor is safe: the worker treats it as a no-op.
+      console.error("DeleteMonitor schedule cleanup error:", scheduleError)
+    }
 
     return res.json({
       message: "Monitor deleted"

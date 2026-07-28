@@ -46,6 +46,22 @@ services:
       timeout: 5s
       retries: 3
 
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    command: ["npm", "run", "worker"]
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/pulseguard
+      REDIS_URL: redis://redis:6379
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-10}
+      MONITOR_LOCK_TTL_MS: ${MONITOR_LOCK_TTL_MS:-25000}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
