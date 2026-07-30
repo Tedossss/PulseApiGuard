@@ -20,16 +20,19 @@ const getMaxMonitorsPerUser = () => {
 }
 
 const normalizeInterval = (value) => {
-  const interval = Number(value)
-
-  if (!Number.isFinite(interval)) {
+  if (value === undefined || value === null || value === "") {
     return DEFAULT_INTERVAL_SECONDS
   }
 
-  return Math.min(
-    MAX_INTERVAL_SECONDS,
-    Math.max(MIN_INTERVAL_SECONDS, Math.round(interval))
-  )
+  const interval = Number(value)
+  if (
+    !Number.isInteger(interval) ||
+    interval < MIN_INTERVAL_SECONDS ||
+    interval > MAX_INTERVAL_SECONDS
+  ) {
+    throw new Error(`Interval must be an integer from ${MIN_INTERVAL_SECONDS} to ${MAX_INTERVAL_SECONDS} seconds`)
+  }
+  return interval
 }
 
 const normalizeExpectedStatus = (value) => {

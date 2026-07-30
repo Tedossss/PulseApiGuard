@@ -1,16 +1,20 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, BellRing, CheckCircle2, LockKeyhole, Radar, ShieldCheck } from 'lucide-react';
+import { Activity, CheckCircle2, LockKeyhole, Network, Radar, ShieldCheck } from 'lucide-react';
+import { ApiError, apiRequest } from '../../lib/api';
 
 const trustItems = [
   { icon: <Radar size={18} />, label: 'Live probes' },
-  { icon: <BellRing size={18} />, label: 'Smart alerts' },
+  { icon: <Network size={18} />, label: 'Protected targets' },
   { icon: <ShieldCheck size={18} />, label: 'Secure access' },
 ];
 
 export default function AuthPage() {
   const [isActive, setIsActive] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   // Стейт для даних форм
@@ -27,8 +31,11 @@ export default function AuthPage() {
   // Реєстрація
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setNotice('');
+    setIsSubmitting(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      await apiRequest('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,24 +43,23 @@ export default function AuthPage() {
           password: formData.password
         }),
       });
-
-      if (res.ok) {
-        alert("Реєстрація успішна! Тепер увійдіть.");
-        setIsActive(false); // Перемикаємо на форму логіну
-      } else {
-        const error = await res.json();
-        alert(error.message || "Помилка реєстрації");
-      }
-    } catch {
-      alert("Сервер не відповідає");
+      setNotice('Account created. Sign in with your new credentials.');
+      setIsActive(false);
+    } catch (requestError) {
+      setError(requestError instanceof ApiError ? requestError.message : 'Server is not reachable.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   // Логін
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setNotice('');
+    setIsSubmitting(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      await apiRequest('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,17 +67,11 @@ export default function AuthPage() {
           password: formData.password
         }),
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem('token', data.token); // Зберігаємо токен
-        router.push('/dashboard'); // Перенаправляємо на дашборд
-      } else {
-        alert(data.message || "Невірний логін або пароль");
-      }
-    } catch {
-      alert("Сервер не відповідає");
+      router.replace('/dashboard');
+    } catch (requestError) {
+      setError(requestError instanceof ApiError ? requestError.message : 'Server is not reachable.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,8 +99,9 @@ export default function AuthPage() {
               <span className={formData.password.length >= 8 ? 'active' : ''} />
             </div>
             <p className="auth-hint">Use 8+ characters for a stronger account.</p>
+            {error && isActive && <p className="auth-feedback auth-feedback-error" role="alert">{error}</p>}
             
-            <button type="submit">Sign Up</button>
+            <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Creating...' : 'Sign Up'}</button>
             
             <div className="mobile-switch md:hidden mt-4">
               <p className="text-sm text-slate-400">Already have an account?</p>
@@ -123,8 +124,10 @@ export default function AuthPage() {
               <LockKeyhole size={15} />
               Secure session for creating monitors and viewing incidents.
             </div>
+            {notice && <p className="auth-feedback auth-feedback-success" role="status">{notice}</p>}
+            {error && !isActive && <p className="auth-feedback auth-feedback-error" role="alert">{error}</p>}
             
-            <button type="submit">Sign In</button>
+            <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Signing in...' : 'Sign In'}</button>
 
             <div className="mobile-switch md:hidden mt-4">
               <p className="text-sm text-slate-400">Don&apos;t have an account?</p>
@@ -152,12 +155,12 @@ export default function AuthPage() {
             </div>
             <div className="panel-content panel-content-right">
               <h1>Hey There!</h1>
-              <p>Create monitors, receive alerts, and track uptime.</p>
+              <p>Create monitors, inspect incidents, and track uptime.</p>
               <div className="panel-status-card">
                 <CheckCircle2 size={18} />
                 <div>
-                  <strong>99.98% uptime</strong>
-                  <small>Last 30 days</small>
+                  <strong>3-check confirmation</strong>
+                  <small>Before a DOWN state</small>
                 </div>
               </div>
               <button type="button" className="transparent-btn" onClick={() => setIsActive(true)}>

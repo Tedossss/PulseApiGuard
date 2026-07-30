@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
+const { getSessionToken } = require("../utils/session")
 
 module.exports = function (req, res, next) {
-  const authHeader = req.header("Authorization") || "";
-  const [scheme, token] = authHeader.split(" ");
+  const token = getSessionToken(req)
 
-  if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ message: "No token, authorization denied" });
+  if (!token) {
+    return res.status(401).json({ message: "Authentication required" });
   }
 
   try {
@@ -16,6 +16,6 @@ module.exports = function (req, res, next) {
     req.user = decoded.id;
     next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({ message: "Invalid or expired session" });
   }
 };

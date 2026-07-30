@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Activity, ArrowRight, BellRing, CheckCircle2, Gauge, Globe2, LockKeyhole, Radar, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { Activity, ArrowRight, CheckCircle2, Clock3, Gauge, Globe2, LockKeyhole, Radar, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 
 const metrics = [
-  { value: '99.98%', label: 'average uptime', tone: 'text-emerald-300' },
-  { value: '28ms', label: 'median probe time', tone: 'text-cyan-300' },
-  { value: '14k+', label: 'checks per day', tone: 'text-violet-300' },
+  { value: '30s', label: 'minimum interval', tone: 'text-emerald-300' },
+  { value: '3', label: 'failures before down', tone: 'text-cyan-300' },
+  { value: '30d', label: 'log retention', tone: 'text-violet-300' },
 ];
 
 const features = [
@@ -14,9 +14,9 @@ const features = [
     text: 'Group critical APIs, tune intervals, and spot slow routes before users report them.',
   },
   {
-    icon: <BellRing size={22} />,
-    title: 'Noise-aware alerts',
-    text: 'Escalate only confirmed incidents with clear context: status, latency, and last healthy check.',
+    icon: <Clock3 size={22} />,
+    title: 'Confirmed incident states',
+    text: 'Mark endpoints down only after three consecutive failures and record recovery automatically.',
   },
   {
     icon: <ShieldCheck size={22} />,
@@ -25,7 +25,7 @@ const features = [
   },
 ];
 
-const timeline = ['Probe', 'Validate', 'Alert', 'Recover'];
+const timeline = ['Probe', 'Validate', 'Record', 'Recover'];
 
 export default function LandingPage() {
   return (
@@ -108,7 +108,7 @@ export default function LandingPage() {
               </div>
               <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm font-bold text-white">Incident automation</p>
+                  <p className="text-sm font-bold text-white">Incident state flow</p>
                   <Zap size={17} className="text-amber-300" />
                 </div>
                 <div className="grid grid-cols-4 gap-2">
@@ -138,11 +138,11 @@ export default function LandingPage() {
         <section id="workflow" className="mt-16 grid gap-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:grid-cols-[0.85fr_1.15fr] md:p-8">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.24em] text-indigo-300">Operations flow</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight">From outage signal to action in seconds.</h2>
-            <p className="mt-4 text-slate-400">A lightweight workflow keeps the product useful even before backend analytics become deep.</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight">From failed probe to recorded incident.</h2>
+            <p className="mt-4 text-slate-400">Queue-backed checks validate the expected status, preserve history, and confirm recovery.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {['Synthetic checks every minute', 'Latency budgets by endpoint', 'Status cards for every route', 'Recovery hints for incidents'].map((item) => (
+            {['Checks from every 30 seconds', 'Expected status validation', 'Status cards for every route', 'Automatic recovery state'].map((item) => (
               <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-sm font-semibold text-slate-200">
                 <Globe2 size={18} className="text-cyan-300" /> {item}
               </div>

@@ -1,5 +1,9 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const {
+  serializeExpiredSessionCookie,
+  serializeSessionCookie,
+} = require("../utils/session")
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -8,6 +12,25 @@ const generateToken = (id) => {
     audience: "pulseguard-web",
   });
 };
+
+const useSecureCookies = () => {
+  if (process.env.SESSION_COOKIE_SECURE !== undefined) {
+    return process.env.SESSION_COOKIE_SECURE === "true"
+  }
+  return process.env.NODE_ENV === "production"
+}
+
+const setSessionCookie = (res, token) => {
+  const decoded = jwt.decode(token)
+  const maxAgeSeconds = typeof decoded?.exp === "number"
+    ? Math.max(1, decoded.exp - Math.floor(Date.now() / 1000))
+    : undefined
+
+  res.setHeader("Set-Cookie", serializeSessionCookie(token, {
+    maxAgeSeconds,
+    secure: useSecureCookies(),
+  }))
+}
 
 const normalizeCredentials = (body = {}) => ({
   email: String(body.email || "").trim().toLowerCase(),
@@ -34,8 +57,6 @@ exports.registerUser = async (req, res) => {
     res.status(201).json({
       _id: user._id,
       email: user.email,
-      telegram_chat_id: user.telegram_chat_id,
-      token: generateToken(user._id),
     });
   } catch (err) {
     console.error("Registration error:", err);
@@ -55,14 +76,30 @@ exports.loginUser = async (req, res) => {
     const isMatch = await user.matchPassword(password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
+    const token = generateToken(user._id)
+    setSessionCookie(res, token)
     res.json({
       _id: user._id,
       email: user.email,
-      telegram_chat_id: user.telegram_chat_id,
-      token: generateToken(user._id),
     });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Unable to sign in" });
   }
 };
+
+exports.getSession = async (req, res) => {
+  try {
+    const user = await User.findById(req.user).select("email").lean()
+    if (!user) return res.status(401).json({ message: "Session user no longer exists" })
+    return res.json({ _id: user._id, email: user.email })
+  } catch (error) {
+    console.error("Get session error:", error)
+    return res.status(500).json({ message: "Unable to read session" })
+  }
+}
+
+exports.logoutUser = (req, res) => {
+  res.setHeader("Set-Cookie", serializeExpiredSessionCookie({ secure: useSecureCookies() }))
+  return res.status(204).end()
+}

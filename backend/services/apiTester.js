@@ -3,38 +3,38 @@ const dns = require("node:dns")
 const http = require("node:http")
 const https = require("node:https")
 const net = require("node:net")
+const ipaddr = require("ipaddr.js")
 
 const ALLOWED_METHODS = new Set(["GET", "HEAD"])
 
 const isPrivateAddress = (address) => {
-  if (net.isIP(address) === 4) {
-    const [a, b] = address.split(".").map(Number)
-    return (
-      a === 0 ||
-      a === 10 ||
-      a === 127 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 0) ||
-      (a === 192 && b === 168) ||
-      (a === 198 && (b === 18 || b === 19)) ||
-      a >= 224
-    )
+  if (!net.isIP(address)) return true
+
+  try {
+    const parsed = ipaddr.parse(address)
+
+    // Reject every mapped/translated representation. DNS A records still arrive
+    // as regular IPv4 addresses, while mapped forms create SSRF ambiguity.
+    if (parsed.kind() === "ipv6" && parsed.isIPv4MappedAddress()) return true
+
+    // ipaddr.js classifies loopback, private, link-local, carrier-grade NAT,
+    // documentation, benchmarking, multicast, reserved and translation ranges.
+    return parsed.range() !== "unicast"
+  } catch {
+    return true
+  }
+}
+
+const selectSafeLookupAddress = (addresses, lookupOptions = {}) => {
+  if (!Array.isArray(addresses) || addresses.length === 0) {
+    throw new Error("Target did not resolve to an address")
   }
 
-  if (net.isIP(address) === 6) {
-    const normalized = address.toLowerCase()
-    if (normalized === "::" || normalized === "::1") return true
-    if (normalized.startsWith("fc") || normalized.startsWith("fd")) return true
-    if (/^fe[89ab]/.test(normalized)) return true
-    if (normalized.startsWith("ff")) return true
-
-    const mappedIpv4 = normalized.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1]
-    return mappedIpv4 ? isPrivateAddress(mappedIpv4) : false
+  if (addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new Error("Target resolved to a private or unsupported address")
   }
 
-  return true
+  return addresses.find(({ family }) => !lookupOptions.family || family === lookupOptions.family) || addresses[0]
 }
 
 const normalizeTargetUrl = (value) => {
@@ -81,14 +81,13 @@ const safeLookup = (hostname, options, callback) => {
 
   dns.lookup(hostname, { all: true, verbatim: true }, (error, addresses) => {
     if (error) return callback(error)
-    if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
-      return callback(new Error("Target resolved to a private or unsupported address"))
+    try {
+      const selected = selectSafeLookupAddress(addresses, lookupOptions)
+      if (lookupOptions.all) return callback(null, addresses)
+      return callback(null, selected.address, selected.family)
+    } catch (lookupError) {
+      return callback(lookupError)
     }
-
-    if (lookupOptions.all) return callback(null, addresses)
-
-    const selected = addresses.find(({ family }) => !lookupOptions.family || family === lookupOptions.family) || addresses[0]
-    return callback(null, selected.address, selected.family)
   })
 }
 
@@ -135,3 +134,4 @@ module.exports = testApiEndpoint
 module.exports.isPrivateAddress = isPrivateAddress
 module.exports.normalizeTargetUrl = normalizeTargetUrl
 module.exports.normalizeMethod = normalizeMethod
+module.exports.selectSafeLookupAddress = selectSafeLookupAddress

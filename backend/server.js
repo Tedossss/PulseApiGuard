@@ -1,5 +1,6 @@
 require("dotenv").config()
 
+const mongoose = require("mongoose")
 const connectDB = require("./config/db")
 const { connectRedis, closeRedis } = require("./config/redis")
 const { closeMonitorQueue } = require("./queues/monitorQueue")
@@ -18,6 +19,13 @@ const validateEnvironment = () => {
   if (!process.env.REDIS_URL) {
     throw new Error("REDIS_URL is required")
   }
+
+  if (
+    process.env.SESSION_COOKIE_SECURE !== undefined &&
+    !["true", "false"].includes(process.env.SESSION_COOKIE_SECURE)
+  ) {
+    throw new Error("SESSION_COOKIE_SECURE must be true or false")
+  }
 }
 
 const start = async () => {
@@ -32,13 +40,31 @@ const start = async () => {
     console.log(`Server running on port ${PORT}`)
   })
 
+  let shuttingDown = false
   const shutdown = async (signal) => {
+    if (shuttingDown) return
+    shuttingDown = true
     console.log(`${signal} received, shutting down`)
-    server.close(async () => {
-      await closeMonitorQueue()
-      await closeRedis()
-      process.exit(0)
-    })
+
+    const forceShutdown = setTimeout(() => {
+      console.error("Graceful shutdown timed out")
+      process.exit(1)
+    }, 10000)
+    forceShutdown.unref()
+
+    server.closeIdleConnections?.()
+    await new Promise(resolve => server.close(resolve))
+
+    const cleanup = await Promise.allSettled([
+      closeMonitorQueue(),
+      closeRedis(),
+      mongoose.disconnect(),
+    ])
+    const failed = cleanup.filter(result => result.status === "rejected")
+    for (const result of failed) console.error("Shutdown cleanup failed:", result.reason)
+
+    clearTimeout(forceShutdown)
+    process.exit(failed.length > 0 ? 1 : 0)
   }
 
   process.once("SIGTERM", () => shutdown("SIGTERM"))

@@ -282,6 +282,34 @@
   font-size: 11px;
 }
 
+.auth-feedback {
+  margin: 2px 0 10px;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.auth-feedback-error {
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fecaca;
+}
+
+.auth-feedback-success {
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  background: rgba(16, 185, 129, 0.09);
+  color: #a7f3d0;
+}
+
+.auth-body button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
 .auth-security-note {
   display: flex;
   align-items: center;

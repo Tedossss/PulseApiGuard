@@ -18,10 +18,11 @@ Default URL: `http://127.0.0.1:3001`.
 
 ## API groups
 
-- `/api/auth` — register and sign in
+- `/api/auth` — register, sign in, inspect, and end an HttpOnly cookie session
 - `/api/monitor` — authenticated monitor lifecycle
 - `/api/test` — authenticated one-off safe HTTP check
 - `/api/dashboard` — authenticated summary and trend data
-- `/api/system/health` — service health
+- `/api/system/live` — process liveness
+- `/api/system/ready` and `/api/system/health` — MongoDB and Redis readiness
 
 See the repository root README for security and deployment notes.

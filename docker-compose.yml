@@ -32,6 +32,7 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       JWT_EXPIRES_IN: 12h
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       TRUST_PROXY: ${TRUST_PROXY:-false}
       MAX_MONITORS_PER_USER: ${MAX_MONITORS_PER_USER:-20}
@@ -41,10 +42,11 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/system/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/system/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 20s
 
   worker:
     build: ./backend
@@ -75,6 +77,12 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   mongo_data:

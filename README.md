@@ -1,14 +1,23 @@
 # PulseGuard
 
 PulseGuard is a full-stack API monitoring platform with configurable HTTP checks,
-latency and uptime history, incident state transitions, JWT authentication, and
+latency and uptime history, incident state transitions, HttpOnly JWT sessions, and
 per-user dashboards.
+
+## Features
+
+- Create, edit, delete, and search owned endpoint monitors.
+- Schedule `GET` or `HEAD` checks from every 30 seconds to every 24 hours.
+- Track latency, expected HTTP status, uptime trends, and cursor-paginated check history.
+- Confirm a `DOWN` incident after three consecutive failures and recover on success.
+- Run API and workers independently with BullMQ scheduling and distributed Redis locks.
+- Preview the dashboard without an account at `/dashboard?demo=1`.
 
 ## Stack
 
 - Next.js, React, TypeScript, Recharts
 - Node.js, Express, MongoDB, Mongoose
-- Docker Compose and MongoDB health checks
+- BullMQ, Redis, Docker Compose, and dependency-aware health checks
 
 ## Architecture
 
@@ -26,7 +35,8 @@ after three consecutive failures. HTTP checks time out after ten seconds.
 ## Security
 
 - Real `.env` files, build output, caches, logs, and dependencies are excluded.
-- JWT secrets must contain at least 32 characters; tokens expire after 12 hours by default.
+- JWT secrets must contain at least 32 characters; browser sessions use HttpOnly,
+  SameSite=Strict cookies that expire after 12 hours by default.
 - Authentication, general API, and manual checks use Redis-backed shared rate limits.
 - Accounts are limited to 20 monitors by default and checks run no more often than every 30 seconds.
 - API and worker processes are separate; workers can scale horizontally without running
@@ -40,17 +50,24 @@ after three consecutive failures. HTTP checks time out after ten seconds.
 - Monitoring requests reject local/private network destinations, credentials in URLs,
   non-HTTP protocols, and redirects to reduce SSRF risk.
 
-## Dashboard data API
+## API overview
 
+- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
+- `GET /api/auth/session` returns the current cookie-authenticated user.
+- `POST /api/monitor/add`, `GET /api/monitor`, `PUT /api/monitor/:id`,
+  `DELETE /api/monitor/:id` implement the monitor lifecycle.
 - `GET /api/dashboard/summary` returns per-monitor status and aggregate uptime.
 - `GET /api/dashboard/trend?hours=24` returns five-minute buckets; ranges above 48
   hours use hourly buckets and are capped at seven days.
 - `GET /api/dashboard/logs?limit=50&cursor=...&monitorId=...` provides ownership-safe
   cursor pagination. `limit` is capped at 100.
+- `GET /api/system/live` checks the API process; `/api/system/ready` verifies MongoDB
+  and Redis connectivity.
 
 Set `TRUST_PROXY` to the exact number of trusted reverse proxies when deploying behind
-one. Browser tokens currently use local storage; for a high-risk production environment,
-prefer short-lived access tokens plus rotated HttpOnly refresh cookies and CSRF protection.
+one. Bearer tokens remain accepted for non-browser API clients, while the web application
+does not expose its session token to JavaScript. Set `SESSION_COOKIE_SECURE=true` whenever
+the public deployment uses HTTPS; the Docker Compose default remains `false` for local HTTP.
 
 ## Run with Docker
 
@@ -60,8 +77,9 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open `http://localhost:3000`. The API health endpoint is available through
-`http://localhost:3000/api/system/health`.
+Open `http://localhost:3000`. The API readiness endpoint is available through
+`http://localhost:3000/api/system/ready`; frontend liveness is exposed at
+`http://localhost:3000/health`.
 
 ## Run locally
 
@@ -87,8 +105,35 @@ npm run dev
 
 ```bash
 cd backend && npm test
-cd ../frontend && npm run lint && npm run build
+cd ../frontend && npm test && npm run lint && npm run build
+cd .. && JWT_SECRET=test-secret-that-is-at-least-32-characters docker compose config
 ```
+
+GitHub Actions runs tests, production dependency audits, lint, and the frontend build
+for every pull request and push to `main`.
+
+## Project structure
+
+```text
+backend/                 Express API, MongoDB models, BullMQ queues and worker
+frontend/app/            Next.js routes and UI
+frontend/lib/            Shared browser API transport
+.github/workflows/       Continuous integration
+docker-compose.yml       Local production-like stack
+```
+
+## Current scope
+
+- Checks intentionally support only `GET` and `HEAD`; request bodies and custom headers
+  are not implemented.
+- PulseGuard records incidents but does not currently deliver email, SMS, Slack, or
+  Telegram notifications.
+- Logs expire after 30 days. There is no long-term analytics export yet.
+- The repository does not currently declare an open-source license. Reuse permission
+  must be chosen by the repository owner before public distribution.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and
+[SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 ## Repository safety
 
