@@ -424,6 +424,8 @@
 .landing-v2 {
   --pointer-x: 72vw;
   --pointer-y: 32vh;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
   position: relative;
   isolation: isolate;
   font-family: var(--font-pg-body), ui-sans-serif, system-ui, sans-serif;
@@ -501,6 +503,49 @@ a:hover .landing-brand-mark {
 .landing-headline-line-2 {
   animation-delay: -2.2s;
 }
+
+.landing-data-field {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing-data-field::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: 18%;
+  width: 2px;
+  height: 150%;
+  background: linear-gradient(transparent, #3155ff, transparent);
+  opacity: 0.2;
+  animation: landing-data-beam 6s ease-in-out infinite;
+}
+
+.landing-data-field span {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #11110f;
+  background: #b7ff3c;
+  opacity: 0;
+  animation: landing-particle 7s linear infinite;
+}
+
+.landing-data-field span:nth-child(1) { left: 8%; top: 78%; animation-delay: -1s; }
+.landing-data-field span:nth-child(2) { left: 18%; top: 22%; animation-delay: -4.2s; background: #3155ff; }
+.landing-data-field span:nth-child(3) { left: 31%; top: 67%; animation-delay: -2.7s; }
+.landing-data-field span:nth-child(4) { left: 44%; top: 14%; animation-delay: -5.4s; background: #ff6b35; }
+.landing-data-field span:nth-child(5) { left: 57%; top: 84%; animation-delay: -3.5s; }
+.landing-data-field span:nth-child(6) { left: 69%; top: 36%; animation-delay: -6.1s; background: #3155ff; }
+.landing-data-field span:nth-child(7) { left: 81%; top: 73%; animation-delay: -0.4s; }
+.landing-data-field span:nth-child(8) { left: 92%; top: 18%; animation-delay: -4.8s; background: #ff6b35; }
+.landing-data-field span:nth-child(9) { left: 13%; top: 48%; animation-delay: -5.8s; }
+.landing-data-field span:nth-child(10) { left: 52%; top: 52%; animation-delay: -1.9s; background: #3155ff; }
+.landing-data-field span:nth-child(11) { left: 75%; top: 8%; animation-delay: -3.1s; }
+.landing-data-field span:nth-child(12) { left: 88%; top: 91%; animation-delay: -6.7s; background: #ff6b35; }
 
 .landing-highlight {
   transform-origin: left;
@@ -605,6 +650,54 @@ a:hover .landing-brand-mark {
   animation: landing-pulse 2s ease-out infinite;
 }
 
+.landing-signal-ribbon {
+  position: relative;
+  transform: rotate(-0.45deg) scale(1.006);
+  transform-origin: center;
+}
+
+.landing-signal-track {
+  display: flex;
+  width: max-content;
+  min-width: 300%;
+  animation: landing-signal-flow 18s linear infinite;
+}
+
+.landing-signal-track + .landing-signal-track {
+  border-top: 2px solid #11110f;
+  color: #f2f0e8;
+  background: #3155ff;
+}
+
+.landing-signal-track-reverse {
+  animation-direction: reverse;
+  animation-duration: 24s;
+}
+
+.landing-signal-track > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 1.25rem;
+  border-right: 2px solid #11110f;
+  font-family: var(--font-pg-body), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.landing-signal-track svg {
+  animation: landing-signal-arrow 1s ease-in-out infinite;
+}
+
+.landing-signal-square {
+  width: 8px;
+  height: 8px;
+  background: #b7ff3c;
+  animation: landing-signal-square 1.6s steps(2, end) infinite;
+}
+
 .landing-cross {
   position: absolute;
   width: 18px;
@@ -671,6 +764,72 @@ a:hover .landing-brand-mark {
   animation: landing-orbit 12s linear infinite;
 }
 
+.landing-orbit-reverse {
+  width: min(58vw, 430px);
+  height: min(58vw, 430px);
+  border-style: dashed;
+  animation: landing-orbit-ring 18s linear infinite reverse;
+}
+
+.landing-monitoring-stage {
+  transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 120ms linear;
+}
+
+.landing-data-packets {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.landing-data-packets::before,
+.landing-data-packets::after {
+  content: "";
+  position: absolute;
+  opacity: 0.18;
+}
+
+.landing-data-packets::before {
+  top: 22%;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed #11110f;
+}
+
+.landing-data-packets::after {
+  top: 0;
+  bottom: 0;
+  left: 74%;
+  border-left: 1px dashed #11110f;
+}
+
+.landing-data-packets span {
+  position: absolute;
+  width: 12px;
+  height: 5px;
+  border: 1px solid #11110f;
+  background: #3155ff;
+  box-shadow: 2px 2px 0 #11110f;
+  animation: landing-packet-horizontal 4.6s linear infinite;
+}
+
+.landing-data-packets span:nth-child(1) { top: 21.5%; animation-delay: -1s; }
+.landing-data-packets span:nth-child(2) { top: 63%; animation-delay: -3.2s; background: #b7ff3c; }
+.landing-data-packets span:nth-child(3),
+.landing-data-packets span:nth-child(4) {
+  left: 73.5%;
+  width: 5px;
+  height: 12px;
+  animation-name: landing-packet-vertical;
+  animation-duration: 5.4s;
+  background: #ff6b35;
+}
+
+.landing-data-packets span:nth-child(3) { animation-delay: -2.1s; }
+.landing-data-packets span:nth-child(4) { left: 28%; animation-delay: -4.4s; background: #3155ff; }
+
 .landing-scan-line {
   position: absolute;
   z-index: 0;
@@ -717,6 +876,14 @@ a:hover .landing-brand-mark {
 
 .landing-console-row:nth-child(2)::after { animation-delay: 900ms; }
 .landing-console-row:nth-child(3)::after { animation-delay: 1.8s; }
+
+.landing-live-label {
+  animation: landing-live-flicker 1.8s steps(2, end) infinite;
+}
+
+.landing-state-badge {
+  animation: landing-state-breathe 2.2s ease-in-out infinite;
+}
 
 .landing-console-row:hover {
   padding-left: 2rem;
@@ -781,6 +948,31 @@ a:hover .landing-brand-mark {
   transform: translateX(8px);
 }
 
+.landing-why-label {
+  position: relative;
+  overflow: hidden;
+  background-image: radial-gradient(circle at 50% 140%, rgba(183, 255, 60, 0.42), transparent 45%);
+  animation: landing-why-light 5s ease-in-out infinite;
+}
+
+.landing-why-label::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: conic-gradient(from 120deg, transparent, rgba(255, 255, 255, 0.16), transparent 35%);
+  animation: landing-why-spin 9s linear infinite;
+}
+
+.landing-why-label > * { position: relative; z-index: 1; }
+
+.landing-why-arrow {
+  animation: landing-arrow-dive 1.5s ease-in-out infinite;
+}
+
+.landing-why-title {
+  animation: landing-title-shadow 4s ease-in-out infinite;
+}
+
 .landing-system-intro {
   background-image: radial-gradient(circle at 18% 82%, rgba(49, 85, 255, 0.32), transparent 28%);
   animation: landing-system-light 7s ease-in-out infinite;
@@ -801,6 +993,22 @@ a:hover .landing-brand-mark {
   transform-origin: left;
   transition: transform 360ms ease;
 }
+
+.landing-step-scanner {
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b7ff3c, transparent);
+  box-shadow: 0 0 12px rgba(183, 255, 60, 0.55);
+  opacity: 0.52;
+  animation: landing-step-scan 4.2s ease-in-out infinite;
+}
+
+.landing-system-step:nth-child(2) .landing-step-scanner { animation-delay: -1.1s; }
+.landing-system-step:nth-child(3) .landing-step-scanner { animation-delay: -2.2s; }
+.landing-system-step:nth-child(4) .landing-step-scanner { animation-delay: -3.3s; }
 
 .landing-system-step:hover::before { transform: scaleX(1); }
 
@@ -832,6 +1040,24 @@ a:hover .landing-brand-mark {
 .landing-cta > * {
   position: relative;
   z-index: 1;
+}
+
+.landing-cta .landing-cta-ghost {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 0;
+  display: flex;
+  width: max-content;
+  color: rgba(17, 17, 15, 0.1);
+  font-family: var(--font-pg-body), sans-serif;
+  font-size: clamp(5rem, 14vw, 14rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.72;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  animation: landing-ghost-marquee 22s linear infinite;
 }
 
 .landing-reveal {
@@ -915,6 +1141,45 @@ a:hover .landing-brand-mark {
   50% { opacity: 0.62; filter: saturate(1.7); }
 }
 
+@keyframes landing-data-beam {
+  0%, 100% { transform: translateX(-18vw) rotate(12deg); opacity: 0; }
+  18%, 82% { opacity: 0.2; }
+  50% { transform: translateX(68vw) rotate(12deg); opacity: 0.35; }
+}
+
+@keyframes landing-particle {
+  0% { opacity: 0; transform: translate3d(0, 42px, 0) rotate(0deg) scale(0.5); }
+  14%, 72% { opacity: 0.5; }
+  100% { opacity: 0; transform: translate3d(24px, -110px, 0) rotate(270deg) scale(1.25); }
+}
+
+@keyframes landing-signal-flow {
+  to { transform: translateX(-33.333%); }
+}
+
+@keyframes landing-signal-arrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+@keyframes landing-signal-square {
+  50% { transform: rotate(45deg) scale(1.25); background: #ff6b35; }
+}
+
+@keyframes landing-orbit-ring {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes landing-packet-horizontal {
+  from { left: -18px; transform: translateY(-50%); }
+  to { left: calc(100% + 18px); transform: translateY(-50%); }
+}
+
+@keyframes landing-packet-vertical {
+  from { top: -18px; }
+  to { top: calc(100% + 18px); }
+}
+
 @keyframes landing-console-glow {
   0%, 100% { filter: drop-shadow(0 0 0 rgba(49, 85, 255, 0)); }
   50% { filter: drop-shadow(0 0 12px rgba(49, 85, 255, 0.24)); }
@@ -935,6 +1200,42 @@ a:hover .landing-brand-mark {
   78%, 100% { transform: translateX(110%); }
 }
 
+@keyframes landing-live-flicker {
+  0%, 82%, 100% { opacity: 1; }
+  86% { opacity: 0.28; }
+  92% { opacity: 0.72; }
+}
+
+@keyframes landing-state-breathe {
+  0%, 100% { box-shadow: 0 0 0 transparent; }
+  50% { box-shadow: 0 0 14px currentColor; }
+}
+
+@keyframes landing-why-light {
+  0%, 100% { background-position: 0 0; }
+  50% { background-position: 0 -48px; }
+}
+
+@keyframes landing-why-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes landing-arrow-dive {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(10px, 12px, 0); }
+}
+
+@keyframes landing-title-shadow {
+  0%, 100% { text-shadow: 0 0 0 rgba(49, 85, 255, 0); }
+  50% { text-shadow: 5px 5px 0 rgba(49, 85, 255, 0.17); }
+}
+
+@keyframes landing-step-scan {
+  0%, 100% { top: -5%; opacity: 0; }
+  14%, 86% { opacity: 0.52; }
+  100% { top: 105%; opacity: 0; }
+}
+
 @keyframes landing-system-light {
   0%, 100% { background-position: 0 0; }
   50% { background-position: 24px -18px; }
@@ -942,6 +1243,10 @@ a:hover .landing-brand-mark {
 
 @keyframes landing-cta-stripes {
   to { transform: translate3d(120px, 60px, 0); }
+}
+
+@keyframes landing-ghost-marquee {
+  to { transform: translate(-50%, -50%); }
 }
 
 @keyframes landing-scroll-in {

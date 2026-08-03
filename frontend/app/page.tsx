@@ -22,6 +22,15 @@ const tickerItems = [
   'private networks blocked',
 ];
 
+const signalItems = [
+  'PROBE 0042',
+  'DNS LOCKED',
+  'LATENCY 54MS',
+  'STATUS 200',
+  'QUEUE ACTIVE',
+  'NO FALSE ALARM',
+];
+
 const endpointRows = [
   { name: 'api-core', path: '/v1/health', code: '200', latency: '42ms', state: 'up' },
   { name: 'billing', path: '/payments/status', code: '200', latency: '68ms', state: 'up' },
@@ -88,6 +97,9 @@ export default function LandingPage() {
 
       <section className="mx-auto grid max-w-[1440px] border-2 border-black lg:grid-cols-[1.08fr_0.92fr]">
         <div className="relative flex min-h-[680px] flex-col justify-between overflow-hidden border-b-2 border-black p-5 sm:p-9 lg:border-b-0 lg:border-r-2 lg:p-12">
+          <div className="landing-data-field" aria-hidden="true">
+            {Array.from({ length: 12 }, (_, index) => <span key={index} />)}
+          </div>
           <div aria-hidden="true" className="landing-cross landing-cross-one" />
           <div aria-hidden="true" className="landing-cross landing-cross-two" />
 
@@ -126,14 +138,16 @@ export default function LandingPage() {
         <MonitoringConsole />
       </section>
 
+      <SignalRibbon />
+
       <section id="why" className="mx-auto max-w-[1440px] border-x-2 border-b-2 border-black">
         <div className="landing-scroll-section grid border-b-2 border-black lg:grid-cols-[0.75fr_1.25fr]">
-          <div className="border-b-2 border-black bg-[#3155ff] p-7 text-white sm:p-10 lg:border-b-0 lg:border-r-2 lg:p-12">
+          <div className="landing-why-label border-b-2 border-black bg-[#3155ff] p-7 text-white sm:p-10 lg:border-b-0 lg:border-r-2 lg:p-12">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em]">Why PulseGuard</p>
-            <ArrowDownRight aria-hidden="true" className="mt-12" size={42} strokeWidth={1.5} />
+            <ArrowDownRight aria-hidden="true" className="landing-why-arrow mt-12" size={42} strokeWidth={1.5} />
           </div>
           <div className="p-7 sm:p-10 lg:p-12">
-            <h2 className="landing-display max-w-4xl text-5xl leading-[0.92] tracking-[-0.04em] sm:text-7xl">
+            <h2 className="landing-why-title landing-display max-w-4xl text-5xl leading-[0.92] tracking-[-0.04em] sm:text-7xl">
               Monitoring should create clarity, not another wall of charts.
             </h2>
           </div>
@@ -172,6 +186,7 @@ export default function LandingPage() {
             { id: '04', icon: Check, title: 'Recover', text: 'A healthy response closes the loop.' },
           ].map(({ id, icon: Icon, title, text }, index) => (
             <li key={id} className={`landing-system-step group min-h-72 p-7 transition hover:bg-[#b7ff3c] hover:text-black sm:p-9 ${index % 2 === 0 ? 'sm:border-r border-[#f2f0e8]/30' : ''} ${index < 2 ? 'border-b border-[#f2f0e8]/30' : ''}`}>
+              <span className="landing-step-scanner" aria-hidden="true" />
               <div className="flex items-center justify-between font-mono text-xs">
                 <span className="landing-step-number">{id}/04</span>
                 <Icon aria-hidden="true" size={20} />
@@ -186,6 +201,10 @@ export default function LandingPage() {
       </section>
 
       <section className="landing-cta landing-scroll-section mx-auto max-w-[1440px] overflow-hidden border-x-2 border-b-2 border-black bg-[#ff6b35] p-7 sm:p-12 lg:p-16">
+        <div className="landing-cta-ghost" aria-hidden="true">
+          <span>ALERT BEFORE IMPACT · ALERT BEFORE IMPACT ·&nbsp;</span>
+          <span>ALERT BEFORE IMPACT · ALERT BEFORE IMPACT ·&nbsp;</span>
+        </div>
         <div className="grid gap-12 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em]">Your next incident is already loading.</p>
@@ -212,11 +231,34 @@ export default function LandingPage() {
   );
 }
 
+function SignalRibbon() {
+  const repeatedItems = [...signalItems, ...signalItems, ...signalItems];
+
+  return (
+    <div className="landing-signal-ribbon mx-auto max-w-[1440px] overflow-hidden border-x-2 border-b-2 border-black bg-[#b7ff3c]" aria-hidden="true">
+      <div className="landing-signal-track">
+        {repeatedItems.map((item, index) => (
+          <span key={`${item}-${index}`}>{item}<ArrowRight size={18} strokeWidth={2.6} /></span>
+        ))}
+      </div>
+      <div className="landing-signal-track landing-signal-track-reverse">
+        {repeatedItems.map((item, index) => (
+          <span key={`${item}-reverse-${index}`}>{item}<span className="landing-signal-square" /></span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MonitoringConsole() {
   return (
-    <div className="relative flex min-h-[680px] flex-col justify-between overflow-hidden bg-[#d9d5ca] p-5 sm:p-9 lg:p-12">
+    <div className="landing-monitoring-stage relative flex min-h-[680px] flex-col justify-between overflow-hidden bg-[#d9d5ca] p-5 sm:p-9 lg:p-12">
       <div aria-hidden="true" className="landing-orbit" />
+      <div aria-hidden="true" className="landing-orbit landing-orbit-reverse" />
       <div aria-hidden="true" className="landing-orbit-dot" />
+      <div className="landing-data-packets" aria-hidden="true">
+        <span /><span /><span /><span />
+      </div>
 
       <div className="landing-reveal landing-delay-2 relative z-10 flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.16em]">
         <span>Live environment / Production</span>
@@ -226,7 +268,7 @@ function MonitoringConsole() {
       <div className="landing-console landing-reveal landing-delay-3 relative z-10 my-12 border-2 border-black bg-[#11110f] text-[#f2f0e8] shadow-[10px_10px_0_#3155ff]">
         <div className="flex items-center justify-between border-b border-white/20 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em]">
           <span className="flex items-center gap-2"><Terminal aria-hidden="true" size={14} /> pg://workspace/core</span>
-          <span className="text-[#b7ff3c]">● live</span>
+          <span className="landing-live-label text-[#b7ff3c]">● live</span>
         </div>
 
         <div className="relative overflow-hidden border-b border-white/20 p-5 sm:p-7">
@@ -258,7 +300,7 @@ function MonitoringConsole() {
               </div>
               <span className="hidden font-mono text-[10px] text-white/50 sm:block">{endpoint.latency}</span>
               <span className="hidden font-mono text-[10px] text-white/50 sm:block">HTTP {endpoint.code}</span>
-              <span className={`border px-2 py-1 font-mono text-[9px] font-bold uppercase ${endpoint.state === 'up' ? 'border-[#b7ff3c] text-[#b7ff3c]' : 'border-[#ff6b35] text-[#ff6b35]'}`}>
+              <span className={`landing-state-badge border px-2 py-1 font-mono text-[9px] font-bold uppercase ${endpoint.state === 'up' ? 'border-[#b7ff3c] text-[#b7ff3c]' : 'border-[#ff6b35] text-[#ff6b35]'}`}>
                 {endpoint.state}
               </span>
             </li>
