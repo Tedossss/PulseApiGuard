@@ -30,7 +30,7 @@ export function CheckHistoryPanel({
   const visibleLogs = filterLogs(logs, search);
 
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-[#0d1117]/90 p-5">
+    <div className="dashboard-panel border-2 border-black bg-white p-5">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h3 className="text-sm font-black text-white">Check History</h3>
@@ -39,7 +39,7 @@ export function CheckHistoryPanel({
           </p>
         </div>
         {!isDemoMode && (
-          <button type="button" disabled={isLoading} className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/5 disabled:opacity-60" onClick={onRefresh}>
+          <button type="button" disabled={isLoading} className="dashboard-secondary-action inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/5 disabled:opacity-60" onClick={onRefresh}>
             <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
             Refresh
           </button>
@@ -67,7 +67,7 @@ export function CheckHistoryPanel({
         {isLoading && logs.length === 0 && <div className="rounded-2xl border border-white/10 p-8 text-center text-sm text-slate-500">Loading check history...</div>}
       </div>
       {nextCursor && !query && (
-        <button type="button" disabled={isLoading} className="mt-5 w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-slate-300 transition hover:bg-white/5 disabled:opacity-60" onClick={onLoadMore}>
+        <button type="button" disabled={isLoading} className="dashboard-secondary-action mt-5 w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-slate-300 transition hover:bg-white/5 disabled:opacity-60" onClick={onLoadMore}>
           {isLoading ? 'Loading...' : 'Load older checks'}
         </button>
       )}

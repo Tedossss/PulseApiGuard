@@ -1,4 +1,4 @@
-import { CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { CheckCircle2, Clock3, Pencil, Plus, Trash2, X } from 'lucide-react';
 
 import { formatInterval } from '../dashboardUtils';
 import { MONITOR_INTERVAL_OPTIONS } from '../monitorConfig';
@@ -32,7 +32,7 @@ export function EndpointList({
   totalEndpoints,
 }: Props) {
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0d1117]/90">
+    <div className="dashboard-panel overflow-hidden border-2 border-black bg-white">
       <div className="flex flex-col justify-between gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center">
         <div>
           <h3 className="text-sm font-black text-white">Endpoint Activity</h3>
@@ -47,13 +47,15 @@ export function EndpointList({
         {filteredMonitors.length > 0 ? (
           filteredMonitors.map((monitor) => {
             const isUp = monitorIsUp(monitor);
+            const stateLabel = monitorStateLabel(monitor);
+            const isPending = stateLabel === 'PENDING';
             const currentInterval = monitor.interval ?? 60;
             const hasPresetInterval = MONITOR_INTERVAL_OPTIONS.some((option) => option.value === currentInterval);
             return (
               <div key={monitor._id} className="grid gap-4 p-5 transition hover:bg-white/[0.025] xl:grid-cols-[1.2fr_0.75fr_0.9fr_0.7fr_auto] xl:items-center">
                 <div className="flex items-center gap-3">
-                  <div className={`grid h-11 w-11 place-items-center rounded-2xl ${isUp ? 'bg-emerald-500/10 text-emerald-300' : 'bg-red-500/10 text-red-300'}`}>
-                    {isUp ? <CheckCircle2 size={19} /> : <X size={19} />}
+                  <div className={`grid h-11 w-11 place-items-center ${isUp ? 'bg-emerald-500/10 text-emerald-700' : isPending ? 'bg-blue-500/10 text-blue-700' : 'bg-red-500/10 text-red-700'}`}>
+                    {isUp ? <CheckCircle2 size={19} /> : isPending ? <Clock3 size={19} /> : <X size={19} />}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">{monitor.name}</p>
@@ -80,16 +82,16 @@ export function EndpointList({
                 </div>
                 <div className="flex items-center justify-between gap-4 lg:justify-end">
                   <EndpointMetric label="Latency" value={`${monitor.responseTime ?? '-'}ms`} />
-                  <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ring-1 ${isUp ? 'text-emerald-300 bg-emerald-500/10 ring-emerald-500/20' : 'text-red-300 bg-red-500/10 ring-red-500/20'}`}>
-                    {monitorStateLabel(monitor)}
+                  <span className={`px-3 py-1 text-[10px] font-bold uppercase ring-1 ${isUp ? 'text-emerald-700 bg-emerald-500/10 ring-emerald-500/30' : isPending ? 'text-blue-700 bg-blue-500/10 ring-blue-500/30' : 'text-red-700 bg-red-500/10 ring-red-500/30'}`}>
+                    {stateLabel}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 xl:justify-end">
-                  <button type="button" className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5 hover:text-white" onClick={() => onEdit(monitor)}>
+                  <button type="button" className="dashboard-secondary-action inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5 hover:text-white" onClick={() => onEdit(monitor)}>
                     <Pencil size={14} />
                     Edit
                   </button>
-                  <button type="button" disabled={deletingMonitorId === monitor._id} className="inline-flex items-center gap-1.5 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60" onClick={() => onDelete(monitor)}>
+                  <button type="button" disabled={deletingMonitorId === monitor._id} className="dashboard-danger-action inline-flex items-center gap-1.5 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60" onClick={() => onDelete(monitor)}>
                     <Trash2 size={14} />
                     {deletingMonitorId === monitor._id ? 'Deleting' : 'Delete'}
                   </button>

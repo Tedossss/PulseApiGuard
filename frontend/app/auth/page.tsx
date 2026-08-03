@@ -76,7 +76,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="auth-body">
+    <main className="auth-body">
       <div className="auth-orb auth-orb-one" />
       <div className="auth-orb auth-orb-two" />
       <div className={`auth-wrapper ${isActive ? "panel-active" : ""}`} id="authWrapper">
@@ -86,13 +86,15 @@ export default function AuthPage() {
         </div>
         
         {/* Форма реєстрації */}
-        <div className="auth-form-box register-form-box">
+        <div className="auth-form-box register-form-box" aria-hidden={!isActive} inert={!isActive ? true : undefined}>
           <form onSubmit={handleRegister}>
             <h1>Create Account</h1>
             <p className="py-4 text-slate-400">Join PulseGuard to monitor your APIs</p>
             
-            <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} />
-            <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
+            <label className="sr-only" htmlFor="register-email">Email address</label>
+            <input id="register-email" name="email" type="email" placeholder="Email Address" autoComplete="email" required onChange={handleChange} />
+            <label className="sr-only" htmlFor="register-password">Password</label>
+            <input id="register-password" name="password" type="password" placeholder="Password" autoComplete="new-password" minLength={8} required onChange={handleChange} />
             <div className="auth-strength">
               <span />
               <span />
@@ -101,7 +103,7 @@ export default function AuthPage() {
             <p className="auth-hint">Use 8+ characters for a stronger account.</p>
             {error && isActive && <p className="auth-feedback auth-feedback-error" role="alert">{error}</p>}
             
-            <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Creating...' : 'Sign Up'}</button>
+            <button type="submit" disabled={!isActive || isSubmitting}>{isSubmitting ? 'Creating...' : 'Sign Up'}</button>
             
             <div className="mobile-switch md:hidden mt-4">
               <p className="text-sm text-slate-400">Already have an account?</p>
@@ -113,13 +115,15 @@ export default function AuthPage() {
         </div>
 
         {/* Форма входу */}
-        <div className="auth-form-box login-form-box">
+        <div className="auth-form-box login-form-box" aria-hidden={isActive} inert={isActive ? true : undefined}>
           <form onSubmit={handleLogin}>
             <h1>Sign In</h1>
             <p className="py-4 text-slate-400">Welcome back to PulseGuard</p>
             
-            <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} />
-            <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
+            <label className="sr-only" htmlFor="login-email">Email address</label>
+            <input id="login-email" name="email" type="email" placeholder="Email Address" autoComplete="email" required onChange={handleChange} />
+            <label className="sr-only" htmlFor="login-password">Password</label>
+            <input id="login-password" name="password" type="password" placeholder="Password" autoComplete="current-password" required onChange={handleChange} />
             <div className="auth-security-note">
               <LockKeyhole size={15} />
               Secure session for creating monitors and viewing incidents.
@@ -127,7 +131,7 @@ export default function AuthPage() {
             {notice && <p className="auth-feedback auth-feedback-success" role="status">{notice}</p>}
             {error && !isActive && <p className="auth-feedback auth-feedback-error" role="alert">{error}</p>}
             
-            <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Signing in...' : 'Sign In'}</button>
+            <button type="submit" disabled={isActive || isSubmitting}>{isSubmitting ? 'Signing in...' : 'Sign In'}</button>
 
             <div className="mobile-switch md:hidden mt-4">
               <p className="text-sm text-slate-400">Don&apos;t have an account?</p>
@@ -141,7 +145,7 @@ export default function AuthPage() {
         {/* Слайд-панель */}
         <div className="slide-panel-wrapper">
           <div className="slide-panel">
-            <div className="panel-content panel-content-left">
+            <div className="panel-content panel-content-left" aria-hidden={!isActive} inert={!isActive ? true : undefined}>
               <h1>Welcome Back!</h1>
               <p>Stay connected by logging in with your credentials</p>
               <div className="panel-mini-grid">
@@ -153,7 +157,7 @@ export default function AuthPage() {
                 Sign In
               </button>
             </div>
-            <div className="panel-content panel-content-right">
+            <div className="panel-content panel-content-right" aria-hidden={isActive} inert={isActive ? true : undefined}>
               <h1>Hey There!</h1>
               <p>Create monitors, inspect incidents, and track uptime.</p>
               <div className="panel-status-card">
@@ -170,6 +174,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -23,7 +23,7 @@ export function TrendPanel({
 
   return (
     <div className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
-      <div className="rounded-[1.75rem] border border-white/10 bg-[#0d1117]/90 p-6">
+      <div className="dashboard-panel border-2 border-black bg-white p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-black text-white">Uptime & Latency Trend</h3>
@@ -68,7 +68,7 @@ export function TrendPanel({
         </div>
       </div>
 
-      <div className="rounded-[1.75rem] border border-white/10 bg-[#0d1117]/90 p-6">
+      <div className="dashboard-panel border-2 border-black bg-white p-6">
         <h3 className="text-sm font-black text-white">Incident Playbook</h3>
         <p className="mt-1 text-xs text-slate-500">Fast checklist for the next production issue.</p>
         <div className="mt-5 space-y-3">
