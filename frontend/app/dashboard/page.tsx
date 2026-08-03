@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
@@ -17,6 +17,7 @@ import {
   Search,
   Settings,
   TrendingUp,
+  X,
   Zap,
 } from 'lucide-react';
 import { parseExpectedStatus, parseMonitorInterval } from './monitorConfig';
@@ -127,6 +128,42 @@ export default function Dashboard() {
   const [isSavingMonitor, setIsSavingMonitor] = useState(false);
   const [savingIntervalId, setSavingIntervalId] = useState<string | null>(null);
   const [deletingMonitorId, setDeletingMonitorId] = useState<string | null>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : mobileMenuButtonRef.current;
+    const dialog = mobileNavRef.current;
+    const focusable = dialog?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    focusable?.[0]?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMobileNavOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab' || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [mobileNavOpen]);
 
   const redirectToAuth = useCallback(() => {
     router.replace('/auth');
@@ -414,12 +451,16 @@ export default function Dashboard() {
 
   const totalEndpoints = monitors.length;
   const onlineEndpoints = monitors.filter(monitorIsUp).length;
-  const downEndpoints = totalEndpoints - onlineEndpoints;
-  const uptimePercentage = totalEndpoints > 0 ? ((onlineEndpoints / totalEndpoints) * 100).toFixed(1) : '0';
+  const downEndpoints = monitors.filter((monitor) => monitorStateLabel(monitor) === 'DOWN').length;
+  const pendingEndpoints = monitors.filter((monitor) => monitorStateLabel(monitor) === 'PENDING').length;
+  const checkedEndpoints = totalEndpoints - pendingEndpoints;
+  const uptimePercentage = checkedEndpoints > 0 ? ((onlineEndpoints / checkedEndpoints) * 100).toFixed(1) : '0';
   const filteredMonitors = filterMonitors(monitors, search);
-  const healthTone = downEndpoints === 0
-    ? 'text-emerald-300 bg-emerald-400/10 ring-emerald-400/20'
-    : 'text-amber-300 bg-amber-400/10 ring-amber-400/20';
+  const healthTone = downEndpoints > 0
+    ? 'text-amber-700 bg-amber-400/20 ring-amber-600/30'
+    : pendingEndpoints > 0
+      ? 'text-blue-700 bg-blue-400/15 ring-blue-600/25'
+      : 'text-emerald-700 bg-emerald-400/15 ring-emerald-600/25';
   if (loading) {
     return (
       <div className="min-h-screen bg-[#070a12] flex items-center justify-center text-indigo-400 font-medium">
@@ -430,8 +471,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#070a12] text-slate-300 font-sans">
-      <aside className="hidden w-72 border-r border-white/10 bg-[#0b0f19]/90 lg:flex flex-col h-screen sticky top-0">
+    <div className="dashboard-v2 flex min-h-screen bg-[#f2f0e8] text-[#11110f] font-sans">
+      <aside className="dashboard-sidebar hidden w-72 border-r-2 border-black bg-[#11110f] lg:flex flex-col h-screen sticky top-0">
         <div className="p-6 flex items-center gap-3 text-white font-black text-xl tracking-tight">
           <span className="grid h-11 w-11 place-items-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-300/20">
             <Activity size={24} className="stroke-[3px]" />
@@ -460,12 +501,17 @@ export default function Dashboard() {
 
       {mobileNavOpen && (
         <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={() => setMobileNavOpen(false)}>
-          <aside className="h-full w-72 border-r border-white/10 bg-[#0b0f19] p-4" onClick={(event) => event.stopPropagation()}>
-            <div className="mb-6 flex items-center gap-3 text-white font-black text-lg">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-300/20">
-                <Activity size={22} />
+          <aside id="dashboard-mobile-navigation" ref={mobileNavRef} role="dialog" aria-modal="true" aria-label="Dashboard navigation" className="dashboard-sidebar h-full w-72 border-r-2 border-black bg-[#11110f] p-4" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-6 flex items-center justify-between gap-3 text-white font-black text-lg">
+              <span className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-300/20">
+                  <Activity size={22} />
+                </span>
+                PulseGuard
               </span>
-              PulseGuard
+              <button type="button" className="grid h-10 w-10 place-items-center border border-white/40 text-white" onClick={() => setMobileNavOpen(false)} aria-label="Close dashboard navigation">
+                <X size={19} />
+              </button>
             </div>
             <nav className="space-y-1">
               {navItems.map((item) => (
@@ -483,15 +529,18 @@ export default function Dashboard() {
       )}
 
       <main className="flex-1 overflow-y-auto">
-        <header className="h-16 border-b border-white/10 flex items-center justify-between gap-4 px-5 md:px-8 bg-[#070a12]/80 backdrop-blur-md sticky top-0 z-20">
+        <header className="dashboard-topbar h-16 border-b-2 border-black flex items-center justify-between gap-4 px-5 md:px-8 bg-[#f2f0e8]/90 backdrop-blur-md sticky top-0 z-20">
           <button
+            ref={mobileMenuButtonRef}
             type="button"
-            className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white lg:hidden"
+            className="dashboard-icon-button grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white lg:hidden"
             onClick={(event) => {
               event.stopPropagation();
               setMobileNavOpen(true);
             }}
             aria-label="Open dashboard navigation"
+            aria-controls="dashboard-mobile-navigation"
+            aria-expanded={mobileNavOpen}
           >
             <Menu size={20} />
           </button>
@@ -507,7 +556,11 @@ export default function Dashboard() {
           </div>
           <div className={`hidden items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ring-1 md:inline-flex ${healthTone}`}>
             <Radio size={15} />
-            {downEndpoints === 0 ? 'All systems nominal' : `${downEndpoints} incident${downEndpoints > 1 ? 's' : ''}`}
+            {downEndpoints > 0
+              ? `${downEndpoints} incident${downEndpoints > 1 ? 's' : ''}`
+              : pendingEndpoints > 0
+                ? `${pendingEndpoints} awaiting first check`
+                : 'All systems nominal'}
           </div>
           <button
             type="button"
@@ -520,7 +573,7 @@ export default function Dashboard() {
         </header>
 
         <div className="p-5 md:p-8 max-w-7xl mx-auto space-y-8">
-          <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.24),transparent_36%),linear-gradient(135deg,rgba(255,255,255,0.055),rgba(255,255,255,0.02))] p-6 md:p-8">
+          <section className="dashboard-hero overflow-hidden border-2 border-black bg-[#b7ff3c] p-6 md:p-8">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-indigo-300">Command center</p>
@@ -642,7 +695,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNo
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${active ? 'bg-indigo-600/10 text-indigo-300 font-bold ring-1 ring-indigo-500/10' : 'hover:bg-white/[0.04] text-slate-400 hover:text-slate-200'}`}
+      className={`dashboard-nav-item flex w-full items-center gap-3 px-3 py-2.5 text-left transition ${active ? 'active bg-indigo-600/10 text-indigo-300 font-bold' : 'hover:bg-white/[0.04] text-slate-400 hover:text-slate-200'}`}
     >
       {icon}
       <span className="text-sm">{label}</span>
@@ -652,7 +705,7 @@ function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNo
 
 function DashboardStatCard({ icon, label, value, sub, accent }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub: string; accent: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0d1117] p-5 space-y-3">
+    <div className="dashboard-stat relative overflow-hidden border-2 border-black bg-white p-5 space-y-3">
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${accent} to-transparent`} />
       <div className="flex justify-between items-start">
         <div className="relative p-2 bg-white/[0.04] rounded-xl ring-1 ring-white/10">{icon}</div>
@@ -668,14 +721,14 @@ function DashboardStatCard({ icon, label, value, sub, accent }: { icon: React.Re
 
 function SettingsPanel({ isDemoMode, onLogout, totalEndpoints }: { isDemoMode: boolean; onLogout: () => void; totalEndpoints: number }) {
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-[#0d1117]/90 p-5">
+    <div className="dashboard-panel border-2 border-black bg-white p-5">
       <h3 className="text-sm font-black text-white">Workspace Settings</h3>
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <MetricPair label="Mode" value={isDemoMode ? 'Demo preview' : 'Authenticated workspace'} />
         <MetricPair label="Default refresh" value="60s" />
         <MetricPair label="Configured monitors" value={String(totalEndpoints)} />
       </div>
-      <button type="button" className="mt-6 inline-flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 transition hover:bg-red-500/20" onClick={onLogout}>
+      <button type="button" className="dashboard-danger-action mt-6 inline-flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 transition hover:bg-red-500/20" onClick={onLogout}>
         <LogOut size={16} />
         {isDemoMode ? 'Exit demo' : 'Sign out'}
       </button>
@@ -694,7 +747,7 @@ function MetricPair({ label, value }: { label: string; value: string }) {
 
 function MiniSignal({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+    <div className="dashboard-mini border-2 border-black bg-white p-3">
       <div className="flex items-center gap-2 text-slate-400">
         {icon}
         <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>

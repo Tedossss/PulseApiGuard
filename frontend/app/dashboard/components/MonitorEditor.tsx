@@ -24,24 +24,24 @@ export function MonitorEditor({
   onSubmit,
 }: Props) {
   return (
-    <form className="rounded-[1.75rem] border border-indigo-300/20 bg-[#0d1117]/90 p-5" onSubmit={onSubmit}>
+    <form className="dashboard-panel border-2 border-black bg-white p-5" onSubmit={onSubmit}>
       <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h3 className="text-sm font-black text-white">{editing ? 'Edit Endpoint Monitor' : 'Create Endpoint Monitor'}</h3>
           <p className="mt-1 text-xs text-slate-500">{editing ? 'Update the target, method, expected status, or frequency.' : 'Add a URL, expected status, and check frequency.'}</p>
         </div>
-        <button type="button" className="text-sm font-bold text-slate-400 transition hover:text-white" onClick={onCancel}>
+        <button type="button" className="dashboard-link-action text-sm font-bold text-slate-400 transition hover:text-white" onClick={onCancel}>
           Cancel
         </button>
       </div>
       <div className="grid gap-3 md:grid-cols-[1fr_1.5fr_0.7fr_0.7fr_0.7fr]">
-        <input className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" placeholder="Name" value={form.name} onChange={(event) => onChange('name', event.target.value)} />
-        <input className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" placeholder="https://api.example.com/health" type="url" value={form.url} onChange={(event) => onChange('url', event.target.value)} required />
-        <select className="rounded-xl border border-white/10 bg-[#111827] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" value={form.method} onChange={(event) => onChange('method', event.target.value)}>
+        <input autoFocus aria-label="Monitor name" className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" placeholder="Name" value={form.name} onChange={(event) => onChange('name', event.target.value)} />
+        <input aria-label="Monitor URL" className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" placeholder="https://api.example.com/health" type="url" value={form.url} onChange={(event) => onChange('url', event.target.value)} required />
+        <select aria-label="HTTP method" className="rounded-xl border border-white/10 bg-[#111827] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" value={form.method} onChange={(event) => onChange('method', event.target.value)}>
           {MONITOR_METHODS.map((method) => <option key={method}>{method}</option>)}
         </select>
-        <input className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" inputMode="numeric" placeholder="200" value={form.expectedStatus} onChange={(event) => onChange('expectedStatus', event.target.value)} />
-        <select className="rounded-xl border border-white/10 bg-[#111827] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" value={form.interval} onChange={(event) => onChange('interval', event.target.value)}>
+        <input aria-label="Expected HTTP status" className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" inputMode="numeric" placeholder="200" value={form.expectedStatus} onChange={(event) => onChange('expectedStatus', event.target.value)} />
+        <select aria-label="Check frequency" className="rounded-xl border border-white/10 bg-[#111827] px-3 py-3 text-sm text-white outline-none focus:border-indigo-400/60" value={form.interval} onChange={(event) => onChange('interval', event.target.value)}>
           {MONITOR_INTERVAL_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
