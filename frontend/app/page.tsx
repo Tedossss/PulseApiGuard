@@ -13,6 +13,7 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
+import { LandingMotionEffects } from './components/LandingMotionEffects';
 
 const tickerItems = [
   '30 second checks',
@@ -54,6 +55,7 @@ const principles = [
 export default function LandingPage() {
   return (
     <main className="landing-v2 min-h-screen bg-[#f2f0e8] text-[#11110f] selection:bg-[#b7ff3c]">
+      <LandingMotionEffects />
       <div className="overflow-hidden border-b-2 border-black bg-black py-2.5 text-[#b7ff3c]" aria-label="Platform highlights">
         <div className="landing-marquee flex w-max items-center whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-[0.22em] motion-reduce:translate-x-0">
           {[...tickerItems, ...tickerItems].map((item, index) => (
@@ -67,7 +69,7 @@ export default function LandingPage() {
 
       <nav aria-label="Primary navigation" className="mx-auto flex max-w-[1440px] items-center justify-between border-x-2 border-black px-4 py-4 sm:px-7">
         <Link href="/" className="flex items-center gap-3 font-black tracking-[-0.04em]">
-          <span className="relative grid h-10 w-10 place-items-center border-2 border-black bg-[#b7ff3c] shadow-[3px_3px_0_#11110f]">
+          <span className="landing-brand-mark relative grid h-10 w-10 place-items-center border-2 border-black bg-[#b7ff3c] shadow-[3px_3px_0_#11110f]">
             <Activity aria-hidden="true" size={22} strokeWidth={2.8} />
           </span>
           <span className="text-lg">PULSEGUARD<span className="text-[#3155ff]">/</span></span>
@@ -95,17 +97,15 @@ export default function LandingPage() {
           </div>
 
           <div className="relative z-10 py-16">
-            <p className="landing-reveal landing-delay-1 mb-5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#3155ff]">
+            <p className="landing-kicker landing-reveal landing-delay-1 mb-5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#3155ff]">
               [ Know first. Fix faster. ]
             </p>
             <h1 className="landing-display landing-reveal landing-delay-2 max-w-5xl text-[clamp(4.5rem,10vw,9rem)] leading-[0.75] tracking-[-0.055em]">
-              Monitor APIs
-              <br />
-              before they become
-              <br />
+              <span className="landing-headline-line">Monitor APIs</span>
+              <span className="landing-headline-line landing-headline-line-2">before they become</span>
               <span className="relative inline-block italic">
                 user problems.
-                <span aria-hidden="true" className="absolute -bottom-2 left-0 h-3 w-full -rotate-1 bg-[#b7ff3c] mix-blend-multiply" />
+                <span aria-hidden="true" className="landing-highlight absolute -bottom-2 left-0 h-3 w-full -rotate-1 bg-[#b7ff3c] mix-blend-multiply" />
               </span>
             </h1>
             <p className="landing-reveal landing-delay-3 mt-10 max-w-xl text-base font-medium leading-7 sm:text-lg">
@@ -127,7 +127,7 @@ export default function LandingPage() {
       </section>
 
       <section id="why" className="mx-auto max-w-[1440px] border-x-2 border-b-2 border-black">
-        <div className="grid border-b-2 border-black lg:grid-cols-[0.75fr_1.25fr]">
+        <div className="landing-scroll-section grid border-b-2 border-black lg:grid-cols-[0.75fr_1.25fr]">
           <div className="border-b-2 border-black bg-[#3155ff] p-7 text-white sm:p-10 lg:border-b-0 lg:border-r-2 lg:p-12">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em]">Why PulseGuard</p>
             <ArrowDownRight aria-hidden="true" className="mt-12" size={42} strokeWidth={1.5} />
@@ -146,8 +146,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="system" className="mx-auto grid max-w-[1440px] border-x-2 border-b-2 border-black bg-[#11110f] text-[#f2f0e8] lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="border-b-2 border-[#f2f0e8]/30 p-7 sm:p-10 lg:border-b-0 lg:border-r-2 lg:p-12">
+      <section id="system" className="landing-scroll-section mx-auto grid max-w-[1440px] border-x-2 border-b-2 border-black bg-[#11110f] text-[#f2f0e8] lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="landing-system-intro border-b-2 border-[#f2f0e8]/30 p-7 sm:p-10 lg:border-b-0 lg:border-r-2 lg:p-12">
           <div className="flex items-center justify-between">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#b7ff3c]">The system</p>
             <Terminal aria-hidden="true" className="text-[#b7ff3c]" size={24} />
@@ -171,9 +171,9 @@ export default function LandingPage() {
             { id: '03', icon: Siren, title: 'Confirm', text: 'Three failures establish an incident.' },
             { id: '04', icon: Check, title: 'Recover', text: 'A healthy response closes the loop.' },
           ].map(({ id, icon: Icon, title, text }, index) => (
-            <li key={id} className={`group min-h-72 p-7 transition hover:bg-[#b7ff3c] hover:text-black sm:p-9 ${index % 2 === 0 ? 'sm:border-r border-[#f2f0e8]/30' : ''} ${index < 2 ? 'border-b border-[#f2f0e8]/30' : ''}`}>
+            <li key={id} className={`landing-system-step group min-h-72 p-7 transition hover:bg-[#b7ff3c] hover:text-black sm:p-9 ${index % 2 === 0 ? 'sm:border-r border-[#f2f0e8]/30' : ''} ${index < 2 ? 'border-b border-[#f2f0e8]/30' : ''}`}>
               <div className="flex items-center justify-between font-mono text-xs">
-                <span>{id}/04</span>
+                <span className="landing-step-number">{id}/04</span>
                 <Icon aria-hidden="true" size={20} />
               </div>
               <div className="mt-28">
@@ -185,7 +185,7 @@ export default function LandingPage() {
         </ol>
       </section>
 
-      <section className="mx-auto max-w-[1440px] border-x-2 border-b-2 border-black bg-[#ff6b35] p-7 sm:p-12 lg:p-16">
+      <section className="landing-cta landing-scroll-section mx-auto max-w-[1440px] overflow-hidden border-x-2 border-b-2 border-black bg-[#ff6b35] p-7 sm:p-12 lg:p-16">
         <div className="grid gap-12 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <p className="font-mono text-xs font-bold uppercase tracking-[0.18em]">Your next incident is already loading.</p>
@@ -244,14 +244,14 @@ function MonitoringConsole() {
 
           <div className="mt-8 flex h-20 items-end gap-1" role="img" aria-label="Illustrative uptime chart showing 99.97 percent uptime and one incident.">
             {[62, 72, 68, 83, 76, 91, 86, 100, 94, 97, 52, 73, 88, 92, 97, 90, 100, 96, 98, 100].map((height, index) => (
-              <span key={`${height}-${index}`} aria-hidden="true" className={`flex-1 ${index === 10 ? 'bg-[#ff6b35]' : 'bg-[#b7ff3c]'}`} style={{ height: `${height}%` }} />
+              <span key={`${height}-${index}`} aria-hidden="true" className={`landing-chart-bar flex-1 ${index === 10 ? 'bg-[#ff6b35]' : 'bg-[#b7ff3c]'}`} style={{ height: `${height}%`, animationDelay: `${index * 55}ms` }} />
             ))}
           </div>
         </div>
 
         <ul className="divide-y divide-white/15" aria-label="Illustrative endpoint states">
           {endpointRows.map((endpoint) => (
-            <li key={endpoint.name} className="grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4 sm:grid-cols-[1fr_auto_auto_auto] sm:px-6">
+            <li key={endpoint.name} className="landing-console-row grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4 sm:grid-cols-[1fr_auto_auto_auto] sm:px-6">
               <div className="min-w-0">
                 <p className="font-mono text-xs font-bold">{endpoint.name}</p>
                 <p className="mt-1 truncate font-mono text-[10px] text-white/40">{endpoint.path}</p>
@@ -277,7 +277,7 @@ function MonitoringConsole() {
 
 function ConsoleMetric({ value, label, border = false }: { value: string; label: string; border?: boolean }) {
   return (
-    <div className={`p-3 sm:p-4 ${border ? 'border-x-2 border-black' : ''}`}>
+    <div className={`landing-console-metric p-3 sm:p-4 ${border ? 'border-x-2 border-black' : ''}`}>
       <p className="text-xl font-black tracking-[-0.04em] sm:text-2xl">{value}</p>
       <p className="mt-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-black/50 sm:text-[9px]">{label}</p>
     </div>
@@ -299,16 +299,16 @@ function PrincipleCard({
   }[accent];
 
   return (
-    <article className={`group flex min-h-[320px] flex-col p-7 transition sm:p-9 ${accentClass} ${last ? '' : 'border-b-2 md:border-b-0 md:border-r-2'} border-black`}>
+    <article className={`landing-principle-card group flex min-h-[320px] flex-col p-7 transition sm:p-9 ${accentClass} ${last ? '' : 'border-b-2 md:border-b-0 md:border-r-2'} border-black`}>
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs font-bold">{number}/03</span>
-        <span className="grid h-12 w-12 place-items-center border-2 border-current">
+        <span className="landing-principle-icon grid h-12 w-12 place-items-center border-2 border-current">
           <Icon aria-hidden="true" size={22} strokeWidth={1.8} />
         </span>
       </div>
       <div className="mt-14 h-px w-full bg-current opacity-25" />
       <div className="pt-8">
-        <h3 className="landing-display text-4xl leading-[0.9] tracking-[-0.04em] lg:text-5xl">{title}</h3>
+        <h3 className="landing-principle-title landing-display text-4xl leading-[0.9] tracking-[-0.04em] lg:text-5xl">{title}</h3>
         <p className="mt-5 max-w-sm text-sm font-medium leading-6 opacity-70">{text}</p>
       </div>
     </article>
