@@ -4,6 +4,8 @@ PulseGuard is a full-stack API monitoring platform with configurable HTTP checks
 latency and uptime history, incident state transitions, HttpOnly JWT sessions, and
 per-user dashboards.
 
+<img width="1145" height="710" alt="image" src="https://github.com/user-attachments/assets/9bab81a0-83d9-4b50-985b-faf63b5fac57" />
+
 ## Features
 
 - Create, edit, delete, and search owned endpoint monitors.
@@ -18,6 +20,9 @@ per-user dashboards.
 - Next.js, React, TypeScript, Recharts
 - Node.js, Express, MongoDB, Mongoose
 - BullMQ, Redis, Docker Compose, and dependency-aware health checks
+
+- <img width="1914" height="853" alt="image" src="https://github.com/user-attachments/assets/8a7ca274-46f0-4dde-a84e-06117539933d" />
+
 
 ## Architecture
 
