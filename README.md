@@ -12,6 +12,7 @@ per-user dashboards.
 - Schedule `GET` or `HEAD` checks from every 30 seconds to every 24 hours.
 - Track latency, expected HTTP status, uptime trends, and cursor-paginated check history.
 - Confirm a `DOWN` incident after three consecutive failures and recover on success.
+- Connect Telegram from dashboard settings for confirmed incident and recovery alerts.
 - Run API and workers independently with BullMQ scheduling and distributed Redis locks.
 - Preview the dashboard without an account at `/dashboard?demo=1`.
 
@@ -30,12 +31,16 @@ per-user dashboards.
 Browser → Next.js UI → same-origin /api proxy → Express API → MongoDB
                                              ↘ Redis rate limits
 Express API → BullMQ job schedulers → Redis → monitoring workers → external endpoints
+                                                     ↘ Telegram Bot API
 ```
 
 Each monitor has a BullMQ job scheduler that respects its configured interval between
 30 seconds and 24 hours. Dedicated workers use distributed per-monitor locks, controlled
 concurrency, and exponential retry for infrastructure failures. A monitor moves to `DOWN`
-after three consecutive failures. HTTP checks time out after ten seconds.
+after three consecutive failures. HTTP checks time out after ten seconds. A Redis lease
+elects one worker as the Telegram polling leader when multiple workers are running.
+Alert messages omit URL query strings and fragments so endpoint credentials are not
+copied into Telegram or lock-screen notifications.
 
 ## Security
 
@@ -68,6 +73,8 @@ after three consecutive failures. HTTP checks time out after ten seconds.
   cursor pagination. `limit` is capped at 100.
 - `GET /api/system/live` checks the API process; `/api/system/ready` verifies MongoDB
   and Redis connectivity.
+- `GET /api/telegram/status`, `POST /api/telegram/link`, and `DELETE /api/telegram/link`
+  manage the authenticated user's Telegram connection.
 
 Set `TRUST_PROXY` to the exact number of trusted reverse proxies when deploying behind
 one. Bearer tokens remain accepted for non-browser API clients, while the web application
@@ -79,6 +86,7 @@ the public deployment uses HTTPS; the Docker Compose default remains `false` for
 ```bash
 cp .env.example .env
 # Replace JWT_SECRET in .env with: openssl rand -hex 32
+# Add TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME to enable Telegram alerts.
 docker compose up --build
 ```
 
@@ -131,8 +139,7 @@ docker-compose.yml       Local production-like stack
 
 - Checks intentionally support only `GET` and `HEAD`; request bodies and custom headers
   are not implemented.
-- PulseGuard records incidents but does not currently deliver email, SMS, Slack, or
-  Telegram notifications.
+- PulseGuard delivers Telegram alerts; email, SMS, and Slack are not implemented.
 - Logs expire after 30 days. There is no long-term analytics export yet.
 - The repository does not currently declare an open-source license. Reuse permission
   must be chosen by the repository owner before public distribution.

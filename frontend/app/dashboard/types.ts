@@ -56,3 +56,15 @@ export type MonitorPayload = {
 };
 
 export type NavKey = 'overview' | 'endpoints' | 'logs' | 'settings';
+
+export type TelegramStatus = {
+  configured: boolean;
+  connected: boolean;
+  username: string | null;
+  linkedAt: string | null;
+};
+
+export type TelegramLinkResponse = {
+  link: string;
+  expiresAt: string;
+};

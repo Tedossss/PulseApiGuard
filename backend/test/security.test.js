@@ -13,7 +13,10 @@ const {
   normalizeInterval,
   normalizeMonitorFields,
 } = require("../controllers/monitorController")
-const { calculateMonitorState } = require("../workers/monitorWorker")
+const {
+  calculateMonitorState,
+  shouldSendStatusAlert,
+} = require("../workers/monitorWorker")
 const auth = require("../middleware/auth")
 const { buildReadiness } = require("../controllers/systemController")
 const {
@@ -30,6 +33,38 @@ const {
   normalizeLogLimit,
   normalizeTrendHours,
 } = require("../controllers/dashboardController")
+const {
+  buildMonitorAlert,
+  escapeHtml,
+  formatDuration,
+  parseStartToken,
+  processUpdateBatch,
+  redactMonitorUrl,
+} = require("../services/telegramBot")
+const {
+  getTelegramBotUsername,
+  hashTelegramLinkToken,
+} = require("../utils/telegram")
+const telegramController = require("../controllers/telegramController")
+const User = require("../models/User")
+
+const createResponse = () => ({
+  statusCode: 200,
+  body: undefined,
+  ended: false,
+  status(code) {
+    this.statusCode = code
+    return this
+  },
+  json(body) {
+    this.body = body
+    return this
+  },
+  end() {
+    this.ended = true
+    return this
+  },
+})
 
 test("private, mapped, translated and reserved IP ranges are rejected", () => {
   for (const address of [
@@ -147,6 +182,128 @@ test("monitor state changes after three failures and recovers on success", () =>
     calculateMonitorState({ status: "DOWN", failureCount: 5 }, true),
     { nextFailureCount: 0, nextStatus: "UP" },
   )
+  assert.equal(shouldSendStatusAlert("PENDING", "UP"), false)
+  assert.equal(shouldSendStatusAlert("UP", "DOWN"), true)
+  assert.equal(shouldSendStatusAlert("DOWN", "UP"), true)
+})
+
+test("Telegram link tokens are hashed and start commands are parsed strictly", () => {
+  assert.equal(hashTelegramLinkToken("one-time-token").length, 64)
+  assert.equal(hashTelegramLinkToken("one-time-token"), hashTelegramLinkToken("one-time-token"))
+  assert.equal(parseStartToken("/start one-time_token-1"), "one-time_token-1")
+  assert.equal(parseStartToken("/start@PulseApiGuard_bot token"), "token")
+  assert.equal(parseStartToken("/start"), "")
+  assert.equal(parseStartToken("hello"), null)
+  assert.equal(parseStartToken("/start token with spaces"), null)
+})
+
+test("Telegram polling only advances past successfully processed updates", async () => {
+  const handled = []
+  const result = await processUpdateBatch([
+    { update_id: 10 },
+    { update_id: 11 },
+    { update_id: 12 },
+  ], {
+    offset: 10,
+    handler: async (update) => {
+      handled.push(update.update_id)
+      if (update.update_id === 11) throw new Error("temporary database failure")
+    },
+  })
+
+  assert.deepEqual(handled, [10, 11])
+  assert.equal(result.offset, 11)
+  assert.match(result.error.message, /temporary database failure/)
+})
+
+test("Telegram controllers expose status and store only a hashed link token", async (t) => {
+  const originalFindById = User.findById
+  const originalFindByIdAndUpdate = User.findByIdAndUpdate
+  const originalBotToken = process.env.TELEGRAM_BOT_TOKEN
+  const originalBotUsername = process.env.TELEGRAM_BOT_USERNAME
+  t.after(() => {
+    User.findById = originalFindById
+    User.findByIdAndUpdate = originalFindByIdAndUpdate
+    if (originalBotToken === undefined) delete process.env.TELEGRAM_BOT_TOKEN
+    else process.env.TELEGRAM_BOT_TOKEN = originalBotToken
+    if (originalBotUsername === undefined) delete process.env.TELEGRAM_BOT_USERNAME
+    else process.env.TELEGRAM_BOT_USERNAME = originalBotUsername
+  })
+
+  process.env.TELEGRAM_BOT_TOKEN = "test-token"
+  process.env.TELEGRAM_BOT_USERNAME = "PulseApiGuard_bot"
+  User.findById = () => ({
+    select: () => ({
+      lean: async () => ({
+        telegramChatId: "123",
+        telegramUsername: "pulse_owner",
+        telegramLinkedAt: new Date("2026-08-07T12:00:00.000Z"),
+      }),
+    }),
+  })
+
+  const statusResponse = createResponse()
+  await telegramController.getStatus({ user: "user-1" }, statusResponse)
+  assert.equal(statusResponse.body.configured, true)
+  assert.equal(statusResponse.body.connected, true)
+  assert.equal(statusResponse.body.username, "pulse_owner")
+
+  let storedUpdate
+  User.findByIdAndUpdate = async (userId, update) => {
+    assert.equal(userId, "user-1")
+    storedUpdate = update
+    return { _id: userId }
+  }
+  const linkResponse = createResponse()
+  await telegramController.createLink({ user: "user-1" }, linkResponse)
+
+  const link = new URL(linkResponse.body.link)
+  const rawToken = link.searchParams.get("start")
+  assert.equal(link.hostname, "t.me")
+  assert.equal(link.pathname, "/PulseApiGuard_bot")
+  assert.ok(rawToken)
+  assert.equal(storedUpdate.$set.telegramLinkTokenHash, hashTelegramLinkToken(rawToken))
+  assert.notEqual(storedUpdate.$set.telegramLinkTokenHash, rawToken)
+  assert.ok(storedUpdate.$set.telegramLinkTokenExpiresAt instanceof Date)
+})
+
+test("Telegram bot usernames are normalized and validated", () => {
+  const originalValue = process.env.TELEGRAM_BOT_USERNAME
+
+  process.env.TELEGRAM_BOT_USERNAME = "@PulseApiGuard_bot"
+  assert.equal(getTelegramBotUsername(), "PulseApiGuard_bot")
+  process.env.TELEGRAM_BOT_USERNAME = "invalid/name"
+  assert.equal(getTelegramBotUsername(), "")
+
+  if (originalValue === undefined) delete process.env.TELEGRAM_BOT_USERNAME
+  else process.env.TELEGRAM_BOT_USERNAME = originalValue
+})
+
+test("Telegram alerts escape endpoint data and preserve recovery downtime", () => {
+  assert.equal(escapeHtml("<API & status>"), "&lt;API &amp; status&gt;")
+  assert.equal(formatDuration(3_661_000), "1h 1m")
+  assert.equal(
+    redactMonitorUrl("https://example.com/health?api_key=secret#debug"),
+    "https://example.com/health",
+  )
+
+  const alert = buildMonitorAlert({
+    monitor: {
+      name: "<Billing & API>",
+      url: "https://example.com/health?a=1&b=2",
+      expectedStatus: 200,
+      downSince: null,
+    },
+    nextStatus: "UP",
+    result: { statusCode: 200 },
+    changedAt: new Date("2026-08-07T12:05:00.000Z"),
+    downSince: new Date("2026-08-07T12:00:00.000Z"),
+  })
+
+  assert.match(alert, /Endpoint recovered/)
+  assert.match(alert, /&lt;Billing &amp; API&gt;/)
+  assert.doesNotMatch(alert, /a=1|b=2/)
+  assert.match(alert, /Downtime: <b>5m 0s<\/b>/)
 })
 
 test("dashboard query limits are bounded", () => {

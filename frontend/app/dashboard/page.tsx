@@ -40,6 +40,7 @@ import { CheckHistoryPanel } from './components/CheckHistoryPanel';
 import { EndpointList } from './components/EndpointList';
 import { MonitorEditor } from './components/MonitorEditor';
 import { TrendPanel } from './components/TrendPanel';
+import { TelegramSettings } from './components/TelegramSettings';
 import type {
   Monitor,
   MonitoringLog,
@@ -682,7 +683,12 @@ export default function Dashboard() {
           )}
 
           {activeView === 'settings' && (
-            <SettingsPanel isDemoMode={isDemoMode} onLogout={handleLogout} totalEndpoints={totalEndpoints} />
+            <SettingsPanel
+              isDemoMode={isDemoMode}
+              onLogout={handleLogout}
+              onUnauthorized={redirectToAuth}
+              totalEndpoints={totalEndpoints}
+            />
           )}
         </div>
       </main>
@@ -719,19 +725,32 @@ function DashboardStatCard({ icon, label, value, sub, accent }: { icon: React.Re
   );
 }
 
-function SettingsPanel({ isDemoMode, onLogout, totalEndpoints }: { isDemoMode: boolean; onLogout: () => void; totalEndpoints: number }) {
+function SettingsPanel({
+  isDemoMode,
+  onLogout,
+  onUnauthorized,
+  totalEndpoints,
+}: {
+  isDemoMode: boolean;
+  onLogout: () => void;
+  onUnauthorized: () => void;
+  totalEndpoints: number;
+}) {
   return (
-    <div className="dashboard-panel border-2 border-black bg-white p-5">
-      <h3 className="text-sm font-black text-white">Workspace Settings</h3>
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <MetricPair label="Mode" value={isDemoMode ? 'Demo preview' : 'Authenticated workspace'} />
-        <MetricPair label="Default refresh" value="60s" />
-        <MetricPair label="Configured monitors" value={String(totalEndpoints)} />
+    <div className="space-y-5">
+      <div className="dashboard-panel border-2 border-black bg-white p-5">
+        <h3 className="text-sm font-black text-white">Workspace Settings</h3>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <MetricPair label="Mode" value={isDemoMode ? 'Demo preview' : 'Authenticated workspace'} />
+          <MetricPair label="Default refresh" value="60s" />
+          <MetricPair label="Configured monitors" value={String(totalEndpoints)} />
+        </div>
+        <button type="button" className="dashboard-danger-action mt-6 inline-flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 transition hover:bg-red-500/20" onClick={onLogout}>
+          <LogOut size={16} />
+          {isDemoMode ? 'Exit demo' : 'Sign out'}
+        </button>
       </div>
-      <button type="button" className="dashboard-danger-action mt-6 inline-flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 transition hover:bg-red-500/20" onClick={onLogout}>
-        <LogOut size={16} />
-        {isDemoMode ? 'Exit demo' : 'Sign out'}
-      </button>
+      <TelegramSettings isDemoMode={isDemoMode} onUnauthorized={onUnauthorized} />
     </div>
   );
 }

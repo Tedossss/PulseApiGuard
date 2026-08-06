@@ -4,6 +4,7 @@ const IORedis = require("ioredis")
 const EndpointMonitor = require("../models/EndpointMonitor")
 const MonitoringLog = require("../models/MonitoringLog")
 const testApiEndpoint = require("../services/apiTester")
+const { sendTelegramMonitorAlert } = require("../services/telegramBot")
 const { getBullConnectionOptions } = require("../config/redis")
 const {
   QUEUE_NAME,
@@ -42,6 +43,10 @@ const calculateMonitorState = ({ status, failureCount }, isSuccess) => {
 
   return { nextFailureCount, nextStatus }
 }
+
+const shouldSendStatusAlert = (previousStatus, nextStatus) => (
+  nextStatus === "DOWN" || (previousStatus === "DOWN" && nextStatus === "UP")
+)
 
 const getLockConnection = () => {
   if (!lockConnection) {
@@ -83,6 +88,8 @@ const processMonitorCheck = async (monitorId) => {
   const lock = await acquireMonitorLock(monitorId)
   if (!lock) return { skipped: true, reason: "already-running" }
 
+  let alertPayload
+  let outcome
   try {
     const monitor = await EndpointMonitor.findById(monitorId)
     if (!monitor) return { skipped: true, reason: "monitor-not-found" }
@@ -90,9 +97,11 @@ const processMonitorCheck = async (monitorId) => {
     const result = await testApiEndpoint(monitor)
     const isSuccess = result.statusCode === monitor.expectedStatus
     const previousStatus = monitor.status
+    const previousDownSince = monitor.downSince
     const { nextFailureCount, nextStatus } = calculateMonitorState(monitor, isSuccess)
 
-    if (previousStatus !== nextStatus) {
+    const statusChanged = previousStatus !== nextStatus
+    if (statusChanged) {
       console.log(`State changed for ${monitor.url}: ${previousStatus} -> ${nextStatus}`)
       if (nextStatus === "DOWN") monitor.downSince = new Date()
       if (previousStatus === "DOWN" && nextStatus === "UP") monitor.downSince = null
@@ -112,8 +121,18 @@ const processMonitorCheck = async (monitorId) => {
       message: String(result.message || "").slice(0, 500),
     })
 
+    if (statusChanged && shouldSendStatusAlert(previousStatus, nextStatus)) {
+      alertPayload = {
+        monitor,
+        nextStatus,
+        result,
+        changedAt: monitor.lastChecked,
+        downSince: previousDownSince,
+      }
+    }
+
     lastWorkerRun = new Date()
-    return { success: isSuccess, statusCode: result.statusCode }
+    outcome = { success: isSuccess, statusCode: result.statusCode }
   } finally {
     try {
       await releaseMonitorLock(lock)
@@ -122,6 +141,9 @@ const processMonitorCheck = async (monitorId) => {
       console.error(`Unable to release monitor lock ${monitorId}:`, error.message)
     }
   }
+
+  if (alertPayload) await sendTelegramMonitorAlert(alertPayload)
+  return outcome
 }
 
 const startMonitorWorker = async () => {
@@ -170,5 +192,6 @@ module.exports = {
     lastRun: lastWorkerRun,
   }),
   processMonitorCheck,
+  shouldSendStatusAlert,
   startMonitorWorker,
 }
