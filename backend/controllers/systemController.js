@@ -1,6 +1,10 @@
 const mongoose = require("mongoose")
 const { getRedisClient } = require("../config/redis")
 
+const disableHealthCheckCaching = res => {
+  res.set("Cache-Control", "no-store")
+}
+
 const buildReadiness = ({ mongoReady, redisReady }) => ({
   ready: mongoReady && redisReady,
   body: {
@@ -13,10 +17,12 @@ const buildReadiness = ({ mongoReady, redisReady }) => ({
 })
 
 exports.liveCheck = (req, res) => {
+  disableHealthCheckCaching(res)
   return res.json({ status: "ok", uptime: process.uptime() })
 }
 
 exports.readyCheck = async (req, res) => {
+  disableHealthCheckCaching(res)
   const mongoReady = mongoose.connection.readyState === 1
   let redisReady = false
 
