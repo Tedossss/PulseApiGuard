@@ -15,7 +15,7 @@ const {
 } = require("../controllers/monitorController")
 const { calculateMonitorState } = require("../workers/monitorWorker")
 const auth = require("../middleware/auth")
-const { buildReadiness } = require("../controllers/systemController")
+const { buildReadiness, liveCheck, readyCheck } = require("../controllers/systemController")
 const {
   SESSION_COOKIE_NAME,
   getBearerToken,
@@ -219,4 +219,50 @@ test("readiness requires both MongoDB and Redis", () => {
       checks: { mongodb: "up", redis: "down" },
     },
   )
+})
+
+test("health checks disable response caching", async () => {
+  const createResponse = () => {
+    const result = { headers: {}, statusCode: 200, body: undefined }
+    result.response = {
+      set(name, value) {
+        result.headers[name] = value
+        return this
+      },
+      status(value) {
+        result.statusCode = value
+        return this
+      },
+      json(value) {
+        result.body = value
+        return this
+      },
+    }
+    return result
+  }
+
+  const live = createResponse()
+  liveCheck({}, live.response)
+
+  assert.equal(live.headers["Cache-Control"], "no-store")
+  assert.equal(live.body.status, "ok")
+  assert.equal(typeof live.body.uptime, "number")
+
+  const ready = createResponse()
+  const originalRedisUrl = process.env.REDIS_URL
+  const originalConsoleError = console.error
+  delete process.env.REDIS_URL
+  console.error = () => {}
+
+  try {
+    await readyCheck({}, ready.response)
+  } finally {
+    console.error = originalConsoleError
+    if (originalRedisUrl === undefined) delete process.env.REDIS_URL
+    else process.env.REDIS_URL = originalRedisUrl
+  }
+
+  assert.equal(ready.headers["Cache-Control"], "no-store")
+  assert.equal(ready.statusCode, 503)
+  assert.equal(ready.body.status, "not_ready")
 })
