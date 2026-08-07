@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 const connectDB = require("./config/db")
 const { closeMonitorQueue } = require("./queues/monitorQueue")
 const { closeMonitorWorker, startMonitorWorker } = require("./workers/monitorWorker")
+const { closeTelegramBot, startTelegramBot } = require("./services/telegramBot")
 
 const validateEnvironment = () => {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required")
@@ -16,9 +17,11 @@ const start = async () => {
   if (!connected) throw new Error("MongoDB connection failed")
 
   await startMonitorWorker()
+  startTelegramBot()
 
   const shutdown = async (signal) => {
     console.log(`${signal} received, stopping monitor worker`)
+    await closeTelegramBot()
     await closeMonitorWorker()
     await closeMonitorQueue()
     await mongoose.disconnect()

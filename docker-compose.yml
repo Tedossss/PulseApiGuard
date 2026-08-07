@@ -36,6 +36,8 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       TRUST_PROXY: ${TRUST_PROXY:-false}
       MAX_MONITORS_PER_USER: ${MAX_MONITORS_PER_USER:-20}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
     depends_on:
       mongo:
         condition: service_healthy
@@ -58,6 +60,8 @@ services:
       REDIS_URL: redis://redis:6379
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-10}
       MONITOR_LOCK_TTL_MS: ${MONITOR_LOCK_TTL_MS:-25000}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
     depends_on:
       mongo:
         condition: service_healthy

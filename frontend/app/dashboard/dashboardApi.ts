@@ -3,6 +3,8 @@ import type {
   LogsResponse,
   Monitor,
   MonitorPayload,
+  TelegramLinkResponse,
+  TelegramStatus,
   TrendResponsePoint,
 } from './types';
 
@@ -38,3 +40,13 @@ export const deleteMonitor = (monitorId: string) => apiRequest<{ message: string
 });
 
 export const logout = () => apiRequest<void>('/api/auth/logout', { method: 'POST' });
+
+export const getTelegramStatus = () => apiRequest<TelegramStatus>('/api/telegram/status');
+
+export const createTelegramLink = () => apiRequest<TelegramLinkResponse>('/api/telegram/link', {
+  method: 'POST',
+});
+
+export const disconnectTelegram = () => apiRequest<void>('/api/telegram/link', {
+  method: 'DELETE',
+});

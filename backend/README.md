@@ -6,7 +6,8 @@ checks, uptime/latency aggregation, and health reporting.
 ## Environment
 
 Copy `.env.example` to `.env` and replace `JWT_SECRET` with at least 32 random
-characters. Never commit the resulting `.env` file.
+characters. To enable alerts, set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_BOT_USERNAME`.
+Never commit the resulting `.env` file.
 
 ```bash
 cp .env.example .env
@@ -22,6 +23,7 @@ Default URL: `http://127.0.0.1:3001`.
 - `/api/monitor` — authenticated monitor lifecycle
 - `/api/test` — authenticated one-off safe HTTP check
 - `/api/dashboard` — authenticated summary and trend data
+- `/api/telegram` — Telegram connection status, one-time link creation, and disconnect
 - `/api/system/live` — process liveness
 - `/api/system/ready` and `/api/system/health` — MongoDB and Redis readiness
 

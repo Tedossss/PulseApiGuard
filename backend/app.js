@@ -46,6 +46,7 @@ app.use("/api/monitor", require("./routes/monitorRoutes"))
 app.use("/api/test", require("./routes/testRoutes"))
 app.use("/api/dashboard", require("./routes/dashboardRoutes"))
 app.use("/api/system", require("./routes/systemRoutes"))
+app.use("/api/telegram", require("./routes/telegramRoutes"))
 
 
 // Health check

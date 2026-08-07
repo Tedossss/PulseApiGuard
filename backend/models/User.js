@@ -4,6 +4,11 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   password: { type: String, required: true, minlength: 8, maxlength: 128 },
+  telegramChatId: { type: String, unique: true, sparse: true },
+  telegramUsername: { type: String, trim: true, maxlength: 64 },
+  telegramLinkedAt: Date,
+  telegramLinkTokenHash: { type: String, select: false },
+  telegramLinkTokenExpiresAt: { type: Date, select: false },
 }, { timestamps: true });
 
 // Хешування пароля перед збереженням
