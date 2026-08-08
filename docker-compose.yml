@@ -88,7 +88,7 @@ services:
     environment:
       API_PROXY_TARGET: http://backend:3001
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${FRONTEND_BIND_PORT:-3000}:3000"
     depends_on:
       backend:
         condition: service_healthy
