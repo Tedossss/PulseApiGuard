@@ -92,7 +92,9 @@ docker compose up --build
 
 Open `http://localhost:3000`. The API readiness endpoint is available through
 `http://localhost:3000/api/system/ready`; frontend liveness is exposed at
-`http://localhost:3000/health`.
+`http://localhost:3000/health`. Docker publishes the frontend on loopback only;
+production traffic should reach it through the host reverse proxy. Compose also
+caps each container's JSON logs at three 10 MB files to prevent unbounded disk use.
 
 ## Run locally
 
