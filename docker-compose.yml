@@ -1,18 +1,26 @@
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   mongo:
-    image: mongo:7
+    image: mongo:7.0.39
     restart: unless-stopped
+    logging: *default-logging
     volumes:
       - mongo_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    logging: *default-logging
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
@@ -25,6 +33,7 @@ services:
   backend:
     build: ./backend
     restart: unless-stopped
+    logging: *default-logging
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -53,6 +62,7 @@ services:
   worker:
     build: ./backend
     restart: unless-stopped
+    logging: *default-logging
     command: ["npm", "run", "worker"]
     environment:
       NODE_ENV: production
@@ -74,10 +84,11 @@ services:
       args:
         API_PROXY_TARGET: http://backend:3001
     restart: unless-stopped
+    logging: *default-logging
     environment:
       API_PROXY_TARGET: http://backend:3001
     ports:
-      - "3000:3000"
+      - "127.0.0.1:${FRONTEND_BIND_PORT:-3000}:3000"
     depends_on:
       backend:
         condition: service_healthy

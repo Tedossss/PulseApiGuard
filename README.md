@@ -15,6 +15,8 @@ per-user dashboards.
 - Connect Telegram from dashboard settings for confirmed incident and recovery alerts.
 - Run API and workers independently with BullMQ scheduling and distributed Redis locks.
 - Preview the dashboard without an account at `/dashboard?demo=1`.
+- Open the PulseGuard project presentation at `/PAG`; the deployment root is a small
+  project chooser shared with CoLab.
 
 ## Stack
 
@@ -92,7 +94,13 @@ docker compose up --build
 
 Open `http://localhost:3000`. The API readiness endpoint is available through
 `http://localhost:3000/api/system/ready`; frontend liveness is exposed at
-`http://localhost:3000/health`.
+`http://localhost:3000/health`. Docker publishes the frontend on loopback only;
+set `FRONTEND_BIND_PORT` when a reverse proxy needs a different host port.
+production traffic should reach it through the host reverse proxy. Compose also
+caps each container's JSON logs at three 10 MB files to prevent unbounded disk use.
+In the shared `falach.pl` deployment, Nginx sends `/colab` to CoLab and every other
+path to this frontend, so `/`, `/PAG`, authentication, dashboard, API, and health
+routes stay within the PulseGuard service.
 
 ## Run locally
 
