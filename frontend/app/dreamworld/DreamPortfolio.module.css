@@ -1,8 +1,8 @@
-:global(html:has([data-dream-world])) {
+:global(html):has(.root) {
   scroll-behavior: auto;
 }
 
-:global(body:has([data-dream-world])) {
+:global(body):has(.root) {
   display: block;
   color: #171611;
   background: linear-gradient(180deg, #9bd5ff 0 28%, #eef5f0 28% 100%);
