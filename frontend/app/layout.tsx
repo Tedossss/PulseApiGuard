@@ -14,8 +14,13 @@ const bodyFont = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'PulseGuard — API Monitoring',
-  description: 'Monitor API availability, latency, and incident states from one dashboard.',
+  metadataBase: new URL('https://falach.pl'),
+  title: {
+    default: 'Nazar Falach — Full-stack Engineer',
+    template: '%s | Nazar Falach',
+  },
+  description:
+    'Interactive portfolio of Nazar Falach: full-stack systems, applied AI work, and production frontend engineering.',
 }
 
 export default function RootLayout({
