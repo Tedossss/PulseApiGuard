@@ -1274,6 +1274,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
             <button
               type="button"
               className={styles.dialogClose}
+              autoFocus
               data-dialog-initial-focus
               onClick={closeProject}
             >

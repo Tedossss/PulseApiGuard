@@ -1,0 +1,152 @@
+.world {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+  background: #2b3138;
+  contain: strict;
+  isolation: isolate;
+}
+
+.canvas,
+.poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  z-index: 2;
+  display: block;
+  opacity: 0;
+  outline: none;
+  transition: opacity 900ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.world[data-state='ready'] .canvas {
+  opacity: 1;
+}
+
+.world[data-state='fallback'] .canvas {
+  opacity: 0;
+}
+
+.poster {
+  z-index: 1;
+  overflow: hidden;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 50% 73%, rgba(199, 155, 97, .23) 0 2%, rgba(138, 78, 74, .12) 13%, transparent 35%),
+    radial-gradient(circle at 72% 21%, rgba(143, 167, 179, .12), transparent 24%),
+    linear-gradient(180deg, #111519 0%, #222a31 56%, #3b4248 73%, #24292e 74%, #111519 100%);
+  transition: opacity 700ms ease;
+}
+
+.world[data-state='ready'] .poster {
+  opacity: .001;
+}
+
+.poster::before {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(231, 225, 214, .72) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(143, 167, 179, .45) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(199, 155, 97, .32) 0 1px, transparent 1.4px);
+  background-position: 8px 11px, 37px 23px, 19px 44px;
+  background-size: 59px 67px, 83px 91px, 113px 127px;
+  content: '';
+  opacity: .42;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 58%, transparent 76%);
+  mask-image: linear-gradient(to bottom, #000 0 58%, transparent 76%);
+}
+
+.poster::after {
+  position: absolute;
+  top: 68%;
+  left: 50%;
+  width: min(74vw, 980px);
+  height: 56%;
+  border-right: 1px solid rgba(183, 178, 170, .18);
+  border-left: 1px solid rgba(183, 178, 170, .18);
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(231, 225, 214, .13) 50%, transparent 50.2%),
+    repeating-linear-gradient(90deg, transparent 0 11.8%, rgba(143, 167, 179, .075) 12% 12.15%, transparent 12.35% 25%),
+    repeating-linear-gradient(0deg, transparent 0 17.8%, rgba(143, 167, 179, .075) 18% 18.25%, transparent 18.45% 25%);
+  content: '';
+  opacity: .75;
+  transform: translate(-50%, 0) perspective(420px) rotateX(69deg);
+  transform-origin: 50% 0;
+}
+
+.poster i {
+  position: absolute;
+  display: block;
+}
+
+.poster i:first-child {
+  top: 34%;
+  left: 50%;
+  width: min(29vw, 420px);
+  aspect-ratio: 2;
+  border: 1px solid rgba(183, 178, 170, .2);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0 / 90% 90% 0 0;
+  box-shadow:
+    0 0 42px rgba(143, 167, 179, .07),
+    inset 0 0 42px rgba(143, 167, 179, .05);
+  transform: translateX(-50%);
+}
+
+.poster i:nth-child(2) {
+  right: 0;
+  bottom: 25%;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(199, 155, 97, .4) 36% 64%, transparent);
+  box-shadow: 0 0 24px rgba(199, 155, 97, .16);
+}
+
+.poster i:last-child {
+  bottom: 0;
+  left: 50%;
+  width: min(18vw, 260px);
+  height: 36%;
+  border-right: 1px solid rgba(183, 178, 170, .19);
+  border-left: 1px solid rgba(183, 178, 170, .19);
+  background: linear-gradient(90deg, rgba(17, 21, 25, .96), rgba(43, 49, 56, .7) 48% 52%, rgba(17, 21, 25, .96));
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 760px) {
+  .poster::after {
+    width: 124vw;
+  }
+
+  .poster i:first-child {
+    width: 58vw;
+  }
+
+  .poster i:last-child {
+    width: 34vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas,
+  .poster {
+    transition: none;
+  }
+}
+
+@media print {
+  .world {
+    display: none;
+  }
+}
