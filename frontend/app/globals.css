@@ -9,6 +9,29 @@
   --color-accent-purple: #7c3aed;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  html.observatoryCursor,
+  html.observatoryCursor * {
+    cursor: none !important;
+  }
+}
+
+html:has([data-observatory-root]) {
+  scroll-behavior: smooth;
+}
+
+body:has([data-observatory-root]) {
+  display: block;
+  color: #e8e2d7;
+  background: #080d12;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has([data-observatory-root]) {
+    scroll-behavior: auto;
+  }
+}
+
 @layer base {
   * {
     box-sizing: border-box;

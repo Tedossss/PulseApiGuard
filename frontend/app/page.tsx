@@ -1,70 +1,25 @@
 import type { Metadata } from 'next';
-import { DreamWorld } from './dreamworld/DreamWorld';
+import { PortfolioExperience } from './portfolio/PortfolioExperience';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Nazar Falach — Full-stack Engineer' },
-  description:
-    'The interactive portfolio of Nazar Falach, a full-stack engineer in Poland building production systems, frontend experiences, content platforms, and applied AI tooling.',
-  keywords: [
-    'Nazar Falach',
-    'full-stack engineer',
-    'Next.js developer',
-    'Node.js developer',
-    'TypeScript',
-    'Three.js',
-    'Poland',
-  ],
-  authors: [{ name: 'Nazar Falach', url: 'https://falach.pl' }],
-  creator: 'Nazar Falach',
-  alternates: { canonical: 'https://falach.pl/' },
+  metadataBase: new URL('https://falach.pl'),
+  title: { absolute: 'The Sleep Observatory — Nazar Falach' },
+  description: 'Enter a procedural dream-world containing the systems, interfaces and experiments of full-stack engineer Nazar Falach.',
+  alternates: { canonical: 'https://falach.pl' },
   openGraph: {
-    type: 'website',
-    url: 'https://falach.pl/',
-    title: 'Nazar Falach — Full-stack Engineer',
-    description:
-      'A handcrafted interactive dream containing real production engineering work by Nazar Falach.',
+    type: 'profile',
+    url: 'https://falach.pl',
+    title: 'The Sleep Observatory — Nazar Falach',
+    description: 'A dream you accidentally entered through a URL—and a portfolio hidden inside it.',
     siteName: 'Nazar Falach',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nazar Falach — Full-stack Engineer',
-    description:
-      'A handcrafted interactive dream containing real production engineering work by Nazar Falach.',
+    title: 'The Sleep Observatory — Nazar Falach',
+    description: 'A procedural dream-world hiding a full-stack engineering portfolio.',
   },
 };
 
-const personSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Nazar Falach',
-  url: 'https://falach.pl',
-  email: 'mailto:nazarfalach51@gmail.com',
-  jobTitle: 'Full-stack engineer',
-  address: {
-    '@type': 'PostalAddress',
-    addressCountry: 'PL',
-  },
-  sameAs: ['https://github.com/Tedossss', 'https://t.me/tedosss'],
-  knowsAbout: [
-    'Next.js',
-    'React',
-    'TypeScript',
-    'Node.js',
-    'MongoDB',
-    'PostgreSQL',
-    'Docker',
-    'Three.js',
-  ],
-};
-
-export default function HomePage() {
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-      />
-      <DreamWorld />
-    </>
-  );
+export default function PortfolioPage() {
+  return <PortfolioExperience />;
 }
