@@ -1,12 +1,24 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-15T00:00:00+02:00",
-  "title": "Design System: Dream Evidence",
+  "generatedAt": "2026-08-15T21:11:08+02:00",
+  "title": "Design System: Dream Evidence Atlas",
   "extensions": {
     "colorMeta": {
-      "evidence-navy": {
+      "atlas-navy": {
         "role": "primary",
-        "displayName": "Evidence Navy",
+        "displayName": "Atlas Navy",
+        "canonical": "#06295b",
+        "tonalRamp": ["oklch(15% 0.064 256)", "oklch(26% 0.088 256)", "oklch(38% 0.100 256)", "oklch(50% 0.105 256)", "oklch(62% 0.090 256)", "oklch(74% 0.065 256)", "oklch(86% 0.038 256)", "oklch(95% 0.014 256)"]
+      },
+      "atlas-navy-deep": {
+        "role": "primary",
+        "displayName": "Atlas Navy Deep",
+        "canonical": "#031a3a",
+        "tonalRamp": ["oklch(15% 0.048 256)", "oklch(26% 0.073 256)", "oklch(38% 0.086 256)", "oklch(50% 0.090 256)", "oklch(62% 0.077 256)", "oklch(74% 0.056 256)", "oklch(86% 0.032 256)", "oklch(95% 0.012 256)"]
+      },
+      "depth-navy": {
+        "role": "primary",
+        "displayName": "Depth Navy",
         "canonical": "#092d66",
         "tonalRamp": ["oklch(15% 0.071 256)", "oklch(26% 0.096 256)", "oklch(38% 0.105 256)", "oklch(50% 0.105 256)", "oklch(62% 0.090 256)", "oklch(74% 0.065 256)", "oklch(86% 0.038 256)", "oklch(95% 0.014 256)"]
       },
@@ -22,22 +34,34 @@
         "canonical": "#29a7ed",
         "tonalRamp": ["oklch(15% 0.075 238)", "oklch(26% 0.110 238)", "oklch(38% 0.145 238)", "oklch(50% 0.170 238)", "oklch(62% 0.160 238)", "oklch(74% 0.125 238)", "oklch(86% 0.072 238)", "oklch(95% 0.026 238)"]
       },
-      "dossier-paper": {
+      "case-paper": {
         "role": "neutral",
-        "displayName": "Dossier Paper",
+        "displayName": "Case Paper",
         "canonical": "#f4f0e7",
         "tonalRamp": ["oklch(15% 0.010 78)", "oklch(26% 0.014 78)", "oklch(38% 0.017 78)", "oklch(50% 0.020 78)", "oklch(62% 0.022 78)", "oklch(74% 0.024 78)", "oklch(86% 0.025 78)", "oklch(95% 0.024 78)"]
       },
-      "evidence-ink": {
+      "paper-depth": {
         "role": "neutral",
-        "displayName": "Evidence Ink",
-        "canonical": "#222321",
+        "displayName": "Paper Depth",
+        "canonical": "#ded5c5",
+        "tonalRamp": ["oklch(15% 0.012 76)", "oklch(26% 0.017 76)", "oklch(38% 0.022 76)", "oklch(50% 0.027 76)", "oklch(62% 0.031 76)", "oklch(74% 0.033 76)", "oklch(86% 0.030 76)", "oklch(95% 0.018 76)"]
+      },
+      "depth-cream": {
+        "role": "neutral",
+        "displayName": "Depth Cream",
+        "canonical": "#fffcf3",
+        "tonalRamp": ["oklch(15% 0.007 87)", "oklch(26% 0.010 87)", "oklch(38% 0.013 87)", "oklch(50% 0.016 87)", "oklch(62% 0.019 87)", "oklch(74% 0.021 87)", "oklch(86% 0.020 87)", "oklch(95% 0.014 87)"]
+      },
+      "record-ink": {
+        "role": "neutral",
+        "displayName": "Record Ink",
+        "canonical": "#20211f",
         "tonalRamp": ["oklch(15% 0.004 120)", "oklch(26% 0.005 120)", "oklch(38% 0.006 120)", "oklch(50% 0.006 120)", "oklch(62% 0.006 120)", "oklch(74% 0.005 120)", "oklch(86% 0.004 120)", "oklch(95% 0.002 120)"]
       },
       "muted-ink": {
         "role": "neutral",
         "displayName": "Muted Ink",
-        "canonical": "#60625d",
+        "canonical": "#5b5d58",
         "tonalRamp": ["oklch(15% 0.006 120)", "oklch(26% 0.009 120)", "oklch(38% 0.011 120)", "oklch(50% 0.012 120)", "oklch(62% 0.011 120)", "oklch(74% 0.009 120)", "oklch(86% 0.006 120)", "oklch(95% 0.003 120)"]
       },
       "incident-orange": {
@@ -49,7 +73,7 @@
       "evidence-rule": {
         "role": "neutral",
         "displayName": "Evidence Rule",
-        "canonical": "rgba(32, 43, 49, 0.22)",
+        "canonical": "rgba(31, 45, 53, 0.2)",
         "tonalRamp": ["oklch(15% 0.010 225)", "oklch(26% 0.012 225)", "oklch(38% 0.013 225)", "oklch(50% 0.013 225)", "oklch(62% 0.011 225)", "oklch(74% 0.008 225)", "oklch(86% 0.005 225)", "oklch(95% 0.002 225)"]
       },
       "focus-yellow": {
@@ -66,26 +90,32 @@
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Project Display", "purpose": "Monumental project names inside the landscape." },
-      "headline": { "displayName": "Closing Headline", "purpose": "The final contact proposition on paper." },
-      "body": { "displayName": "Evidence Body", "purpose": "Roles, records, evidence statements, and supporting prose." },
-      "label": { "displayName": "Evidence Label", "purpose": "Indexes, fields, controls, navigation, and actions." }
+      "display": { "displayName": "Atlas Landmark", "purpose": "Monumental project names placed directly in each world." },
+      "headline": { "displayName": "Closing Proposition", "purpose": "The final contact statement on physical paper." },
+      "file-title": { "displayName": "Compact File Title", "purpose": "Project identity inside the Dream-state case file." },
+      "body": { "displayName": "Evidence Body", "purpose": "Roles, records, factual descriptions, and verified behavior." },
+      "label": { "displayName": "Atlas Label", "purpose": "Indexes, classifications, state, controls, navigation, and actions." }
     },
     "shadows": [
-      { "name": "dossier-edge", "value": "-18px 0 48px rgba(18, 48, 67, 0.16)", "purpose": "Separates an evidence sheet from its attached project world." },
-      { "name": "record-rail", "value": "0 -12px 30px rgba(3, 43, 87, 0.13)", "purpose": "Keeps the fixed project rail legible over imagery." },
-      { "name": "action-primary", "value": "0 10px 26px rgba(9, 45, 102, 0.20)", "purpose": "Adds restrained lift to the primary project action." },
-      { "name": "closing-sheet", "value": "18px 24px 70px rgba(1, 43, 94, 0.30)", "purpose": "Places the closing contact sheet over the final landscape." }
+      { "name": "floating-case-file", "value": "-24px 31px 75px rgba(0, 22, 55, 0.30)", "purpose": "Lifts the active physical record over the full-bleed landscape." },
+      { "name": "offset-paper-layer", "value": "-14px 20px 50px rgba(0, 22, 55, 0.18)", "purpose": "Reveals a rotated backing sheet beneath the case file." },
+      { "name": "metal-clip", "value": "0 9px 14px rgba(42, 43, 40, 0.30)", "purpose": "Seats the illustrated metal clip on the evidence paper." },
+      { "name": "atlas-rail", "value": "0 18px 52px rgba(0, 15, 43, 0.34)", "purpose": "Keeps the fixed six-station rail legible over changing imagery." },
+      { "name": "primary-action", "value": "0 12px 28px rgba(6, 41, 91, 0.21)", "purpose": "Adds restrained lift to the main evidence action." },
+      { "name": "closing-sheet", "value": "23px 31px 82px rgba(0, 20, 55, 0.36)", "purpose": "Places the final contact record over the exit landscape." }
     ],
     "motion": [
-      { "name": "evidence-reveal", "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Retracts and restores dossiers and resizes the record rail." },
-      { "name": "switch-thumb", "value": "450ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves the Dream/Evidence switch thumb." },
-      { "name": "action-state", "value": "250ms ease", "purpose": "Handles action lift, color, background, and shadow changes." },
-      { "name": "reduced-motion", "value": "0.01ms linear", "purpose": "Collapses animation and transition duration when reduced motion is requested." }
+      { "name": "scene-crossfade", "value": "800ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Cross-fades the six full-bleed atlas stations." },
+      { "name": "case-state", "value": "720ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves and resizes the case file between Dream and Evidence states." },
+      { "name": "switch-thumb", "value": "550ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves the view-switch thumb by one state." },
+      { "name": "focus-trace", "value": "2800ms linear infinite", "purpose": "Flows the dashed path from active evidence to image landmark." },
+      { "name": "rail-state", "value": "550ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Fills the active station's internal rail route." },
+      { "name": "action-state", "value": "250ms ease", "purpose": "Handles tactile action lift and shadow changes." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "Collapses animation and transition duration and activates the static journey." }
     ],
     "breakpoints": [
-      { "name": "compact-desktop", "value": "1040px" },
-      { "name": "mobile-stack", "value": "760px" }
+      { "name": "compact-desktop", "value": "1180px" },
+      { "name": "mobile-static-journey", "value": "760px" }
     ]
   },
   "components": [
@@ -93,80 +123,109 @@
       "name": "Primary Evidence Action",
       "kind": "button",
       "refersTo": "action-primary",
-      "description": "The main route from a dossier to a live product or next step.",
+      "description": "The main route from a full evidence file to a live product or next step.",
       "html": "<a class=\"ds-action-primary\" href=\"#\">OPEN LIVE PRODUCT <span aria-hidden=\"true\">↗</span></a>",
-      "css": ".ds-action-primary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; gap:12px; padding:13px 16px; color:#fff; background:#092d66; font:800 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; box-shadow:0 10px 26px rgba(9,45,102,.2); transition:transform .25s ease,box-shadow .25s ease; } .ds-action-primary:hover { transform:translateY(-2px); box-shadow:0 14px 34px rgba(9,45,102,.3); } .ds-action-primary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-primary:active { transform:translateY(0); }"
+      "css": ".ds-action-primary { display:inline-flex; min-height:48px; align-items:center; justify-content:center; gap:10px; padding:12px 15px; color:#fff; background:#06295b; font:800 .61rem/1 'Space Grotesk',sans-serif; letter-spacing:.11em; text-decoration:none; text-transform:uppercase; box-shadow:0 12px 28px rgba(6,41,91,.21); transition:transform .25s ease,box-shadow .25s ease; } .ds-action-primary:hover { transform:translateY(-2px); box-shadow:0 17px 36px rgba(6,41,91,.3); } .ds-action-primary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-primary:active { transform:translateY(0); }"
     },
     {
       "name": "Secondary Evidence Action",
       "kind": "button",
       "refersTo": "action-secondary",
-      "description": "A quieter repository or supporting route on dossier paper.",
+      "description": "A supporting repository or discussion route on case paper.",
       "html": "<a class=\"ds-action-secondary\" href=\"#\">VIEW REPOSITORY <span aria-hidden=\"true\">↗</span></a>",
-      "css": ".ds-action-secondary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; gap:12px; padding:13px 16px; border-bottom:1px solid #092d66; color:#092d66; background:transparent; font:800 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; transition:transform .25s ease,background .25s ease; } .ds-action-secondary:hover { transform:translateY(-2px); background:rgba(9,45,102,.05); } .ds-action-secondary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-secondary:active { transform:translateY(0); }"
+      "css": ".ds-action-secondary { display:inline-flex; min-height:48px; align-items:center; justify-content:center; gap:10px; padding:12px 15px; border-bottom:1px solid #06295b; color:#06295b; background:transparent; font:800 .61rem/1 'Space Grotesk',sans-serif; letter-spacing:.11em; text-decoration:none; text-transform:uppercase; transition:transform .25s ease,background .25s ease; } .ds-action-secondary:hover { transform:translateY(-2px); background:rgba(6,41,91,.06); } .ds-action-secondary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-secondary:active { transform:translateY(0); }"
     },
     {
       "name": "Dream Evidence Switch",
       "kind": "custom",
       "refersTo": "view-switch",
-      "description": "The explicit mode control that reveals the uninterrupted world or restores proof.",
-      "html": "<div class=\"ds-view-switch\" aria-label=\"Portfolio view\"><button type=\"button\">DREAM</button><i aria-hidden=\"true\"><span></span></i><button class=\"ds-selected\" type=\"button\">EVIDENCE</button></div>",
-      "css": ".ds-view-switch { display:inline-flex; align-items:center; gap:12px; padding:8px 12px; border:1px solid rgba(255,255,255,.2); border-radius:999px; color:#fff; background:rgba(5,50,104,.24); box-shadow:0 7px 26px rgba(0,25,70,.16); font-family:'Space Grotesk',sans-serif; } .ds-view-switch button { min-height:44px; padding:0 8px; border:0; color:inherit; background:none; font-size:.62rem; font-weight:700; letter-spacing:.19em; text-transform:uppercase; opacity:.55; cursor:pointer; } .ds-view-switch .ds-selected,.ds-view-switch button:hover { opacity:1; } .ds-view-switch button:focus-visible { outline:3px solid #ffef92; outline-offset:3px; } .ds-view-switch i { position:relative; width:38px; height:20px; border:1px solid rgba(255,255,255,.65); border-radius:999px; } .ds-view-switch i span { position:absolute; top:3px; left:21px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 2px 8px rgba(0,31,78,.35); transition:transform .45s cubic-bezier(.16,1,.3,1); }"
+      "description": "The explicit presentation control between a compact Dream file and the complete Evidence record.",
+      "html": "<div class=\"ds-view-switch\" aria-label=\"Portfolio view\"><button type=\"button\" aria-pressed=\"false\">DREAM</button><i aria-hidden=\"true\"><span></span></i><button class=\"ds-selected\" type=\"button\" aria-pressed=\"true\">EVIDENCE</button></div>",
+      "css": ".ds-view-switch { display:inline-flex; align-items:center; gap:10px; padding:5px 10px; border-radius:999px; color:#fff; background:rgba(2,36,81,.68); box-shadow:0 12px 32px rgba(0,16,47,.22); backdrop-filter:blur(15px) saturate(1.2); font-family:'Space Grotesk',sans-serif; } .ds-view-switch button { min-height:44px; padding:0 8px; border:0; color:inherit; background:none; font-size:.58rem; font-weight:800; letter-spacing:.17em; text-transform:uppercase; opacity:.5; cursor:pointer; transition:opacity .25s ease; } .ds-view-switch .ds-selected,.ds-view-switch button:hover { opacity:1; } .ds-view-switch button:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-view-switch i { position:relative; width:42px; height:22px; border:1px solid rgba(255,255,255,.64); border-radius:999px; } .ds-view-switch i span { position:absolute; top:3px; left:23px; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 4px 12px rgba(0,20,58,.42); transition:transform .55s cubic-bezier(.16,1,.3,1); }"
     },
     {
-      "name": "Contact Header Action",
-      "kind": "nav",
-      "description": "The always-visible top-right route to the closing contact record.",
-      "html": "<a class=\"ds-contact-link\" href=\"#\">CONTACT <span aria-hidden=\"true\">↗</span></a>",
-      "css": ".ds-contact-link { display:inline-flex; min-height:44px; align-items:center; gap:18px; padding:13px 17px; border:1px solid rgba(255,255,255,.86); color:#fff; background:transparent; font:700 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.2em; text-decoration:none; text-transform:uppercase; transition:color .25s ease,background .25s ease,box-shadow .25s ease; } .ds-contact-link:hover { color:#092d66; background:#fff; box-shadow:0 10px 30px rgba(0,34,80,.22); } .ds-contact-link:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-contact-link:active { box-shadow:none; }"
+      "name": "Qualification Brief",
+      "kind": "custom",
+      "description": "The wide-desktop opening scope, verified-file count, and availability statement that qualifies the portfolio in frame one.",
+      "html": "<aside class=\"ds-qualification\"><strong>PRODUCTION SYSTEMS, COLLABORATIVE PRODUCTS, AUTHORED INTERFACES.</strong><span>SIX VERIFIED CASE FILES</span><span>AVAILABLE FOR FULL-STACK ROLES AND SOFTWARE PROJECTS</span></aside>",
+      "css": ".ds-qualification { display:grid; width:340px; gap:8px; padding:17px 19px; color:#fff; background:rgba(3,32,72,.75); box-shadow:0 16px 42px rgba(0,17,49,.2); backdrop-filter:blur(13px) saturate(1.1); font-family:'Space Grotesk',sans-serif; text-transform:uppercase; } .ds-qualification strong { max-width:33ch; font-size:.71rem; line-height:1.45; letter-spacing:.06em; } .ds-qualification span { font-size:.55rem; font-weight:700; line-height:1.35; letter-spacing:.13em; opacity:.66; }"
     },
     {
-      "name": "Evidence Dossier",
+      "name": "Evidence Case File",
       "kind": "card",
-      "refersTo": "dossier",
-      "description": "The square physical record that attaches verified engineering proof to a project world.",
-      "html": "<section class=\"ds-dossier\"><p class=\"ds-file-title\">01 — PULSEGUARD</p><dl><div><dt>ROLE</dt><dd>Product framing · full-stack engineering · infrastructure</dd></div><div><dt>STACK</dt><dd>NEXT.JS / EXPRESS / MONGODB / REDIS / BULLMQ / DOCKER</dd></div></dl><ul><li><span aria-hidden=\"true\">✓</span> DOWN only after three consecutive failures</li><li><span aria-hidden=\"true\">✓</span> Telegram incident and recovery alerts</li></ul></section>",
-      "css": ".ds-dossier { position:relative; max-width:520px; padding:52px 44px; color:#222321; background:linear-gradient(95deg,rgba(79,64,42,.06),transparent 15%),#f4f0e7; box-shadow:-18px 0 48px rgba(18,48,67,.16); font-family:'Space Grotesk',sans-serif; } .ds-file-title { margin:0 0 34px; padding-bottom:21px; border-bottom:1px solid rgba(32,43,49,.22); font-size:.72rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; } .ds-dossier dl { display:grid; gap:23px; margin:0; } .ds-dossier dl div { display:grid; gap:8px; } .ds-dossier dt { color:#60625d; font-size:.59rem; font-weight:800; letter-spacing:.19em; } .ds-dossier dd { margin:0; font-size:.9rem; font-weight:600; line-height:1.5; } .ds-dossier ul { margin:34px 0 0; padding:0; border-top:1px solid rgba(32,43,49,.22); list-style:none; } .ds-dossier li { display:grid; grid-template-columns:40px 1fr; align-items:center; min-height:58px; border-bottom:1px solid rgba(32,43,49,.22); font-size:.77rem; font-weight:600; } .ds-dossier li span { color:#087ed2; }"
+      "refersTo": "case-file",
+      "description": "The full physical record that carries role, stack, description, three verified facts, and actions.",
+      "html": "<section class=\"ds-case-file\"><i class=\"ds-paper-layer\" aria-hidden=\"true\"></i><span class=\"ds-clip\" aria-hidden=\"true\"></span><span class=\"ds-stamp\" aria-hidden=\"true\">NF</span><header><span>01 / 06</span><strong>LIVE PRODUCT</strong></header><dl><div><dt>ROLE</dt><dd>Product framing · full-stack engineering · infrastructure</dd></div><div><dt>STACK</dt><dd class=\"ds-stack\">NEXT.JS / EXPRESS / MONGODB / REDIS / BULLMQ / DOCKER</dd></div><div><dt>RECORD</dt><dd>An endpoint-monitoring platform built around trusted incident states.</dd></div></dl><ul><li class=\"ds-signal\">✓ <span>DOWN only after three consecutive failures</span></li><li>✓ <span>Telegram incident and recovery alerts</span></li><li>✓ <span>Ownership-safe monitors and paginated history</span></li></ul><div class=\"ds-file-actions\"><a href=\"#\">OPEN LIVE PRODUCT ↗</a><a href=\"#\">VIEW REPOSITORY ↗</a></div></section>",
+      "css": ".ds-case-file { position:relative; width:min(610px,90vw); padding:44px 48px 36px; color:#20211f; background:linear-gradient(105deg,rgba(92,72,41,.075),transparent 17%),linear-gradient(180deg,rgba(255,255,255,.28),transparent 24%),#f4f0e7; box-shadow:-24px 31px 75px rgba(0,22,55,.3); clip-path:polygon(0 .8%,97.8% 0,100% 4%,99.2% 96%,96% 100%,1.2% 99%,0 96%); font-family:'Space Grotesk',sans-serif; } .ds-case-file::after { position:absolute; top:6%; bottom:6%; left:22px; width:1px; background:rgba(164,77,61,.19); content:''; } .ds-paper-layer { position:absolute; z-index:-1; inset:10px -10px -11px 12px; background:#ded5c5; box-shadow:-14px 20px 50px rgba(0,22,55,.18); transform:rotate(.6deg); } .ds-clip { position:absolute; top:-14px; right:11%; width:82px; height:25px; border-radius:50%; background:linear-gradient(180deg,#d6d7d2,#686d6c 42%,#bfc1bc 70%,#747876); box-shadow:0 9px 14px rgba(42,43,40,.3); } .ds-stamp { position:absolute; top:29px; right:34px; display:grid; width:78px; height:78px; place-items:center; border:2px solid rgba(8,49,108,.62); border-radius:50%; color:rgba(8,49,108,.76); font:400 1.45rem/1 'Instrument Serif',serif; } .ds-case-file header { display:flex; max-width:calc(100% - 98px); justify-content:space-between; margin:0 98px 25px 0; padding-bottom:19px; border-bottom:1px solid rgba(31,45,53,.2); color:#06295b; font-size:.59rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; } .ds-case-file header strong { color:#087ed2; } .ds-case-file dl { display:grid; gap:19px; margin:0; } .ds-case-file dl div { display:grid; gap:6px; } .ds-case-file dt { color:#5b5d58; font-size:.55rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; } .ds-case-file dd { margin:0; font-size:.9rem; font-weight:600; line-height:1.5; } .ds-case-file .ds-stack { color:#06295b; font-size:.74rem; letter-spacing:.075em; text-transform:uppercase; } .ds-case-file ul { margin:25px 0 0; padding:0; border-top:1px solid rgba(31,45,53,.2); list-style:none; } .ds-case-file li { display:grid; grid-template-columns:34px 1fr; align-items:center; min-height:51px; border-bottom:1px solid rgba(31,45,53,.2); color:#087ed2; font-size:.7rem; font-weight:650; } .ds-case-file li span { color:#20211f; } .ds-case-file .ds-signal { color:#ef5d32; } .ds-file-actions { display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:25px; } .ds-file-actions a { display:inline-flex; min-height:48px; align-items:center; justify-content:center; padding:12px 15px; color:#fff; background:#06295b; font-size:.61rem; font-weight:800; letter-spacing:.11em; text-decoration:none; } .ds-file-actions a:last-child { color:#06295b; background:transparent; border-bottom:1px solid #06295b; } .ds-file-actions a:hover { transform:translateY(-2px); } .ds-file-actions a:focus-visible { outline:3px solid #ffef92; outline-offset:5px; }"
     },
     {
-      "name": "Evidence Record Rail",
+      "name": "Dream Compact File",
+      "kind": "card",
+      "refersTo": "case-file",
+      "description": "The smaller animated-desktop presentation state that retains identity and an explicit route back to evidence.",
+      "html": "<section class=\"ds-compact-file\"><header><span>01 / 06</span><strong>LIVE PRODUCT</strong></header><div><strong>PulseGuard</strong><span>Product framing · full-stack engineering · infrastructure</span></div><button type=\"button\">INSPECT EVIDENCE <span aria-hidden=\"true\">↗</span></button></section>",
+      "css": ".ds-compact-file { width:min(335px,90vw); padding:25px 27px 26px; color:#20211f; background:#f4f0e7; box-shadow:-17px 24px 54px rgba(0,22,55,.24); clip-path:polygon(0 2%,97% 0,100% 8%,99% 94%,94% 100%,2% 98%); font-family:'Space Grotesk',sans-serif; } .ds-compact-file header { display:flex; justify-content:space-between; margin-bottom:17px; padding-bottom:14px; border-bottom:1px solid rgba(31,45,53,.2); color:#06295b; font-size:.59rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; } .ds-compact-file header strong { color:#087ed2; } .ds-compact-file div { display:grid; gap:8px; } .ds-compact-file div strong { font:400 2.2rem/1 'Instrument Serif',serif; } .ds-compact-file div span { color:#5b5d58; font-size:.7rem; font-weight:700; line-height:1.45; } .ds-compact-file button { display:flex; width:100%; min-height:48px; align-items:center; justify-content:space-between; margin-top:20px; padding:13px 15px; border:0; color:#fff; background:#06295b; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; } .ds-compact-file button:hover { box-shadow:0 17px 36px rgba(6,41,91,.3); transform:translateY(-2px); } .ds-compact-file button:focus-visible { outline:3px solid #ffef92; outline-offset:5px; }"
+    },
+    {
+      "name": "Focus Trace",
+      "kind": "custom",
+      "refersTo": "focus-anchor",
+      "description": "The decorative dashed route from active evidence to a numbered factual landmark in the current image.",
+      "html": "<div class=\"ds-focus-demo\"><svg class=\"ds-focus-trace\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M 79 52 C 69 52,64 58,48 58\"></path><circle cx=\"48\" cy=\"58\" r=\".62\"></circle><circle class=\"ds-trace-halo\" cx=\"48\" cy=\"58\" r=\"1.35\"></circle></svg><span class=\"ds-focus-anchor\">01</span></div>",
+      "css": ".ds-focus-demo { position:relative; width:640px; max-width:100%; aspect-ratio:16/9; overflow:hidden; background:linear-gradient(135deg,#29a7ed,#06295b); } .ds-focus-trace { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; } .ds-focus-trace path,.ds-focus-trace circle { vector-effect:non-scaling-stroke; } .ds-focus-trace path { fill:none; stroke:rgba(255,255,255,.88); stroke-width:1; stroke-dasharray:7 8; filter:drop-shadow(0 3px 7px rgba(0,30,72,.34)); animation:ds-trace-flow 2.8s linear infinite; } .ds-focus-trace circle { fill:#f4f0e7; stroke:#fff; stroke-width:1; } .ds-focus-trace .ds-trace-halo { fill:none; stroke:rgba(255,255,255,.54); } .ds-focus-anchor { position:absolute; left:48%; top:58%; display:grid; width:42px; height:42px; place-items:center; border-radius:50%; color:#06295b; background:#f4f0e7; box-shadow:0 13px 28px rgba(0,30,70,.28); font:800 .58rem/1 'Space Grotesk',sans-serif; transform:translate(-50%,-50%); } @keyframes ds-trace-flow { to { stroke-dashoffset:-30; } }"
+    },
+    {
+      "name": "Six-Station Atlas Rail",
       "kind": "nav",
-      "description": "The fixed segmented rail that keeps all six project records in reach.",
-      "html": "<nav class=\"ds-record-rail\" aria-label=\"Project evidence records\"><button class=\"ds-active\"><span>01</span><i></i><strong>PULSEGUARD</strong></button><button><span>02</span><i></i><strong>COLAB</strong></button><button><span>03</span><i></i><strong>FOUNDATION</strong></button></nav>",
-      "css": ".ds-record-rail { display:grid; grid-template-columns:repeat(3,1fr); min-height:78px; color:#092d66; background:rgba(248,245,237,.96); box-shadow:0 -12px 30px rgba(3,43,87,.13); font-family:'Space Grotesk',sans-serif; } .ds-record-rail button { display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; gap:3px 10px; align-content:center; padding:12px 16px; border:0; border-right:1px solid rgba(9,45,102,.12); color:inherit; background:transparent; text-align:left; cursor:pointer; } .ds-record-rail span { grid-row:1/3; align-self:center; font-size:.72rem; font-weight:800; } .ds-record-rail strong { font-size:.58rem; letter-spacing:.08em; text-transform:uppercase; } .ds-record-rail i { align-self:end; width:100%; height:2px; background:rgba(9,45,102,.17); } .ds-record-rail .ds-active i { background:#087ed2; } .ds-record-rail .ds-active strong,.ds-record-rail button:hover strong { color:#087ed2; } .ds-record-rail button:focus-visible { outline:3px solid #ffef92; outline-offset:-4px; }"
+      "refersTo": "atlas-rail",
+      "description": "The fixed orientation control that keeps all six evidence stations directly reachable.",
+      "html": "<nav class=\"ds-atlas-rail\" aria-label=\"Project evidence records\"><button class=\"ds-active\" aria-current=\"step\"><span>01</span><strong>PULSEGUARD</strong><i></i></button><button><span>02</span><strong>COLAB</strong><i></i></button><button><span>03</span><strong>FOUNDATION PLATFORM</strong><i></i></button><button><span>04</span><strong>PRIME LEATHER REPAIR</strong><i></i></button><button><span>05</span><strong>BOOKSHELF</strong><i></i></button><button><span>06</span><strong>LOCAL LLM PIPELINE</strong><i></i></button></nav>",
+      "css": ".ds-atlas-rail { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); min-height:64px; color:#fff; background:rgba(3,31,70,.86); box-shadow:0 18px 52px rgba(0,15,43,.34); backdrop-filter:blur(16px) saturate(1.12); font-family:'Space Grotesk',sans-serif; } .ds-atlas-rail button { display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; gap:4px 10px; align-content:center; min-width:0; padding:11px 13px; border:0; border-right:1px solid rgba(255,255,255,.1); color:inherit; background:transparent; text-align:left; cursor:pointer; } .ds-atlas-rail button:hover { background:rgba(255,255,255,.08); } .ds-atlas-rail button:focus-visible { outline:3px solid #ffef92; outline-offset:-5px; } .ds-atlas-rail span { grid-row:1/3; align-self:center; font-size:.63rem; font-weight:800; } .ds-atlas-rail strong { overflow:hidden; font-size:.51rem; letter-spacing:.08em; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; } .ds-atlas-rail i { align-self:end; width:100%; height:2px; background:rgba(255,255,255,.18); } .ds-atlas-rail .ds-active { color:#ffef92; } .ds-atlas-rail .ds-active i { background:#ffef92; }"
+    },
+    {
+      "name": "Closing Contact Sheet",
+      "kind": "card",
+      "description": "The final physical record with direct email, Telegram, and CV destinations.",
+      "html": "<section class=\"ds-contact-sheet\"><h2>The evidence ends here.<br>The work does not.</h2><p>I am open to full-stack engineering roles and software projects where product thinking and production detail both matter.</p><div><a href=\"mailto:nazarfalach51@gmail.com\">EMAIL NAZAR</a><a href=\"https://t.me/tedosss\" target=\"_blank\" rel=\"noreferrer\">TELEGRAM</a><a href=\"/assets/nazar-falach-cv.pdf\" download>DOWNLOAD CV</a></div><small>FILED IN POLAND · FALACH.PL · 2026</small></section>",
+      "css": ".ds-contact-sheet { position:relative; width:min(860px,90vw); padding:clamp(42px,6vw,82px); color:#20211f; background:#f4f0e7; box-shadow:23px 31px 82px rgba(0,20,55,.36); clip-path:polygon(1% 1%,98% 0,100% 4%,99% 96%,96% 100%,0 98%); font-family:'Space Grotesk',sans-serif; transform:rotate(-.45deg); } .ds-contact-sheet::before { position:absolute; top:5%; bottom:5%; left:32px; width:1px; background:rgba(164,77,61,.2); content:''; } .ds-contact-sheet h2 { max-width:11ch; margin:0; font:400 clamp(3.6rem,6.5vw,6rem)/.9 'Instrument Serif',serif; letter-spacing:-.035em; } .ds-contact-sheet p { max-width:62ch; margin:29px 0 0; color:#5b5d58; line-height:1.65; } .ds-contact-sheet div { display:flex; flex-wrap:wrap; gap:10px; margin-top:31px; } .ds-contact-sheet a { display:inline-flex; min-height:50px; align-items:center; padding:12px 17px; color:#fff; background:#06295b; box-shadow:0 12px 28px rgba(6,41,91,.2); font-size:.64rem; font-weight:800; letter-spacing:.1em; text-decoration:none; text-transform:uppercase; transition:transform .25s ease,box-shadow .25s ease; } .ds-contact-sheet a:hover { box-shadow:0 17px 36px rgba(6,41,91,.3); transform:translateY(-2px); } .ds-contact-sheet a:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-contact-sheet small { display:block; margin-top:48px; padding-top:18px; border-top:1px solid rgba(31,45,53,.2); color:#5b5d58; font-size:.55rem; font-weight:800; letter-spacing:.17em; text-transform:uppercase; }"
     }
   ],
   "narrative": {
-    "northStar": "The Evidence Found Inside the Dream",
-    "overview": "Dream Evidence treats production engineering as physical proof discovered inside one continuous, bright landscape. Saturated photographic places provide wonder; cream dossier sheets, navy ink, hairline rules, clips, seals, and leader lines make roles, stacks, shipped behavior, and actions immediately credible.\n\nThe world is cinematic but not evasive. Large serif project names sit directly in the landscape, while compact grotesk labels turn each dossier into a readable record. The system refuses a detached portfolio-card grid: evidence overlaps its project place, and the Dream/Evidence control can retract or restore the proof layer without navigating away.",
+    "northStar": "Proof Plotted Inside the Dream",
+    "overview": "Dream Evidence Atlas makes six production engineering records feel found inside one continuous, luminous landscape. Each station fills the viewport; monumental serif project identity lives in the image, while a clipped cream case file floats over the same place as a physical object. Navy cartography, an animated Focus Trace, numbered anchors, and the fixed atlas rail plot every claim back into the world that carries it.\n\nWonder never delays qualification. On wide animated desktop, the first viewport names Nazar Falach, his full-stack role and location, the range of work, the six verified files, availability, PulseGuard's classification and premise, and the complete first evidence record. Compact paths retain his name, the authored-work scope, PulseGuard's identity and premise, and direct Contact while intentionally collapsing secondary location, count, and availability metadata. Dream mode lets the image breathe with a compact file; Evidence mode is the default and opens the full role, stack, record, verified behaviors, and actions without leaving the atlas.",
     "keyCharacteristics": [
-      "Full-bleed cobalt and sky-blue photographic worlds with saturated green terrain.",
-      "Square cream paper sheets physically attached with metal clips, stamps, rules, and offset depth.",
-      "High-contrast Instrument Serif titles paired with compact, uppercase Space Grotesk evidence labels.",
-      "One incident-orange signal reserved for exceptional operational meaning.",
-      "Six factual project records leading to products, repositories, contact, and CV."
+      "One full-bleed sticky atlas advances through six image stations across a six-viewport scroll track.",
+      "Cream case files float with clipped edges, paper layers, metal clips, NF seals, ledger rules, tilt, and directional shadow.",
+      "A dashed Focus Trace connects the active evidence row to a numbered landmark in every scene.",
+      "The fixed bottom atlas rail keeps all six cases visible and reports the active station.",
+      "Instrument Serif creates project-scale identity; Space Grotesk keeps proof compact, direct, and scannable.",
+      "Semantic records survive mobile, reduced motion, missing WebGL, and failed decorative rendering."
     ],
     "rules": [
-      { "name": "The One Incident Rule", "body": "Incident Orange marks exceptional operational evidence once; ordinary checks remain Active Blue.", "section": "colors" },
-      { "name": "The Two Materials Rule", "body": "Blue photographic atmosphere is the dream; cream ruled paper is the evidence. Do not blur their responsibilities.", "section": "colors" },
-      { "name": "The Proof Speaks Grotesk Rule", "body": "Factual claims, metadata, stacks, and actions use Space Grotesk; serif is reserved for project identity and the final proposition.", "section": "typography" },
-      { "name": "The Continuous World Rule", "body": "New project records extend the scene rail and attach evidence to a place; they do not become isolated floating cards.", "section": "layout" },
-      { "name": "The Physical Cause Rule", "body": "Every shadow must imply paper, metal, a fixed rail, or an interactive lift; avoid generic ambient card shadows.", "section": "elevation" },
-      { "name": "The Square Evidence Rule", "body": "Proof surfaces and actions keep square corners; rounding is reserved for controls and physical circular marks.", "section": "shapes" }
+      { "name": "The One Signal Rule", "body": "Incident Orange marks one exceptional operational fact; Focus Yellow marks navigation and access; Active Blue carries ordinary evidence state.", "section": "colors" },
+      { "name": "The Material Assignment Rule", "body": "Images and sky are the dream, cream is the record, and translucent navy is interface chrome. Do not swap those responsibilities.", "section": "colors" },
+      { "name": "The Proof Speaks Grotesk Rule", "body": "Project identity and the closing proposition may use serif; facts, qualifications, controls, and actions use Space Grotesk.", "section": "typography" },
+      { "name": "The One Atlas Rule", "body": "Additions extend the six-station route, marker rhythm, and rail; they do not become detached grids, carousels, or route changes.", "section": "layout" },
+      { "name": "The Qualification-in-Frame-One Rule", "body": "Wide animated desktop communicates who, what, proof, availability, and a next action. Compact layouts may collapse secondary metadata but must retain identity, work scope, first-case premise, and Contact before relying on scroll, hover, or WebGL.", "section": "layout" },
+      { "name": "The Physical Cause Rule", "body": "Every shadow must imply paper, metal, fixed chrome, or an interactive lift; avoid generic ambient card shadows.", "section": "elevation" },
+      { "name": "The Decorative Depth Rule", "body": "WebGL may deepen the atlas but may never own a project name, fact, navigation target, state announcement, or action.", "section": "elevation" },
+      { "name": "The Cut Paper Rule", "body": "Evidence may look clipped, tilted, layered, and imperfect; it must never become a soft rounded card or generic glass panel.", "section": "shapes" }
     ],
     "dos": [
-      "Do place engineering claims on a cream evidence sheet attached to the project environment they describe.",
-      "Do keep role, stack, record, verified behavior, and next actions readable in the semantic document.",
-      "Do preserve strong keyboard focus, reduced-motion behavior, and the complete stacked mobile path.",
-      "Do reserve the large serif voice for project identity and the final contact proposition.",
-      "Do extend the six-record rhythm with truthful, evidence-backed content only."
+      "Do keep all six stations inside one full-bleed atlas with a persistent orientation rail.",
+      "Do fully qualify Nazar, the work range, verified-file count, availability, and first case in the wide opening viewport, then preserve identity, scope, first-case premise, and Contact on compact layouts.",
+      "Do attach every engineering claim to a semantic cream file and a project-specific scene anchor.",
+      "Do preserve the complete record in static, mobile, reduced-motion, forced-colors, and no-WebGL paths.",
+      "Do keep project facts and destinations aligned with the verified source data; distinguish prepared work from completed results.",
+      "Do treat Dream as a compact presentation state and Evidence as the full default record."
     ],
     "donts": [
-      "Don't turn project evidence into a conventional grid of detached cards.",
-      "Don't use Incident Orange as a broad accent, hover color, or decorative flourish.",
-      "Don't place essential copy or navigation exclusively in imagery, motion, or WebGL.",
-      "Don't soften evidence surfaces with generic rounded corners or glassmorphism.",
-      "Don't invent customer names, endorsements, benchmarks, or completed results to make a record feel stronger."
+      "Don't restore the obsolete permanent 64/36 split-screen dossier layout on animated desktop.",
+      "Don't turn stations into detached cards, a conventional project grid, or six separate route pages.",
+      "Don't use Incident Orange beyond the single exceptional PulseGuard incident-state check.",
+      "Don't hide essential copy, actions, navigation, or state exclusively in imagery, hover, animation, or Three.js.",
+      "Don't apply rounded-card or glass-panel styling to evidence paper; reserve translucent glass for atlas chrome.",
+      "Don't invent customers, endorsements, benchmarks, training results, or production outcomes."
     ]
   }
 }
