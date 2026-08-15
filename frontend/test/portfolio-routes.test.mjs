@@ -12,8 +12,9 @@ test('the previous Sleep Observatory remains the root portfolio', () => {
   assert.doesNotMatch(rootPage, /DreamWorld/);
 });
 
-test('the new bright dream world is served at /dream without redirecting', () => {
-  assert.match(dreamPage, /DreamWorld/);
+test('the Impeccable Dream Evidence experience is served at /dream without redirecting', () => {
+  assert.match(dreamPage, /DreamEvidenceExperience/);
+  assert.match(dreamPage, /dream-evidence-approved-20260815/);
   assert.match(dreamPage, /https:\/\/falach\.pl\/dream/);
   assert.doesNotMatch(dreamPage, /redirect\s*\(/);
 });

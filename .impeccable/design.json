@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-15T00:00:00+02:00",
+  "title": "Design System: Dream Evidence",
+  "extensions": {
+    "colorMeta": {
+      "evidence-navy": {
+        "role": "primary",
+        "displayName": "Evidence Navy",
+        "canonical": "#092d66",
+        "tonalRamp": ["oklch(15% 0.071 256)", "oklch(26% 0.096 256)", "oklch(38% 0.105 256)", "oklch(50% 0.105 256)", "oklch(62% 0.090 256)", "oklch(74% 0.065 256)", "oklch(86% 0.038 256)", "oklch(95% 0.014 256)"]
+      },
+      "active-blue": {
+        "role": "primary",
+        "displayName": "Active Blue",
+        "canonical": "#087ed2",
+        "tonalRamp": ["oklch(15% 0.083 247)", "oklch(26% 0.126 247)", "oklch(38% 0.161 247)", "oklch(50% 0.183 247)", "oklch(62% 0.170 247)", "oklch(74% 0.130 247)", "oklch(86% 0.075 247)", "oklch(95% 0.026 247)"]
+      },
+      "dream-sky": {
+        "role": "primary",
+        "displayName": "Dream Sky",
+        "canonical": "#29a7ed",
+        "tonalRamp": ["oklch(15% 0.075 238)", "oklch(26% 0.110 238)", "oklch(38% 0.145 238)", "oklch(50% 0.170 238)", "oklch(62% 0.160 238)", "oklch(74% 0.125 238)", "oklch(86% 0.072 238)", "oklch(95% 0.026 238)"]
+      },
+      "dossier-paper": {
+        "role": "neutral",
+        "displayName": "Dossier Paper",
+        "canonical": "#f4f0e7",
+        "tonalRamp": ["oklch(15% 0.010 78)", "oklch(26% 0.014 78)", "oklch(38% 0.017 78)", "oklch(50% 0.020 78)", "oklch(62% 0.022 78)", "oklch(74% 0.024 78)", "oklch(86% 0.025 78)", "oklch(95% 0.024 78)"]
+      },
+      "evidence-ink": {
+        "role": "neutral",
+        "displayName": "Evidence Ink",
+        "canonical": "#222321",
+        "tonalRamp": ["oklch(15% 0.004 120)", "oklch(26% 0.005 120)", "oklch(38% 0.006 120)", "oklch(50% 0.006 120)", "oklch(62% 0.006 120)", "oklch(74% 0.005 120)", "oklch(86% 0.004 120)", "oklch(95% 0.002 120)"]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#60625d",
+        "tonalRamp": ["oklch(15% 0.006 120)", "oklch(26% 0.009 120)", "oklch(38% 0.011 120)", "oklch(50% 0.012 120)", "oklch(62% 0.011 120)", "oklch(74% 0.009 120)", "oklch(86% 0.006 120)", "oklch(95% 0.003 120)"]
+      },
+      "incident-orange": {
+        "role": "secondary",
+        "displayName": "Incident Orange",
+        "canonical": "#ef5d32",
+        "tonalRamp": ["oklch(15% 0.080 36)", "oklch(26% 0.125 36)", "oklch(38% 0.165 36)", "oklch(50% 0.195 36)", "oklch(62% 0.190 36)", "oklch(74% 0.145 36)", "oklch(86% 0.085 36)", "oklch(95% 0.030 36)"]
+      },
+      "evidence-rule": {
+        "role": "neutral",
+        "displayName": "Evidence Rule",
+        "canonical": "rgba(32, 43, 49, 0.22)",
+        "tonalRamp": ["oklch(15% 0.010 225)", "oklch(26% 0.012 225)", "oklch(38% 0.013 225)", "oklch(50% 0.013 225)", "oklch(62% 0.011 225)", "oklch(74% 0.008 225)", "oklch(86% 0.005 225)", "oklch(95% 0.002 225)"]
+      },
+      "focus-yellow": {
+        "role": "secondary",
+        "displayName": "Focus Yellow",
+        "canonical": "#ffef92",
+        "tonalRamp": ["oklch(15% 0.047 98)", "oklch(26% 0.070 98)", "oklch(38% 0.092 98)", "oklch(50% 0.110 98)", "oklch(62% 0.120 98)", "oklch(74% 0.117 98)", "oklch(86% 0.090 98)", "oklch(95% 0.040 98)"]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(26% 0 0)", "oklch(38% 0 0)", "oklch(50% 0 0)", "oklch(62% 0 0)", "oklch(74% 0 0)", "oklch(86% 0 0)", "oklch(95% 0 0)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Project Display", "purpose": "Monumental project names inside the landscape." },
+      "headline": { "displayName": "Closing Headline", "purpose": "The final contact proposition on paper." },
+      "body": { "displayName": "Evidence Body", "purpose": "Roles, records, evidence statements, and supporting prose." },
+      "label": { "displayName": "Evidence Label", "purpose": "Indexes, fields, controls, navigation, and actions." }
+    },
+    "shadows": [
+      { "name": "dossier-edge", "value": "-18px 0 48px rgba(18, 48, 67, 0.16)", "purpose": "Separates an evidence sheet from its attached project world." },
+      { "name": "record-rail", "value": "0 -12px 30px rgba(3, 43, 87, 0.13)", "purpose": "Keeps the fixed project rail legible over imagery." },
+      { "name": "action-primary", "value": "0 10px 26px rgba(9, 45, 102, 0.20)", "purpose": "Adds restrained lift to the primary project action." },
+      { "name": "closing-sheet", "value": "18px 24px 70px rgba(1, 43, 94, 0.30)", "purpose": "Places the closing contact sheet over the final landscape." }
+    ],
+    "motion": [
+      { "name": "evidence-reveal", "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Retracts and restores dossiers and resizes the record rail." },
+      { "name": "switch-thumb", "value": "450ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Moves the Dream/Evidence switch thumb." },
+      { "name": "action-state", "value": "250ms ease", "purpose": "Handles action lift, color, background, and shadow changes." },
+      { "name": "reduced-motion", "value": "0.01ms linear", "purpose": "Collapses animation and transition duration when reduced motion is requested." }
+    ],
+    "breakpoints": [
+      { "name": "compact-desktop", "value": "1040px" },
+      { "name": "mobile-stack", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Evidence Action",
+      "kind": "button",
+      "refersTo": "action-primary",
+      "description": "The main route from a dossier to a live product or next step.",
+      "html": "<a class=\"ds-action-primary\" href=\"#\">OPEN LIVE PRODUCT <span aria-hidden=\"true\">↗</span></a>",
+      "css": ".ds-action-primary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; gap:12px; padding:13px 16px; color:#fff; background:#092d66; font:800 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; box-shadow:0 10px 26px rgba(9,45,102,.2); transition:transform .25s ease,box-shadow .25s ease; } .ds-action-primary:hover { transform:translateY(-2px); box-shadow:0 14px 34px rgba(9,45,102,.3); } .ds-action-primary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-primary:active { transform:translateY(0); }"
+    },
+    {
+      "name": "Secondary Evidence Action",
+      "kind": "button",
+      "refersTo": "action-secondary",
+      "description": "A quieter repository or supporting route on dossier paper.",
+      "html": "<a class=\"ds-action-secondary\" href=\"#\">VIEW REPOSITORY <span aria-hidden=\"true\">↗</span></a>",
+      "css": ".ds-action-secondary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; gap:12px; padding:13px 16px; border-bottom:1px solid #092d66; color:#092d66; background:transparent; font:800 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; transition:transform .25s ease,background .25s ease; } .ds-action-secondary:hover { transform:translateY(-2px); background:rgba(9,45,102,.05); } .ds-action-secondary:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-action-secondary:active { transform:translateY(0); }"
+    },
+    {
+      "name": "Dream Evidence Switch",
+      "kind": "custom",
+      "refersTo": "view-switch",
+      "description": "The explicit mode control that reveals the uninterrupted world or restores proof.",
+      "html": "<div class=\"ds-view-switch\" aria-label=\"Portfolio view\"><button type=\"button\">DREAM</button><i aria-hidden=\"true\"><span></span></i><button class=\"ds-selected\" type=\"button\">EVIDENCE</button></div>",
+      "css": ".ds-view-switch { display:inline-flex; align-items:center; gap:12px; padding:8px 12px; border:1px solid rgba(255,255,255,.2); border-radius:999px; color:#fff; background:rgba(5,50,104,.24); box-shadow:0 7px 26px rgba(0,25,70,.16); font-family:'Space Grotesk',sans-serif; } .ds-view-switch button { min-height:44px; padding:0 8px; border:0; color:inherit; background:none; font-size:.62rem; font-weight:700; letter-spacing:.19em; text-transform:uppercase; opacity:.55; cursor:pointer; } .ds-view-switch .ds-selected,.ds-view-switch button:hover { opacity:1; } .ds-view-switch button:focus-visible { outline:3px solid #ffef92; outline-offset:3px; } .ds-view-switch i { position:relative; width:38px; height:20px; border:1px solid rgba(255,255,255,.65); border-radius:999px; } .ds-view-switch i span { position:absolute; top:3px; left:21px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 2px 8px rgba(0,31,78,.35); transition:transform .45s cubic-bezier(.16,1,.3,1); }"
+    },
+    {
+      "name": "Contact Header Action",
+      "kind": "nav",
+      "description": "The always-visible top-right route to the closing contact record.",
+      "html": "<a class=\"ds-contact-link\" href=\"#\">CONTACT <span aria-hidden=\"true\">↗</span></a>",
+      "css": ".ds-contact-link { display:inline-flex; min-height:44px; align-items:center; gap:18px; padding:13px 17px; border:1px solid rgba(255,255,255,.86); color:#fff; background:transparent; font:700 .67rem/1 'Space Grotesk',sans-serif; letter-spacing:.2em; text-decoration:none; text-transform:uppercase; transition:color .25s ease,background .25s ease,box-shadow .25s ease; } .ds-contact-link:hover { color:#092d66; background:#fff; box-shadow:0 10px 30px rgba(0,34,80,.22); } .ds-contact-link:focus-visible { outline:3px solid #ffef92; outline-offset:5px; } .ds-contact-link:active { box-shadow:none; }"
+    },
+    {
+      "name": "Evidence Dossier",
+      "kind": "card",
+      "refersTo": "dossier",
+      "description": "The square physical record that attaches verified engineering proof to a project world.",
+      "html": "<section class=\"ds-dossier\"><p class=\"ds-file-title\">01 — PULSEGUARD</p><dl><div><dt>ROLE</dt><dd>Product framing · full-stack engineering · infrastructure</dd></div><div><dt>STACK</dt><dd>NEXT.JS / EXPRESS / MONGODB / REDIS / BULLMQ / DOCKER</dd></div></dl><ul><li><span aria-hidden=\"true\">✓</span> DOWN only after three consecutive failures</li><li><span aria-hidden=\"true\">✓</span> Telegram incident and recovery alerts</li></ul></section>",
+      "css": ".ds-dossier { position:relative; max-width:520px; padding:52px 44px; color:#222321; background:linear-gradient(95deg,rgba(79,64,42,.06),transparent 15%),#f4f0e7; box-shadow:-18px 0 48px rgba(18,48,67,.16); font-family:'Space Grotesk',sans-serif; } .ds-file-title { margin:0 0 34px; padding-bottom:21px; border-bottom:1px solid rgba(32,43,49,.22); font-size:.72rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; } .ds-dossier dl { display:grid; gap:23px; margin:0; } .ds-dossier dl div { display:grid; gap:8px; } .ds-dossier dt { color:#60625d; font-size:.59rem; font-weight:800; letter-spacing:.19em; } .ds-dossier dd { margin:0; font-size:.9rem; font-weight:600; line-height:1.5; } .ds-dossier ul { margin:34px 0 0; padding:0; border-top:1px solid rgba(32,43,49,.22); list-style:none; } .ds-dossier li { display:grid; grid-template-columns:40px 1fr; align-items:center; min-height:58px; border-bottom:1px solid rgba(32,43,49,.22); font-size:.77rem; font-weight:600; } .ds-dossier li span { color:#087ed2; }"
+    },
+    {
+      "name": "Evidence Record Rail",
+      "kind": "nav",
+      "description": "The fixed segmented rail that keeps all six project records in reach.",
+      "html": "<nav class=\"ds-record-rail\" aria-label=\"Project evidence records\"><button class=\"ds-active\"><span>01</span><i></i><strong>PULSEGUARD</strong></button><button><span>02</span><i></i><strong>COLAB</strong></button><button><span>03</span><i></i><strong>FOUNDATION</strong></button></nav>",
+      "css": ".ds-record-rail { display:grid; grid-template-columns:repeat(3,1fr); min-height:78px; color:#092d66; background:rgba(248,245,237,.96); box-shadow:0 -12px 30px rgba(3,43,87,.13); font-family:'Space Grotesk',sans-serif; } .ds-record-rail button { display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; gap:3px 10px; align-content:center; padding:12px 16px; border:0; border-right:1px solid rgba(9,45,102,.12); color:inherit; background:transparent; text-align:left; cursor:pointer; } .ds-record-rail span { grid-row:1/3; align-self:center; font-size:.72rem; font-weight:800; } .ds-record-rail strong { font-size:.58rem; letter-spacing:.08em; text-transform:uppercase; } .ds-record-rail i { align-self:end; width:100%; height:2px; background:rgba(9,45,102,.17); } .ds-record-rail .ds-active i { background:#087ed2; } .ds-record-rail .ds-active strong,.ds-record-rail button:hover strong { color:#087ed2; } .ds-record-rail button:focus-visible { outline:3px solid #ffef92; outline-offset:-4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Evidence Found Inside the Dream",
+    "overview": "Dream Evidence treats production engineering as physical proof discovered inside one continuous, bright landscape. Saturated photographic places provide wonder; cream dossier sheets, navy ink, hairline rules, clips, seals, and leader lines make roles, stacks, shipped behavior, and actions immediately credible.\n\nThe world is cinematic but not evasive. Large serif project names sit directly in the landscape, while compact grotesk labels turn each dossier into a readable record. The system refuses a detached portfolio-card grid: evidence overlaps its project place, and the Dream/Evidence control can retract or restore the proof layer without navigating away.",
+    "keyCharacteristics": [
+      "Full-bleed cobalt and sky-blue photographic worlds with saturated green terrain.",
+      "Square cream paper sheets physically attached with metal clips, stamps, rules, and offset depth.",
+      "High-contrast Instrument Serif titles paired with compact, uppercase Space Grotesk evidence labels.",
+      "One incident-orange signal reserved for exceptional operational meaning.",
+      "Six factual project records leading to products, repositories, contact, and CV."
+    ],
+    "rules": [
+      { "name": "The One Incident Rule", "body": "Incident Orange marks exceptional operational evidence once; ordinary checks remain Active Blue.", "section": "colors" },
+      { "name": "The Two Materials Rule", "body": "Blue photographic atmosphere is the dream; cream ruled paper is the evidence. Do not blur their responsibilities.", "section": "colors" },
+      { "name": "The Proof Speaks Grotesk Rule", "body": "Factual claims, metadata, stacks, and actions use Space Grotesk; serif is reserved for project identity and the final proposition.", "section": "typography" },
+      { "name": "The Continuous World Rule", "body": "New project records extend the scene rail and attach evidence to a place; they do not become isolated floating cards.", "section": "layout" },
+      { "name": "The Physical Cause Rule", "body": "Every shadow must imply paper, metal, a fixed rail, or an interactive lift; avoid generic ambient card shadows.", "section": "elevation" },
+      { "name": "The Square Evidence Rule", "body": "Proof surfaces and actions keep square corners; rounding is reserved for controls and physical circular marks.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do place engineering claims on a cream evidence sheet attached to the project environment they describe.",
+      "Do keep role, stack, record, verified behavior, and next actions readable in the semantic document.",
+      "Do preserve strong keyboard focus, reduced-motion behavior, and the complete stacked mobile path.",
+      "Do reserve the large serif voice for project identity and the final contact proposition.",
+      "Do extend the six-record rhythm with truthful, evidence-backed content only."
+    ],
+    "donts": [
+      "Don't turn project evidence into a conventional grid of detached cards.",
+      "Don't use Incident Orange as a broad accent, hover color, or decorative flourish.",
+      "Don't place essential copy or navigation exclusively in imagery, motion, or WebGL.",
+      "Don't soften evidence surfaces with generic rounded corners or glassmorphism.",
+      "Don't invent customer names, endorsements, benchmarks, or completed results to make a record feel stronger."
+    ]
+  }
+}
