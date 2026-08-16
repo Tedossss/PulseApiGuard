@@ -1,4 +1,5 @@
 const SESSION_COOKIE_NAME = "pulseguard_session"
+const SESSION_COOKIE_PATH = "/PAG"
 const DEFAULT_SESSION_MAX_AGE_SECONDS = 12 * 60 * 60
 
 const parseCookies = (header = "") => {
@@ -39,7 +40,7 @@ const normalizeMaxAge = (value) => {
 const serializeSessionCookie = (token, { maxAgeSeconds, secure = false } = {}) => {
   const parts = [
     `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}`,
-    "Path=/",
+    `Path=${SESSION_COOKIE_PATH}`,
     "HttpOnly",
     "SameSite=Strict",
     `Max-Age=${normalizeMaxAge(maxAgeSeconds)}`,
@@ -49,6 +50,18 @@ const serializeSessionCookie = (token, { maxAgeSeconds, secure = false } = {}) =
 }
 
 const serializeExpiredSessionCookie = ({ secure = false } = {}) => {
+  const parts = [
+    `${SESSION_COOKIE_NAME}=`,
+    `Path=${SESSION_COOKIE_PATH}`,
+    "HttpOnly",
+    "SameSite=Strict",
+    "Max-Age=0",
+  ]
+  if (secure) parts.push("Secure")
+  return parts.join("; ")
+}
+
+const serializeLegacyExpiredSessionCookie = ({ secure = false } = {}) => {
   const parts = [
     `${SESSION_COOKIE_NAME}=`,
     "Path=/",
@@ -63,9 +76,11 @@ const serializeExpiredSessionCookie = ({ secure = false } = {}) => {
 module.exports = {
   DEFAULT_SESSION_MAX_AGE_SECONDS,
   SESSION_COOKIE_NAME,
+  SESSION_COOKIE_PATH,
   getBearerToken,
   getSessionToken,
   parseCookies,
   serializeExpiredSessionCookie,
+  serializeLegacyExpiredSessionCookie,
   serializeSessionCookie,
 }

@@ -2,6 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const {
   serializeExpiredSessionCookie,
+  serializeLegacyExpiredSessionCookie,
   serializeSessionCookie,
 } = require("../utils/session")
 
@@ -26,10 +27,11 @@ const setSessionCookie = (res, token) => {
     ? Math.max(1, decoded.exp - Math.floor(Date.now() / 1000))
     : undefined
 
-  res.setHeader("Set-Cookie", serializeSessionCookie(token, {
-    maxAgeSeconds,
-    secure: useSecureCookies(),
-  }))
+  const secure = useSecureCookies()
+  res.setHeader("Set-Cookie", [
+    serializeLegacyExpiredSessionCookie({ secure }),
+    serializeSessionCookie(token, { maxAgeSeconds, secure }),
+  ])
 }
 
 const normalizeCredentials = (body = {}) => ({
@@ -100,6 +102,10 @@ exports.getSession = async (req, res) => {
 }
 
 exports.logoutUser = (req, res) => {
-  res.setHeader("Set-Cookie", serializeExpiredSessionCookie({ secure: useSecureCookies() }))
+  const secure = useSecureCookies()
+  res.setHeader("Set-Cookie", [
+    serializeExpiredSessionCookie({ secure }),
+    serializeLegacyExpiredSessionCookie({ secure }),
+  ])
   return res.status(204).end()
 }

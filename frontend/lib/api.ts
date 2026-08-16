@@ -8,6 +8,16 @@ export class ApiError extends Error {
   }
 }
 
+export const PRODUCT_BASE_PATH = '/PAG';
+
+export const toProductApiPath = (path: string) => {
+  if (!/^\/api(?:\/|\?|$)/.test(path)) {
+    throw new TypeError('PulseGuard API paths must start with /api');
+  }
+
+  return `${PRODUCT_BASE_PATH}${path}`;
+};
+
 const parseResponseBody = async (response: Response) => {
   if (response.status === 204) return undefined;
 
@@ -22,7 +32,7 @@ const parseResponseBody = async (response: Response) => {
 };
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(path, {
+  const response = await fetch(toProductApiPath(path), {
     ...init,
     credentials: 'same-origin',
   });

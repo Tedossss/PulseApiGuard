@@ -20,6 +20,7 @@ npm audit --omit=dev
 cd ../frontend
 npm test
 npm run lint
+npm run typecheck
 npm run build
 npm audit --omit=dev
 ```

@@ -21,10 +21,12 @@ const auth = require("../middleware/auth")
 const { buildReadiness, liveCheck, readyCheck } = require("../controllers/systemController")
 const {
   SESSION_COOKIE_NAME,
+  SESSION_COOKIE_PATH,
   getBearerToken,
   getSessionToken,
   parseCookies,
   serializeExpiredSessionCookie,
+  serializeLegacyExpiredSessionCookie,
   serializeSessionCookie,
 } = require("../utils/session")
 const {
@@ -335,6 +337,8 @@ test("browser sessions use hardened HttpOnly cookies", () => {
 
   assert.match(cookie, new RegExp(`^${SESSION_COOKIE_NAME}=signed.token`))
   assert.match(cookie, /HttpOnly/)
+  assert.match(cookie, new RegExp(`Path=${SESSION_COOKIE_PATH}(?:;|$)`))
+  assert.doesNotMatch(cookie, /Path=\/(?:;|$)/)
   assert.match(cookie, /SameSite=Strict/)
   assert.match(cookie, /Max-Age=3600/)
   assert.match(cookie, /Secure/)
@@ -342,7 +346,13 @@ test("browser sessions use hardened HttpOnly cookies", () => {
     theme: "dark",
     pulseguard_session: "abc.123",
   })
-  assert.match(serializeExpiredSessionCookie(), /Max-Age=0/)
+  const expiredCookie = serializeExpiredSessionCookie()
+  assert.match(expiredCookie, new RegExp(`Path=${SESSION_COOKIE_PATH}(?:;|$)`))
+  assert.match(expiredCookie, /Max-Age=0/)
+
+  const legacyExpiredCookie = serializeLegacyExpiredSessionCookie()
+  assert.match(legacyExpiredCookie, /Path=\/(?:;|$)/)
+  assert.match(legacyExpiredCookie, /Max-Age=0/)
 })
 
 test("authentication accepts cookie sessions and keeps Bearer compatibility", () => {

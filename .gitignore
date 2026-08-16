@@ -5,6 +5,7 @@ node_modules/
 .next-qa/
 out/
 coverage/
+*.tsbuildinfo
 
 # Secrets and local configuration
 .env

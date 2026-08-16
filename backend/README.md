@@ -17,6 +17,10 @@ npm run dev
 
 Default URL: `http://127.0.0.1:3001`.
 
+The browser-facing Next.js application is mounted at `/PAG` and proxies
+`/PAG/api/*` to these internal `/api/*` routes. Session cookies are therefore scoped
+to `/PAG`, while Bearer authentication remains available for direct API clients.
+
 ## API groups
 
 - `/api/auth` — register, sign in, inspect, and end an HttpOnly cookie session
