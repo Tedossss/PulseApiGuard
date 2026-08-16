@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DreamEvidenceExperience } from './DreamEvidenceExperience';
 
 export const metadata: Metadata = {
-  title: { absolute: 'You took the long way. — Nazar Falach' },
+  title: { absolute: 'Dream Evidence Atlas — Nazar Falach' },
   description:
     'The interactive portfolio of Nazar Falach, a full-stack engineer in Poland building production systems, frontend experiences, content platforms, and applied AI tooling.',
   keywords: [
@@ -20,16 +20,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: 'https://falach.pl/dream',
-    title: 'You took the long way. — Nazar Falach',
+    title: 'Dream Evidence Atlas — Nazar Falach',
     description:
-      'A handcrafted interactive dream containing real production engineering work by Nazar Falach.',
+      'Six production engineering case files mapped through one handcrafted interactive dream by Nazar Falach.',
     siteName: 'Nazar Falach',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'You took the long way. — Nazar Falach',
+    title: 'Dream Evidence Atlas — Nazar Falach',
     description:
-      'A handcrafted interactive dream containing real production engineering work by Nazar Falach.',
+      'Six production engineering case files mapped through one handcrafted interactive dream by Nazar Falach.',
   },
 };
 
@@ -61,14 +61,14 @@ export default function DreamPage() {
   return (
     <>
       <template
-        data-impeccable-contract="dream-evidence-approved-20260815"
+        data-impeccable-contract="dream-evidence-atlas-overdrive-20260815"
         dangerouslySetInnerHTML={{
           __html: `<!--
-THESIS: Engineering proof appears as physical evidence inside one continuous bright dream, refusing the detached portfolio-card grid.
-OWN-WORLD: Cobalt sky, saturated green landscapes, cream dossier paper, navy ink, thin evidence rules, metal clips, and one incident-orange signal.
-STORY: A visitor moves through six project places, verifies role, stack, and shipped behavior, then contacts Nazar or downloads the CV.
-FIRST VIEWPORT: PulseGuard fills the left two-thirds as a white house beneath enormous clouds; a clipped semantic dossier overlaps from the right; contact sits top-right and project records form the bottom rail.
-FORM: Dream Evidence, selected from the Impeccable direction set; seed dream-evidence-approved-20260815.
+THESIS: Engineering evidence is plotted onto a living dream atlas, so every verified fact points back into the world that carries it.
+OWN-WORLD: Full-bleed cobalt landscapes, floating cream case files, navy cartography, physical clips and seals, focus traces, and one restrained incident-orange signal.
+STORY: A visitor qualifies Nazar within seconds, traverses six progressively revealed case stations, inspects role, stack, and shipped behavior, then reaches direct contact and CV actions.
+FIRST VIEWPORT: PulseGuard fills the entire viewport; the white house is marked by an animated evidence trace, a dimensional case file floats at right, the six-case atlas rail anchors the bottom, and a concise engineering brief stays visible at top-left.
+FORM: Dream Evidence Atlas Overdrive; seed dream-evidence-atlas-overdrive-20260815. One lazy decorative 3D atlas field deepens the scene while semantic DOM content remains complete without it.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->`,
         }}

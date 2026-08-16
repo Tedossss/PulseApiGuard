@@ -117,6 +117,25 @@ function normalizedIndex(value: number) {
   return Number.isFinite(value) ? clamp(Math.round(value), 0, STATIONS.length - 1) : 0;
 }
 
+function canCreateWebGLContext() {
+  try {
+    const probe = document.createElement('canvas');
+    const attributes: WebGLContextAttributes = {
+      alpha: true,
+      failIfMajorPerformanceCaveat: true,
+      powerPreference: 'high-performance',
+    };
+    const context = (
+      probe.getContext('webgl2', attributes) ?? probe.getContext('webgl', attributes)
+    ) as WebGL2RenderingContext | WebGLRenderingContext | null;
+    if (!context) return false;
+    context.getExtension('WEBGL_lose_context')?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function disposeResources(
   scene: Scene | undefined,
   renderer: WebGLRenderer | undefined,
@@ -499,6 +518,7 @@ export function DreamDepthField({ activeIndex, mode, disabled = false }: DreamDe
     let generation = 0;
     let teardownRuntime: (() => void) | null = null;
     let threePromise: Promise<ThreeModule> | null = null;
+    let webglAvailable: boolean | undefined;
 
     const isBlocked = () =>
       reducedMotion.matches ||
@@ -513,6 +533,8 @@ export function DreamDepthField({ activeIndex, mode, disabled = false }: DreamDe
       teardownRuntime = null;
       delete canvas.dataset.ready;
       if (disposed || isBlocked()) return;
+      webglAvailable ??= canCreateWebGLContext();
+      if (!webglAvailable) return;
 
       threePromise ??= import('three');
       void threePromise
