@@ -66,6 +66,11 @@ export function ObservatoryWorld({ className }: ObservatoryWorldProps) {
     };
 
     const boot = async () => {
+      if (compactQuery.matches || reducedQuery.matches) {
+        setState('poster');
+        return;
+      }
+
       setState('loading');
 
       try {
@@ -84,7 +89,7 @@ export function ObservatoryWorld({ className }: ObservatoryWorldProps) {
         controller = null;
         setState('fallback');
 
-        console.warn('The Sleep Observatory is using its CSS poster fallback.', error);
+        console.warn('The Lucid Vivarium is using its CSS poster fallback.', error);
       }
     };
 

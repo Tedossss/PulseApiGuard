@@ -6,6 +6,7 @@ type ThreeCamera = InstanceType<typeof THREE.PerspectiveCamera>;
 type ThreeRenderer = InstanceType<typeof THREE.WebGLRenderer>;
 type ThreeMaterial = InstanceType<typeof THREE.Material>;
 type ThreeGeometry = InstanceType<typeof THREE.BufferGeometry>;
+type ThreeSphereGeometry = InstanceType<typeof THREE.SphereGeometry>;
 type ThreeGroup = InstanceType<typeof THREE.Group>;
 type ThreeMesh = InstanceType<typeof THREE.Mesh>;
 type ThreePointLight = InstanceType<typeof THREE.PointLight>;
@@ -75,13 +76,16 @@ const TAU = Math.PI * 2;
 const CAMERA_SNAP_STOPS = [0, 0.155, 0.28, 0.385, 0.475, 0.565, 0.655, 0.79, 0.9, 1] as const;
 
 const palette = {
-  void: 0x111519,
-  nightSlate: 0x2b3138,
-  concrete: 0xb7b2aa,
-  ivory: 0xe7e1d6,
-  fogBlue: 0x8fa7b3,
-  oxide: 0x8a4e4a,
-  sodium: 0xc79b61,
+  void: 0x063f52,
+  nightSlate: 0x18aeb8,
+  concrete: 0xffe58d,
+  ivory: 0xfffbed,
+  fogBlue: 0x57e4e7,
+  oxide: 0xff6f91,
+  sodium: 0xeaff43,
+  cobalt: 0x2447c7,
+  leaf: 0xbfe900,
+  petal: 0xff9fc1,
 } as const;
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
@@ -115,24 +119,25 @@ function createGeometryKit(mobile: boolean) {
     cylinder: new THREE.CylinderGeometry(1, 1, 1, mobile ? 12 : 20),
     node: new THREE.IcosahedronGeometry(1, mobile ? 1 : 2),
     smallNode: new THREE.IcosahedronGeometry(1, 1),
+    leaf: new THREE.SphereGeometry(1, mobile ? 10 : 16, mobile ? 7 : 12),
   };
 }
 
 function createMaterials() {
   const structure = new THREE.MeshStandardMaterial({
-    color: palette.nightSlate,
-    roughness: 0.86,
-    metalness: 0.16,
+    color: palette.cobalt,
+    roughness: 0.58,
+    metalness: 0.22,
   });
   const steel = new THREE.MeshStandardMaterial({
     color: palette.concrete,
-    roughness: 0.7,
-    metalness: 0.25,
+    roughness: 0.44,
+    metalness: 0.12,
   });
   const floor = new THREE.MeshStandardMaterial({
-    color: 0x242a30,
-    roughness: 0.64,
-    metalness: 0.2,
+    color: 0x67ddd1,
+    roughness: 0.38,
+    metalness: 0.08,
   });
   const paper = new THREE.MeshStandardMaterial({
     color: palette.ivory,
@@ -141,13 +146,13 @@ function createMaterials() {
     roughness: 0.92,
   });
   const glass = new THREE.MeshStandardMaterial({
-    color: palette.fogBlue,
-    emissive: 0x263139,
-    emissiveIntensity: 0.24,
+    color: palette.leaf,
+    emissive: 0x426500,
+    emissiveIntensity: 0.18,
     transparent: true,
-    opacity: 0.14,
-    roughness: 0.28,
-    metalness: 0.12,
+    opacity: 0.28,
+    roughness: 0.18,
+    metalness: 0.04,
     depthWrite: false,
     side: THREE.DoubleSide,
   });
@@ -184,7 +189,26 @@ function createMaterials() {
   const shadow = new THREE.MeshBasicMaterial({
     color: palette.void,
     transparent: true,
-    opacity: 0.72,
+    opacity: 0.52,
+  });
+
+  const leaf = new THREE.MeshStandardMaterial({
+    color: palette.leaf,
+    emissive: 0x365f00,
+    emissiveIntensity: 0.2,
+    roughness: 0.32,
+    transparent: true,
+    opacity: 0.82,
+    side: THREE.DoubleSide,
+  });
+  const petal = new THREE.MeshStandardMaterial({
+    color: palette.petal,
+    emissive: 0x76243d,
+    emissiveIntensity: 0.17,
+    roughness: 0.38,
+    transparent: true,
+    opacity: 0.86,
+    side: THREE.DoubleSide,
   });
 
   return {
@@ -199,6 +223,8 @@ function createMaterials() {
     sodiumGlow,
     oxideGlow,
     shadow,
+    leaf,
+    petal,
   };
 }
 
@@ -274,6 +300,29 @@ function addInstancedBoxes(
   return instances;
 }
 
+function addInstancedShapes(
+  parent: ThreeObject,
+  geometry: ThreeSphereGeometry,
+  material: ThreeMaterial,
+  transforms: Transform[],
+) {
+  const instances = new THREE.InstancedMesh(geometry, material, transforms.length);
+  const dummy = new THREE.Object3D();
+
+  transforms.forEach((transform, index) => {
+    dummy.position.set(...transform.position);
+    dummy.scale.set(...transform.scale);
+    dummy.rotation.set(...(transform.rotation ?? [0, 0, 0]));
+    dummy.updateMatrix();
+    instances.setMatrixAt(index, dummy.matrix);
+  });
+
+  instances.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  instances.computeBoundingSphere();
+  parent.add(instances);
+  return instances;
+}
+
 function addLine(
   parent: ThreeObject,
   points: InstanceType<typeof THREE.Vector3>[],
@@ -321,18 +370,18 @@ const waterFragmentShader = [
   '}',
   'void main() {',
   '  float horizon = smoothstep(0.08, 0.92, vUv.y);',
-  '  vec3 deep = vec3(0.035, 0.052, 0.064);',
-  '  vec3 reflected = vec3(0.20, 0.235, 0.25);',
-  '  vec3 color = mix(deep, reflected, horizon * 0.76);',
+  '  vec3 deep = vec3(0.015, 0.36, 0.45);',
+  '  vec3 reflected = vec3(0.18, 0.92, 0.86);',
+  '  vec3 color = mix(deep, reflected, horizon * 0.82);',
   '  float ripple = sin(vUv.x * 210.0 + vUv.y * 34.0 + uTime * 0.55);',
   '  ripple *= sin(vUv.y * 164.0 - uTime * 0.32);',
-  '  color += vec3(0.42, 0.47, 0.47) * max(0.0, ripple) * 0.028;',
+  '  color += vec3(0.92, 1.0, 0.70) * max(0.0, ripple) * 0.065;',
   '  float causewayReflection = exp(-pow((vUv.x - 0.5) * 28.0, 2.0));',
   '  causewayReflection *= 0.4 + 0.6 * sin(vUv.y * 240.0 + uTime * 0.4) * sin(vUv.y * 240.0 + uTime * 0.4);',
-  '  color += vec3(0.48, 0.34, 0.21) * causewayReflection * 0.16;',
+  '  color += vec3(1.0, 0.56, 0.66) * causewayReflection * 0.24;',
   '  float grain = hash(floor(vUv * vec2(920.0, 660.0) + uTime * 0.02));',
-  '  color += step(0.996, grain) * vec3(0.48, 0.48, 0.44) * 0.28;',
-  '  color += vWave * vec3(0.10, 0.12, 0.13);',
+  '  color += step(0.996, grain) * vec3(1.0, 0.98, 0.66) * 0.34;',
+  '  color += vWave * vec3(0.10, 0.28, 0.24);',
   '  gl_FragColor = vec4(color, 1.0);',
   '  #include <fog_fragment>',
   '  #include <tonemapping_fragment>',
@@ -353,14 +402,14 @@ const skyFragmentShader = [
   'varying vec3 vDirection;',
   'void main() {',
   '  float altitude = clamp(vDirection.y * 0.5 + 0.5, 0.0, 1.0);',
-  '  vec3 zenith = vec3(0.045, 0.055, 0.066);',
-  '  vec3 mid = vec3(0.17, 0.19, 0.22);',
-  '  vec3 dawn = vec3(0.42, 0.31, 0.25);',
+  '  vec3 zenith = vec3(1.0, 0.88, 0.30);',
+  '  vec3 mid = vec3(0.39, 0.88, 0.92);',
+  '  vec3 dawn = vec3(1.0, 0.48, 0.65);',
   '  vec3 color = mix(mid, zenith, smoothstep(0.38, 0.9, altitude));',
   '  float horizonBand = exp(-pow((altitude - 0.46) * 10.0, 2.0));',
   '  color = mix(color, dawn, horizonBand * 0.52);',
   '  float moonHaze = pow(max(0.0, dot(normalize(vDirection), normalize(vec3(-0.42, 0.33, -0.84)))), 18.0);',
-  '  color += vec3(0.56, 0.65, 0.70) * moonHaze * 0.24;',
+  '  color += vec3(1.0, 0.98, 0.78) * moonHaze * 0.42;',
   '  gl_FragColor = vec4(color, 1.0);',
   '  #include <tonemapping_fragment>',
   '  #include <colorspace_fragment>',
@@ -497,6 +546,8 @@ function createCauseway(
   addInstancedBoxes(causeway, kit, materials.sodiumGlow, lampTransforms);
 
   const pylonTransforms: Transform[] = [];
+  const leafTransforms: Transform[] = [];
+  const petalTransforms: Transform[] = [];
   const random = createRandom(1926);
   const pylonCount = mobile ? 14 : 28;
   for (let index = 0; index < pylonCount; index += 1) {
@@ -506,11 +557,20 @@ function createCauseway(
     const z = mix(-8, 68, random());
     pylonTransforms.push({
       position: [x, height * 0.5 - 0.45, z],
-      scale: [mix(0.22, 0.7, random()), height, mix(0.22, 0.7, random())],
+      scale: [mix(0.12, 0.36, random()), height, mix(0.12, 0.36, random())],
       rotation: [0, random() * 0.3, mix(-0.04, 0.04, random())],
     });
+
+    const canopy: Transform = {
+      position: [x + mix(-1.1, 1.1, random()), height - 0.25, z],
+      scale: [mix(1.2, 3.5, random()), mix(0.16, 0.34, random()), mix(0.7, 2.1, random())],
+      rotation: [mix(-0.5, 0.5, random()), random() * TAU, mix(-0.35, 0.35, random())],
+    };
+    (index % 3 === 0 ? petalTransforms : leafTransforms).push(canopy);
   }
-  addInstancedBoxes(causeway, kit, materials.shadow, pylonTransforms);
+  addInstancedBoxes(causeway, kit, materials.leaf, pylonTransforms);
+  addInstancedShapes(causeway, kit.leaf, materials.leaf, leafTransforms);
+  addInstancedShapes(causeway, kit.leaf, materials.petal, petalTransforms);
 }
 
 function createTicketHall(
@@ -1123,7 +1183,7 @@ function createCameraPaths() {
 function createWorld(mobile: boolean): BuiltScene {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(palette.nightSlate);
-  scene.fog = new THREE.FogExp2(palette.fogBlue, mobile ? 0.014 : 0.012);
+  scene.fog = new THREE.FogExp2(0x8ce8dc, mobile ? 0.007 : 0.0055);
 
   const camera = new THREE.PerspectiveCamera(50, 1, 0.08, 360);
   const kit = createGeometryKit(mobile);
@@ -1168,17 +1228,17 @@ function createWorld(mobile: boolean): BuiltScene {
   createRoofline(scene, kit, materials, mobile);
 
   const hemisphere = new THREE.HemisphereLight(
-    palette.fogBlue,
-    palette.void,
-    mobile ? 0.64 : 0.76,
+    0xfff2a8,
+    0x0b6380,
+    mobile ? 1.16 : 1.36,
   );
   scene.add(hemisphere);
 
-  const moon = new THREE.DirectionalLight(palette.ivory, mobile ? 1.05 : 1.28);
+  const moon = new THREE.DirectionalLight(palette.ivory, mobile ? 2.15 : 2.5);
   moon.position.set(-14, 34, 18);
   scene.add(moon);
 
-  const hallLight = new THREE.PointLight(palette.sodium, 2.25, 25, 1.7);
+  const hallLight = new THREE.PointLight(palette.petal, 3.2, 32, 1.55);
   hallLight.position.set(-1.4, 5.5, -5.5);
   scene.add(hallLight);
 
@@ -1263,7 +1323,7 @@ export function createObservatoryScene(
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = options.mobile ? 0.92 : 1;
+  renderer.toneMappingExposure = options.mobile ? 1.12 : 1.22;
   renderer.setClearColor(palette.nightSlate, 1);
 
   let world: BuiltScene;

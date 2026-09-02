@@ -61,6 +61,11 @@ export function PortfolioExperience() {
 
   return (
     <main className={styles.observatory} data-observatory-root data-active-project="0" id="top">
+      <span
+        hidden
+        data-design-contract="94c6a94c"
+        dangerouslySetInnerHTML={{ __html: '<!-- THESIS: A portfolio grows as a lucid vivarium; it refuses the gray nocturnal observatory. OWN-WORLD: turquoise water, coral sky, chartreuse foliage, lemon ceramic architecture, cobalt instruments, wet and translucent materials. STORY: visitors follow one living causeway, identify Nazar and inspect real systems, then transmit a message. FIRST VIEWPORT: a central aqua path cuts through giant leaves toward a small dome; the two-line title anchors the left, identity sits below, and the enter action rides the path edge. FORM: chromatic greenhouse transit, grounded direction 7, seed 94c6a94c. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->' }}
+      />
       <a className={styles.skipLink} href="#work">Skip directly to the archive</a>
       <ObservatoryMotion />
       <ObservatoryWorld />
@@ -73,9 +78,9 @@ export function PortfolioExperience() {
       <section className={styles.causeway} data-observatory-act="causeway" aria-labelledby="arrival-title">
         <div className={styles.actSticky}>
           <div className={styles.arrivalReadout} aria-hidden="true">
-            <span>52.2297° N</span><span>21.0122° E</span><span>ALTITUDE / UNRELIABLE</span>
+            <span>52.2297° N</span><span>21.0122° E</span><span>CLIMATE / IMPOSSIBLE</span>
           </div>
-          <div className={styles.arrivalSignal}><Radio aria-hidden="true" /><span>AN OPEN SIGNAL WAS FOUND</span></div>
+          <div className={styles.arrivalSignal}><Radio aria-hidden="true" /><span>THE VIVARIUM IS AWAKE</span></div>
           <h1 id="arrival-title" aria-label="Nazar Falach — full-stack engineer">
             <span>A URL LEFT</span>
             <span>A DOOR OPEN.</span>
@@ -85,9 +90,9 @@ export function PortfolioExperience() {
             <strong>NAZAR FALACH</strong>
             <span>FULL-STACK ENGINEER / WARSAW</span>
           </div>
-          <p className={styles.arrivalNote}>The building is still awake.<br />Scroll forward. Do not rush it.</p>
-          <a className={styles.enterPrompt} href="#about"><span>Approach the observatory</span><ArrowDown aria-hidden="true" /></a>
-          <span className={styles.roomMark}>CAUSEWAY / 00</span>
+          <p className={styles.arrivalNote}>The water remembers the route.<br />Scroll forward. Let it grow.</p>
+          <a className={styles.enterPrompt} href="#about" aria-label="Enter the vivarium"><span>Enter the vivarium</span><ArrowDown aria-hidden="true" /></a>
+          <span className={styles.roomMark}>LUCID CAUSEWAY / 00</span>
         </div>
       </section>
 
@@ -105,7 +110,7 @@ export function PortfolioExperience() {
             <h2 id="hall-title">He works where invisible logic becomes a visible decision.</h2>
             <div>
               <p>Product framing, backend systems, infrastructure and expressive frontend work—built as one signal path.</p>
-              <p>The portfolio was not placed in this building. The building is what the work feels like from inside.</p>
+              <p>The portfolio was not placed in this garden. The garden grows from the logic inside the work.</p>
             </div>
           </div>
           <div className={styles.hallTicket} aria-hidden="true"><span>ADMIT ONE</span><strong>F / 2026</strong><i /></div>
@@ -178,7 +183,7 @@ export function PortfolioExperience() {
       </section>
 
       <footer className={styles.footer}>
-        <span>THE SLEEP OBSERVATORY / FALACH.PL</span>
+        <span>THE LUCID VIVARIUM / FALACH.PL</span>
         <span>© 2026 NAZAR FALACH</span>
         <a href="#top">RETURN TO CAUSEWAY ↑</a>
       </footer>

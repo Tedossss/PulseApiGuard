@@ -2,12 +2,12 @@
 .loader,
 .menu,
 .cursor {
-  --obs-night: #111519;
-  --obs-ink: #2b3138;
-  --obs-paper: #e7e1d6;
-  --obs-light: #e7e1d6;
-  --obs-signal: #8a4e4a;
-  --obs-line: rgba(43, 49, 56, .32);
+  --obs-night: #052f42;
+  --obs-ink: #083f55;
+  --obs-paper: #fffbed;
+  --obs-light: #fffbed;
+  --obs-signal: #ff5f8f;
+  --obs-line: rgba(5, 47, 66, .28);
 }
 
 .loader {
@@ -30,7 +30,7 @@
   left: 0;
   width: 100%;
   height: 50.1%;
-  background: var(--obs-night);
+  background: #2447c7;
   content: '';
   transition: transform .52s cubic-bezier(.76, 0, .24, 1);
 }
@@ -125,7 +125,7 @@
 .instrument > i:nth-child(2) {
   inset: 34%;
   border-color: var(--obs-signal);
-  background: rgba(198, 83, 54, .08);
+  background: rgba(220, 255, 57, .22);
   transform: scale(.3);
   transition: transform .7s cubic-bezier(.16, 1, .3, 1);
 }
@@ -227,10 +227,12 @@
 }
 
 .loadingSteps li > i {
-  width: 12px;
+  width: 20px;
   height: 1px;
   background: currentColor;
-  transition: width .35s ease, background-color .35s ease;
+  transform: scaleX(.6);
+  transform-origin: left;
+  transition: transform .35s ease, background-color .35s ease;
 }
 
 .loadingSteps li[data-state='active'] {
@@ -238,8 +240,8 @@
 }
 
 .loadingSteps li[data-state='active'] > i {
-  width: 20px;
   background: var(--obs-signal);
+  transform: scaleX(1);
 }
 
 .loadingSteps li[data-state='complete'] {
