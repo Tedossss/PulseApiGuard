@@ -66,7 +66,7 @@ export function ObservatoryWorld({ className }: ObservatoryWorldProps) {
     };
 
     const boot = async () => {
-      if (compactQuery.matches || reducedQuery.matches) {
+      if (reducedQuery.matches) {
         setState('poster');
         return;
       }
@@ -83,6 +83,7 @@ export function ObservatoryWorld({ className }: ObservatoryWorldProps) {
         controller.setProgress(readProgress(root));
         controller.setVisible(!document.hidden && contextAvailable);
         resize();
+        controller.renderNow();
         setState('ready');
       } catch (error) {
         controller?.dispose();
@@ -112,8 +113,22 @@ export function ObservatoryWorld({ className }: ObservatoryWorldProps) {
     };
 
     const onMotionPreference = () => {
-      controller?.setReducedMotion(reducedQuery.matches);
-      if (reducedQuery.matches) controller?.setPointer(0, 0);
+      if (reducedQuery.matches) {
+        controller?.setReducedMotion(true);
+        controller?.setPointer(0, 0);
+        setState('poster');
+        return;
+      }
+
+      if (!controller) {
+        void boot();
+        return;
+      }
+
+      controller.setReducedMotion(false);
+      resize();
+      controller.renderNow();
+      setState('ready');
     };
 
     const onContextLost = (event: Event) => {

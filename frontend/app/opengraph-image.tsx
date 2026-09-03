@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'The Sleep Observatory — an interactive portfolio by Nazar Falach';
+export const alt = 'The Lucid Vivarium — an interactive full-stack portfolio by Nazar Falach';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -14,43 +14,51 @@ export default function OpenGraphImage() {
           position: 'relative',
           display: 'flex',
           overflow: 'hidden',
-          color: '#e8e2d7',
-          background: 'linear-gradient(#667b84 0 51%, #141b21 51% 100%)',
+          color: '#052f42',
+          background: 'linear-gradient(180deg, #ffe657 0%, #ff9fbe 46%, #58e0dc 73%, #1aa4b3 100%)',
           fontFamily: 'serif',
         }}
       >
         <svg width="1200" height="630" viewBox="0 0 1200 630" style={{ position: 'absolute', inset: 0 }}>
-          <g fill="none" stroke="#e8e2d7" opacity=".34">
-            <path d="M0 322 H1200" />
-            <path d="M424 630 L548 322 H652 L782 630" />
-            <path d="M460 630 L566 322 M742 630 L634 322" opacity=".28" />
-            <path d="M502 322 A98 98 0 0 1 698 322" strokeWidth="2" />
-            <path d="M525 322 A75 75 0 0 1 675 322" opacity=".5" />
+          <path d="M0 395 C150 333 265 382 405 349 L513 630 H0 Z" fill="#ff6f91" />
+          <path d="M1200 382 C1040 324 932 382 795 345 L688 630 H1200 Z" fill="#ff8aa6" />
+          <path d="M465 630 L557 350 H643 L741 630 Z" fill="#24cbd1" />
+          <path d="M517 630 L574 350 H626 L687 630 Z" fill="#97fff1" opacity=".72" />
+          <g fill="#dcff39" opacity=".82">
+            <ellipse cx="92" cy="180" rx="190" ry="82" transform="rotate(-24 92 180)" />
+            <ellipse cx="255" cy="264" rx="181" ry="68" transform="rotate(18 255 264)" />
+            <ellipse cx="1118" cy="166" rx="204" ry="84" transform="rotate(25 1118 166)" />
+            <ellipse cx="947" cy="258" rx="176" ry="67" transform="rotate(-19 947 258)" />
           </g>
-          <g stroke="#9dafb5" opacity=".22">
-            <path d="M0 375 H1200 M0 434 H1200 M0 504 H1200 M0 584 H1200" />
-            <path d="M78 344 L225 630 M1122 344 L975 630 M222 344 L314 630 M978 344 L886 630" />
+          <g fill="#2447c7">
+            <path d="M532 351 A68 68 0 0 1 668 351 Z" />
+            <rect x="548" y="344" width="104" height="29" />
+            <circle cx="600" cy="300" r="7" fill="#fffbed" />
           </g>
-          <circle cx="925" cy="188" r="58" fill="#c69a61" opacity=".72" />
-          <circle cx="925" cy="188" r="76" fill="none" stroke="#e8e2d7" opacity=".18" />
-          <g fill="#8d504c">
-            <circle cx="558" cy="359" r="5" /><circle cx="642" cy="359" r="5" />
+          <g fill="none" stroke="#fffbed" opacity=".42">
+            <path d="M0 394 H1200" />
+            <path d="M465 630 L557 350 H643 L741 630" strokeWidth="2" />
+            <path d="M493 540 H713 M511 484 H694 M530 429 H674 M546 382 H655" />
+          </g>
+          <g fill="#fffbed" opacity=".58">
+            <circle cx="86" cy="386" r="6" /><circle cx="178" cy="415" r="10" /><circle cx="292" cy="376" r="7" />
+            <circle cx="1104" cy="389" r="8" /><circle cx="1018" cy="421" r="5" /><circle cx="907" cy="378" r="11" />
           </g>
         </svg>
         <div style={{ position: 'absolute', top: 34, left: 42, display: 'flex', fontFamily: 'sans-serif', fontSize: 13, fontWeight: 700, letterSpacing: 3 }}>
-          FALACH.PL / SIGNAL 2026
+          FALACH.PL / VIVARIUM 2026
         </div>
         <div style={{ position: 'absolute', top: 34, right: 42, display: 'flex', fontFamily: 'sans-serif', fontSize: 13, fontWeight: 700, letterSpacing: 3 }}>
           52.2297° N / 21.0122° E
         </div>
-        <div style={{ position: 'absolute', top: 106, left: 42, display: 'flex', flexDirection: 'column', fontSize: 86, lineHeight: .82, letterSpacing: -5 }}>
-          <span>THE SLEEP</span><span>OBSERVATORY</span>
+        <div style={{ position: 'absolute', top: 104, left: 42, display: 'flex', flexDirection: 'column', fontSize: 88, lineHeight: .82, letterSpacing: -3 }}>
+          <span>THE LUCID</span><span>VIVARIUM</span>
         </div>
         <div style={{ position: 'absolute', right: 42, bottom: 30, display: 'flex', fontFamily: 'sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 3 }}>
           NAZAR FALACH / FULL-STACK ENGINEER
         </div>
         <div style={{ position: 'absolute', bottom: 30, left: 42, display: 'flex', fontFamily: 'sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 3 }}>
-          AN OPEN SIGNAL WAS FOUND
+          A PORTFOLIO GROWING INSIDE THE DREAM
         </div>
       </div>
     ),

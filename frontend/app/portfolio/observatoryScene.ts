@@ -5,8 +5,7 @@ type ThreeScene = InstanceType<typeof THREE.Scene>;
 type ThreeCamera = InstanceType<typeof THREE.PerspectiveCamera>;
 type ThreeRenderer = InstanceType<typeof THREE.WebGLRenderer>;
 type ThreeMaterial = InstanceType<typeof THREE.Material>;
-type ThreeGeometry = InstanceType<typeof THREE.BufferGeometry>;
-type ThreeSphereGeometry = InstanceType<typeof THREE.SphereGeometry>;
+type ThreeGeometry = THREE.BufferGeometry;
 type ThreeGroup = InstanceType<typeof THREE.Group>;
 type ThreeMesh = InstanceType<typeof THREE.Mesh>;
 type ThreePointLight = InstanceType<typeof THREE.PointLight>;
@@ -41,6 +40,7 @@ type AnimatedParts = {
   labLattice: ThreeGroup | null;
   labLens: ThreeObject | null;
   domeRings: ThreeObject[];
+  leafClusters: ThreeGroup[];
 };
 
 type BuiltScene = {
@@ -113,31 +113,71 @@ function createRandom(seed: number) {
 }
 
 function createGeometryKit(mobile: boolean) {
+  const leafShape = new THREE.Shape();
+  leafShape.moveTo(0, 0);
+  leafShape.bezierCurveTo(0.9, 0.55, 1.4, 2.1, 0.42, 4.7);
+  leafShape.quadraticCurveTo(0.18, 5.65, 0, 6.1);
+  leafShape.quadraticCurveTo(-0.18, 5.65, -0.42, 4.7);
+  leafShape.bezierCurveTo(-1.4, 2.1, -0.9, 0.55, 0, 0);
+  const leaf = new THREE.ShapeGeometry(leafShape, mobile ? 8 : 16);
+  const leafPositions = leaf.attributes.position;
+
+  for (let index = 0; index < leafPositions.count; index += 1) {
+    const x = leafPositions.getX(index);
+    const y = leafPositions.getY(index);
+    const bend = Math.sin((y / 6.1) * Math.PI) * 0.34;
+    leafPositions.setZ(index, bend - Math.abs(x) * 0.12);
+  }
+
+  leaf.computeVertexNormals();
+  leaf.translate(0, -0.38, 0);
+
   return {
     box: new THREE.BoxGeometry(1, 1, 1),
     plane: new THREE.PlaneGeometry(1, 1),
     cylinder: new THREE.CylinderGeometry(1, 1, 1, mobile ? 12 : 20),
     node: new THREE.IcosahedronGeometry(1, mobile ? 1 : 2),
     smallNode: new THREE.IcosahedronGeometry(1, 1),
-    leaf: new THREE.SphereGeometry(1, mobile ? 10 : 16, mobile ? 7 : 12),
+    rock: new THREE.DodecahedronGeometry(1, mobile ? 0 : 1),
+    leaf,
   };
 }
 
 function createMaterials() {
   const structure = new THREE.MeshStandardMaterial({
     color: palette.cobalt,
-    roughness: 0.58,
-    metalness: 0.22,
+    emissive: 0x0f2a82,
+    emissiveIntensity: 0.22,
+    roughness: 0.42,
+    metalness: 0.16,
   });
   const steel = new THREE.MeshStandardMaterial({
     color: palette.concrete,
-    roughness: 0.44,
-    metalness: 0.12,
+    emissive: 0x5b4820,
+    emissiveIntensity: 0.12,
+    roughness: 0.26,
+    metalness: 0.06,
   });
   const floor = new THREE.MeshStandardMaterial({
     color: 0x67ddd1,
-    roughness: 0.38,
+    emissive: 0x0a7f81,
+    emissiveIntensity: 0.2,
+    roughness: 0.18,
     metalness: 0.08,
+  });
+  const causeway = new THREE.MeshStandardMaterial({
+    color: 0x42ead8,
+    emissive: 0x08757c,
+    emissiveIntensity: 0.2,
+    roughness: 0.2,
+    metalness: 0.08,
+  });
+  const ceramic = new THREE.MeshStandardMaterial({
+    color: palette.concrete,
+    emissive: 0x8a7331,
+    emissiveIntensity: 0.12,
+    roughness: 0.22,
+    metalness: 0.04,
   });
   const paper = new THREE.MeshStandardMaterial({
     color: palette.ivory,
@@ -148,10 +188,10 @@ function createMaterials() {
   const glass = new THREE.MeshStandardMaterial({
     color: palette.leaf,
     emissive: 0x426500,
-    emissiveIntensity: 0.18,
+    emissiveIntensity: 0.24,
     transparent: true,
-    opacity: 0.28,
-    roughness: 0.18,
+    opacity: 0.34,
+    roughness: 0.12,
     metalness: 0.04,
     depthWrite: false,
     side: THREE.DoubleSide,
@@ -193,28 +233,55 @@ function createMaterials() {
   });
 
   const leaf = new THREE.MeshStandardMaterial({
-    color: palette.leaf,
-    emissive: 0x365f00,
-    emissiveIntensity: 0.2,
-    roughness: 0.32,
+    color: 0xd7ff32,
+    emissive: 0x668c00,
+    emissiveIntensity: 0.34,
+    roughness: 0.18,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.9,
     side: THREE.DoubleSide,
   });
   const petal = new THREE.MeshStandardMaterial({
     color: palette.petal,
     emissive: 0x76243d,
-    emissiveIntensity: 0.17,
-    roughness: 0.38,
+    emissiveIntensity: 0.2,
+    roughness: 0.24,
     transparent: true,
-    opacity: 0.86,
+    opacity: 0.9,
     side: THREE.DoubleSide,
   });
-
+  const stem = new THREE.MeshStandardMaterial({
+    color: 0x5e8d18,
+    emissive: 0x24330a,
+    emissiveIntensity: 0.18,
+    roughness: 0.72,
+  });
+  const vein = new THREE.MeshBasicMaterial({
+    color: 0xfff3ad,
+    transparent: true,
+    opacity: 0.54,
+    toneMapped: false,
+  });
+  const rock = new THREE.MeshStandardMaterial({
+    color: 0xff7ba7,
+    emissive: 0x6c2941,
+    emissiveIntensity: 0.18,
+    roughness: 0.88,
+    metalness: 0.02,
+  });
+  const rockShade = new THREE.MeshStandardMaterial({
+    color: 0xe65d83,
+    emissive: 0x581e35,
+    emissiveIntensity: 0.12,
+    roughness: 0.92,
+    metalness: 0,
+  });
   return {
     structure,
     steel,
     floor,
+    causeway,
+    ceramic,
     paper,
     glass,
     ivoryGlow,
@@ -225,6 +292,10 @@ function createMaterials() {
     shadow,
     leaf,
     petal,
+    stem,
+    vein,
+    rock,
+    rockShade,
   };
 }
 
@@ -302,7 +373,7 @@ function addInstancedBoxes(
 
 function addInstancedShapes(
   parent: ThreeObject,
-  geometry: ThreeSphereGeometry,
+  geometry: ThreeGeometry,
   material: ThreeMaterial,
   transforms: Transform[],
 ) {
@@ -321,6 +392,121 @@ function addInstancedShapes(
   instances.computeBoundingSphere();
   parent.add(instances);
   return instances;
+}
+
+function createRockBank(
+  parent: ThreeObject,
+  kit: GeometryKit,
+  materials: ObservatoryMaterials,
+  mobile: boolean,
+  side: -1 | 1,
+  seed: number,
+  zStart: number,
+  zEnd: number,
+) {
+  const random = createRandom(seed);
+  const rocks: Transform[] = [];
+  const accents: Transform[] = [];
+  const count = mobile ? 16 : 30;
+
+  for (let index = 0; index < count; index += 1) {
+    const z = mix(zStart, zEnd, index / Math.max(1, count - 1)) + mix(-1.8, 1.8, random());
+    const x = side * mix(7.2, 18.6, random());
+    const width = mix(0.9, 2.6, random());
+    const height = mix(0.6, 2.2, random());
+    const depth = mix(1.0, 3.4, random());
+    rocks.push({
+      position: [x, height * 0.44 - 0.25, z],
+      scale: [width, height, depth],
+      rotation: [mix(-0.2, 0.2, random()), random() * TAU, mix(-0.3, 0.3, random())],
+    });
+
+    if (index % 3 === 0) {
+      accents.push({
+        position: [x + side * mix(0.4, 1.2, random()), height * 0.62, z + mix(-0.9, 0.9, random())],
+        scale: [mix(0.45, 1.05, random()), mix(0.2, 0.55, random()), mix(0.35, 1.0, random())],
+        rotation: [mix(-0.4, 0.4, random()), random() * TAU, mix(-0.4, 0.4, random())],
+      });
+    }
+  }
+
+  addInstancedShapes(parent, kit.rock, materials.rock, rocks);
+  addInstancedShapes(parent, kit.rock, materials.rockShade, accents);
+}
+
+function createLeafCluster(
+  parent: ThreeObject,
+  kit: GeometryKit,
+  materials: ObservatoryMaterials,
+  mobile: boolean,
+  animated: AnimatedParts,
+  options: {
+    position: Vec3;
+    yaw: number;
+    height: number;
+    scale: number;
+    petalBias: number;
+  },
+) {
+  const cluster = new THREE.Group();
+  cluster.position.set(...options.position);
+  cluster.rotation.y = options.yaw;
+  cluster.scale.setScalar(options.scale);
+  parent.add(cluster);
+  animated.leafClusters.push(cluster);
+
+  const stem = new THREE.Mesh(kit.cylinder, materials.stem);
+  stem.position.set(0, options.height * 0.5, 0);
+  stem.scale.set(0.08, options.height, 0.08);
+  cluster.add(stem);
+
+  const rib = new THREE.Mesh(kit.box, materials.stem);
+  rib.position.set(0, options.height * 0.78, 0);
+  rib.scale.set(0.05, 0.18, 0.65);
+  rib.rotation.z = 0.18;
+  cluster.add(rib);
+
+  const leafCount = mobile ? 3 : 4;
+  const leafSpecs = Array.from({ length: leafCount }, (_, index) => {
+    const spread = index - (leafCount - 1) * 0.5;
+    return {
+      material: index / Math.max(1, leafCount - 1) > options.petalBias ? materials.petal : materials.leaf,
+      position: [spread * 0.3, options.height - 0.55 + index * 0.22, spread * 0.18] as Vec3,
+      rotation: [
+        -0.36 - index * 0.08,
+        spread * 0.6,
+        spread * 0.42,
+      ] as Vec3,
+      scale: [1.08 - Math.abs(spread) * 0.08, 0.9 + index * 0.22, 1] as Vec3,
+    };
+  });
+
+  leafSpecs.forEach((specification, index) => {
+    const leaf = new THREE.Group();
+    leaf.position.set(...specification.position);
+    leaf.rotation.set(...specification.rotation);
+    cluster.add(leaf);
+
+    const blade = new THREE.Mesh(kit.leaf, specification.material);
+    blade.scale.set(...specification.scale);
+    blade.position.y = 0.05;
+    leaf.add(blade);
+
+    const vein = new THREE.Mesh(kit.box, materials.vein);
+    vein.position.set(0, 2.45, 0.07);
+    vein.scale.set(0.04, 2.3, 0.02);
+    leaf.add(vein);
+
+    if (!mobile) {
+      for (const angle of [-0.62, 0.62]) {
+        const sideVein = new THREE.Mesh(kit.box, materials.vein);
+        sideVein.position.set(0, 1.95 - index * 0.08, 0.05);
+        sideVein.scale.set(0.02, 0.9, 0.02);
+        sideVein.rotation.z = angle;
+        leaf.add(sideVein);
+      }
+    }
+  });
 }
 
 function addLine(
@@ -370,9 +556,9 @@ const waterFragmentShader = [
   '}',
   'void main() {',
   '  float horizon = smoothstep(0.08, 0.92, vUv.y);',
-  '  vec3 deep = vec3(0.015, 0.36, 0.45);',
-  '  vec3 reflected = vec3(0.18, 0.92, 0.86);',
-  '  vec3 color = mix(deep, reflected, horizon * 0.82);',
+  '  vec3 deep = vec3(0.008, 0.10, 0.23);',
+  '  vec3 reflected = vec3(0.015, 0.62, 0.65);',
+  '  vec3 color = mix(deep, reflected, horizon * 0.7);',
   '  float ripple = sin(vUv.x * 210.0 + vUv.y * 34.0 + uTime * 0.55);',
   '  ripple *= sin(vUv.y * 164.0 - uTime * 0.32);',
   '  color += vec3(0.92, 1.0, 0.70) * max(0.0, ripple) * 0.065;',
@@ -402,12 +588,11 @@ const skyFragmentShader = [
   'varying vec3 vDirection;',
   'void main() {',
   '  float altitude = clamp(vDirection.y * 0.5 + 0.5, 0.0, 1.0);',
-  '  vec3 zenith = vec3(1.0, 0.88, 0.30);',
-  '  vec3 mid = vec3(0.39, 0.88, 0.92);',
-  '  vec3 dawn = vec3(1.0, 0.48, 0.65);',
-  '  vec3 color = mix(mid, zenith, smoothstep(0.38, 0.9, altitude));',
-  '  float horizonBand = exp(-pow((altitude - 0.46) * 10.0, 2.0));',
-  '  color = mix(color, dawn, horizonBand * 0.52);',
+  '  vec3 lower = vec3(0.10, 0.69, 0.76);',
+  '  vec3 horizon = vec3(1.0, 0.39, 0.58);',
+  '  vec3 zenith = vec3(1.0, 0.86, 0.16);',
+  '  vec3 color = mix(lower, horizon, smoothstep(0.12, 0.43, altitude));',
+  '  color = mix(color, zenith, smoothstep(0.43, 0.84, altitude));',
   '  float moonHaze = pow(max(0.0, dot(normalize(vDirection), normalize(vec3(-0.42, 0.33, -0.84)))), 18.0);',
   '  color += vec3(1.0, 0.98, 0.78) * moonHaze * 0.42;',
   '  gl_FragColor = vec4(color, 1.0);',
@@ -501,76 +686,159 @@ function createCauseway(
   kit: GeometryKit,
   materials: ObservatoryMaterials,
   mobile: boolean,
+  animated: AnimatedParts,
 ) {
   const causeway = new THREE.Group();
   causeway.name = 'causeway';
   scene.add(causeway);
 
-  addBox(causeway, kit, materials.floor, [6.2, 0.25, 43], [0, -0.05, 20.5]);
-  addBox(causeway, kit, materials.steel, [0.13, 0.12, 43], [-3.05, 0.18, 20.5]);
-  addBox(causeway, kit, materials.steel, [0.13, 0.12, 43], [3.05, 0.18, 20.5]);
-  addBox(causeway, kit, materials.fogGlow, [0.025, 0.025, 42.5], [-2.84, 0.35, 20.5]);
-  addBox(causeway, kit, materials.fogGlow, [0.025, 0.025, 42.5], [2.84, 0.35, 20.5]);
+  createRockBank(causeway, kit, materials, mobile, -1, 1083, 44, -8);
+  createRockBank(causeway, kit, materials, mobile, 1, 2083, 44, -8);
+
+  const random = createRandom(1926);
+
+  const stoneTransforms: Transform[] = [];
+  const underlayTransforms: Transform[] = [];
+  const glowTransforms: Transform[] = [];
+  const stoneCount = mobile ? 11 : 15;
+
+  for (let index = 0; index < stoneCount; index += 1) {
+    const z = 39 - index * (49 / Math.max(1, stoneCount - 1));
+    const x = Math.sin(index * 0.72) * (mobile ? 0.24 : 0.34);
+    const width = 2.45 + (index % 3) * 0.32;
+    const depth = 2.2 + (index % 2) * 0.5;
+    const height = 0.17 + (index % 2) * 0.03;
+    stoneTransforms.push({
+      position: [x, 0.04 + height * 0.2, z],
+      scale: [width * 0.5, height, depth * 0.5],
+      rotation: [0, Math.sin(index * 0.35) * 0.08, Math.sin(index * 0.6) * 0.012],
+    });
+    underlayTransforms.push({
+      position: [x, -0.12, z],
+      scale: [width * 0.54, 0.06, depth * 0.55],
+      rotation: [0, Math.sin(index * 0.35) * 0.08, 0],
+    });
+    glowTransforms.push(
+      {
+        position: [x - width * 0.42, 0.21, z],
+        scale: [0.035, 0.018, depth * 0.7],
+        rotation: [0, Math.sin(index * 0.35) * 0.08, 0],
+      },
+      {
+        position: [x + width * 0.42, 0.21, z],
+        scale: [0.035, 0.018, depth * 0.7],
+        rotation: [0, Math.sin(index * 0.35) * 0.08, 0],
+      },
+    );
+  }
+
+  addInstancedShapes(causeway, kit.cylinder, materials.shadow, underlayTransforms);
+  addInstancedShapes(causeway, kit.cylinder, materials.causeway, stoneTransforms);
+  addInstancedBoxes(causeway, kit, materials.fogGlow, glowTransforms);
+
+  addBox(causeway, kit, materials.floor, [2.8, 0.08, 7.8], [0, -0.06, 46.4], [0, 0, 0.01]);
+  addBox(causeway, kit, materials.causeway, [3.6, 0.16, 4.4], [0, 0.02, -11.8]);
 
   const postTransforms: Transform[] = [];
-  const archTransforms: Transform[] = [];
-  const count = mobile ? 8 : 11;
+  const count = mobile ? 6 : 8;
 
   for (let index = 0; index < count; index += 1) {
-    const z = 39 - index * (39 / Math.max(1, count - 1));
+    const z = 36 - index * (43 / Math.max(1, count - 1));
     postTransforms.push(
-      { position: [-3.05, 1.08, z], scale: [0.11, 1.8, 0.11] },
-      { position: [3.05, 1.08, z], scale: [0.11, 1.8, 0.11] },
+      { position: [-4.45, 0.68, z], scale: [0.09, 1.45, 0.09] },
+      { position: [4.45, 0.68, z], scale: [0.09, 1.45, 0.09] },
     );
-
-    if (index % 2 === 0) {
-      archTransforms.push(
-        { position: [-3.05, 3.5, z], scale: [0.14, 2.7, 0.14] },
-        { position: [3.05, 3.5, z], scale: [0.14, 2.7, 0.14] },
-        { position: [0, 6.1, z], scale: [6.2, 0.14, 0.14] },
-      );
-    }
   }
 
   addInstancedBoxes(causeway, kit, materials.steel, postTransforms);
-  addInstancedBoxes(causeway, kit, materials.structure, archTransforms);
 
   const lampTransforms: Transform[] = [];
-  for (let index = 0; index < count - 1; index += 1) {
-    const z = 37 - index * (37 / Math.max(1, count - 2));
+  for (let index = 0; index < count; index += 1) {
+    const z = 36 - index * (43 / Math.max(1, count - 1));
     lampTransforms.push(
-      { position: [-3.05, 2.25, z], scale: [0.18, 0.08, 0.24] },
-      { position: [3.05, 2.25, z], scale: [0.18, 0.08, 0.24] },
+      { position: [-4.45, 1.43, z], scale: [0.13, 0.13, 0.13] },
+      { position: [4.45, 1.43, z], scale: [0.13, 0.13, 0.13] },
     );
   }
-  addInstancedBoxes(causeway, kit, materials.sodiumGlow, lampTransforms);
+  addInstancedShapes(causeway, kit.smallNode, materials.sodiumGlow, lampTransforms);
 
-  const pylonTransforms: Transform[] = [];
-  const leafTransforms: Transform[] = [];
-  const petalTransforms: Transform[] = [];
-  const random = createRandom(1926);
-  const pylonCount = mobile ? 14 : 28;
-  for (let index = 0; index < pylonCount; index += 1) {
+  const plinthTransforms: Transform[] = [];
+  const canopyCount = mobile ? 10 : 18;
+  for (let index = 0; index < canopyCount; index += 1) {
     const side = index % 2 === 0 ? -1 : 1;
-    const x = side * mix(12, 52, random());
-    const height = mix(2.2, 8.5, random());
-    const z = mix(-8, 68, random());
-    pylonTransforms.push({
-      position: [x, height * 0.5 - 0.45, z],
-      scale: [mix(0.12, 0.36, random()), height, mix(0.12, 0.36, random())],
-      rotation: [0, random() * 0.3, mix(-0.04, 0.04, random())],
+    const x = side * mix(6.4, 13.8, random());
+    const z = mix(-5, 52, random());
+    const baseHeight = mix(2.6, 6.4, random());
+    plinthTransforms.push({
+      position: [x, 0.38, z],
+      scale: [mix(0.45, 0.9, random()), 0.78, mix(0.45, 0.9, random())],
+      rotation: [0, random() * TAU, 0],
     });
-
-    const canopy: Transform = {
-      position: [x + mix(-1.1, 1.1, random()), height - 0.25, z],
-      scale: [mix(1.2, 3.5, random()), mix(0.16, 0.34, random()), mix(0.7, 2.1, random())],
-      rotation: [mix(-0.5, 0.5, random()), random() * TAU, mix(-0.35, 0.35, random())],
-    };
-    (index % 3 === 0 ? petalTransforms : leafTransforms).push(canopy);
+    createLeafCluster(causeway, kit, materials, mobile, animated, {
+      position: [x + side * mix(-0.5, 0.5, random()), 0.15, z],
+      yaw: side < 0 ? mix(-0.35, 0.35, random()) : Math.PI + mix(-0.35, 0.35, random()),
+      height: baseHeight,
+      scale: mix(0.68, 1.2, random()),
+      petalBias: index % 4 === 0 ? 0.18 : 1,
+    });
   }
-  addInstancedBoxes(causeway, kit, materials.leaf, pylonTransforms);
-  addInstancedShapes(causeway, kit.leaf, materials.leaf, leafTransforms);
-  addInstancedShapes(causeway, kit.leaf, materials.petal, petalTransforms);
+  addInstancedShapes(causeway, kit.rock, materials.ceramic, plinthTransforms);
+
+  const observatory = new THREE.Group();
+  observatory.name = 'causeway-observatory';
+  observatory.position.set(0, 0, -17.5);
+  causeway.add(observatory);
+
+  addBox(observatory, kit, materials.ceramic, [11.5, 0.3, 5.2], [0, 0.02, 0]);
+  addBox(observatory, kit, materials.structure, [2.4, 5.2, 4.2], [-4.55, 2.55, -0.1]);
+  addBox(observatory, kit, materials.structure, [2.4, 5.2, 4.2], [4.55, 2.55, -0.1]);
+
+  const domeShell = new THREE.Mesh(
+    new THREE.SphereGeometry(
+      7,
+      mobile ? 20 : 40,
+      mobile ? 10 : 18,
+      0,
+      TAU,
+      0,
+      Math.PI / 2,
+    ),
+    materials.structure,
+  );
+  domeShell.position.set(0, 5.05, -0.35);
+  domeShell.scale.z = 0.72;
+  observatory.add(domeShell);
+
+  const domeArc = new THREE.Mesh(
+    new THREE.TorusGeometry(6.92, 0.16, 10, mobile ? 40 : 76, Math.PI),
+    materials.ceramic,
+  );
+  domeArc.position.set(0, 5.05, 3.05);
+  observatory.add(domeArc);
+
+  const portalArc = new THREE.Mesh(
+    new THREE.TorusGeometry(3.15, 0.22, 10, mobile ? 32 : 58, Math.PI),
+    materials.sodiumGlow,
+  );
+  portalArc.position.set(0, 2.65, 2.05);
+  observatory.add(portalArc);
+  addCylinder(observatory, kit, materials.sodiumGlow, 0.22, 2.7, [-3.15, 1.3, 2.05]);
+  addCylinder(observatory, kit, materials.sodiumGlow, 0.22, 2.7, [3.15, 1.3, 2.05]);
+
+  for (const x of [-4.55, 4.55]) {
+    addBox(observatory, kit, materials.ivoryGlow, [0.62, 1.35, 0.07], [x, 2.05, 2.04]);
+    addBox(observatory, kit, materials.fogGlow, [0.44, 0.8, 0.08], [x, 3.8, 2.05]);
+  }
+
+  addCylinder(observatory, kit, materials.ceramic, 0.11, 1.55, [0, 12.6, -0.35]);
+  const finial = new THREE.Mesh(kit.smallNode, materials.sodiumGlow);
+  finial.position.set(0, 13.45, -0.35);
+  finial.scale.setScalar(0.24);
+  observatory.add(finial);
+
+  const observatoryGlow = new THREE.PointLight(palette.sodium, mobile ? 1.15 : 1.6, 24, 1.8);
+  observatoryGlow.position.set(0, 4.4, 4.2);
+  observatory.add(observatoryGlow);
 }
 
 function createTicketHall(
@@ -586,7 +854,6 @@ function createTicketHall(
   addBox(hall, kit, materials.floor, [21.5, 0.26, 19], [0, 0, -7.2]);
   addBox(hall, kit, materials.structure, [0.35, 7.2, 19], [-10.65, 3.45, -7.2]);
   addBox(hall, kit, materials.structure, [0.35, 7.2, 19], [10.65, 3.45, -7.2]);
-  addBox(hall, kit, materials.structure, [21.5, 0.24, 19], [0, 7.05, -7.2]);
 
   const columnTransforms: Transform[] = [];
   for (const x of [-8.2, -5.3, 5.3, 8.2]) {
@@ -596,8 +863,8 @@ function createTicketHall(
     columnTransforms.push(
       { position: [-10.1, 3.5, z], scale: [0.55, 7, 0.55] },
       { position: [10.1, 3.5, z], scale: [0.55, 7, 0.55] },
-      { position: [0, 6.7, z], scale: [20.2, 0.55, 0.55] },
     );
+    if (z < 0) columnTransforms.push({ position: [0, 6.7, z], scale: [20.2, 0.55, 0.55] });
   }
   addInstancedBoxes(hall, kit, materials.steel, columnTransforms);
 
@@ -676,7 +943,7 @@ function createCorridor(
   const ribs: Transform[] = [];
   const ribCount = mobile ? 12 : 19;
   for (let index = 0; index < ribCount; index += 1) {
-    const z = -17.2 - index * (66 / Math.max(1, ribCount - 1));
+    const z = -22 - index * (61 / Math.max(1, ribCount - 1));
     ribs.push(
       { position: [-8.7, 3.5, z], scale: [0.25, 7, 0.28] },
       { position: [8.7, 3.5, z], scale: [0.25, 7, 0.28] },
@@ -689,7 +956,7 @@ function createCorridor(
   const lightCount = mobile ? 10 : 18;
   for (let index = 0; index < lightCount; index += 1) {
     ceilingLights.push({
-      position: [0, 6.69, -18.5 - index * (63 / Math.max(1, lightCount - 1))],
+      position: [0, 6.69, -23 - index * (58 / Math.max(1, lightCount - 1))],
       scale: [3.6, 0.025, 0.08],
     });
   }
@@ -971,6 +1238,14 @@ function createCalibrationDome(
   dome.position.set(0, 0, -98);
   scene.add(dome);
 
+  addBox(dome, kit, materials.floor, [4.2, 0.14, 15.5], [0, 0.04, 12.8]);
+  addBox(dome, kit, materials.ceramic, [5.2, 0.22, 5.8], [0, 0.08, 4.4]);
+  addBox(dome, kit, materials.structure, [0.3, 4.6, 7.2], [-2.65, 2.15, 4.9]);
+  addBox(dome, kit, materials.structure, [0.3, 4.6, 7.2], [2.65, 2.15, 4.9]);
+  addBox(dome, kit, materials.structure, [5.6, 0.22, 0.3], [0, 4.3, 8.15]);
+  addBox(dome, kit, materials.sodiumGlow, [0.04, 3.8, 5.8], [-2.42, 2.22, 4.9]);
+  addBox(dome, kit, materials.sodiumGlow, [0.04, 3.8, 5.8], [2.42, 2.22, 4.9]);
+
   const floor = new THREE.Mesh(
     new THREE.CylinderGeometry(15, 15, 0.32, mobile ? 32 : 64),
     materials.floor,
@@ -978,11 +1253,33 @@ function createCalibrationDome(
   floor.position.y = -0.02;
   dome.add(floor);
 
+  const podium = new THREE.Mesh(
+    new THREE.CylinderGeometry(11.2, 13.6, 1.8, mobile ? 20 : 40),
+    materials.ceramic,
+  );
+  podium.position.y = 0.74;
+  dome.add(podium);
+
+  const shellFill = new THREE.Mesh(
+    new THREE.SphereGeometry(
+      14.6,
+      mobile ? 18 : 32,
+      mobile ? 10 : 18,
+      0,
+      TAU,
+      0,
+      Math.PI / 2,
+    ),
+    materials.glass,
+  );
+  shellFill.position.y = 0.1;
+  dome.add(shellFill);
+
   const shellMaterial = new THREE.MeshBasicMaterial({
     color: palette.fogBlue,
     wireframe: true,
     transparent: true,
-    opacity: mobile ? 0.12 : 0.17,
+    opacity: mobile ? 0.14 : 0.2,
     side: THREE.BackSide,
     depthWrite: false,
     toneMapped: false,
@@ -1031,6 +1328,22 @@ function createCalibrationDome(
 
   addCylinder(dome, kit, materials.structure, 0.82, 4.4, [0, 2.05, 0]);
   addCylinder(dome, kit, materials.steel, 2.9, 0.2, [0, 4.22, 0]);
+
+  const gate = new THREE.Group();
+  gate.position.set(0, 4.8, 8.6);
+  dome.add(gate);
+  const gateRing = new THREE.Mesh(
+    new THREE.TorusGeometry(4.45, 0.18, 10, mobile ? 36 : 68),
+    materials.structure,
+  );
+  gate.add(gateRing);
+  const gateHalo = new THREE.Mesh(
+    new THREE.TorusGeometry(4.7, 0.06, 10, mobile ? 36 : 68),
+    materials.ivoryGlow,
+  );
+  gateHalo.rotation.z = 0.12;
+  gate.add(gateHalo);
+  addBox(gate, kit, materials.glass, [1.9, 5.7, 0.08], [0, 0, -0.04]);
 
   const gimbal = new THREE.Group();
   gimbal.position.y = 5.45;
@@ -1087,6 +1400,18 @@ function createCalibrationDome(
     });
   }
   addInstancedBoxes(dome, kit, materials.ivoryGlow, radialMarks);
+
+  const stairCount = mobile ? 6 : 9;
+  for (let index = 0; index < stairCount; index += 1) {
+    const depth = 2.6;
+    addBox(
+      dome,
+      kit,
+      materials.ceramic,
+      [2.65 + index * 0.18, 0.14, depth],
+      [0, 0.08 + index * 0.11, 11.8 - index * 1.7],
+    );
+  }
 
   return dome;
 }
@@ -1158,15 +1483,15 @@ function createCameraPaths() {
   ].map((position) => new THREE.Vector3(...position));
 
   const targetPoints = [
-    [0, 2.1, 21],
-    [0, 2.35, 9],
-    [-0.5, 2.6, -4],
-    [0, 2.45, -14],
-    [-7.75, 3.0, -28],
-    [-6.9, 3.0, -28],
-    [6.8, 3.0, -42],
-    [-6.8, 3.1, -56],
-    [6.7, 3.1, -70],
+    [0, 3.4, -17.5],
+    [0, 3.2, -17.5],
+    [0, 3.0, -18],
+    [0, 2.8, -19],
+    [-4.8, 3.0, -31],
+    [-5.4, 3.0, -34],
+    [5.4, 3.0, -47],
+    [-5.4, 3.1, -61],
+    [5.4, 3.1, -75],
     [0, 3.4, -92],
     [0, 5.0, -99],
     [0, 8.2, -108],
@@ -1182,8 +1507,8 @@ function createCameraPaths() {
 
 function createWorld(mobile: boolean): BuiltScene {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(palette.nightSlate);
-  scene.fog = new THREE.FogExp2(0x8ce8dc, mobile ? 0.007 : 0.0055);
+  scene.background = new THREE.Color(0x58e0dc);
+  scene.fog = new THREE.FogExp2(0xff8faf, mobile ? 0.0034 : 0.0027);
 
   const camera = new THREE.PerspectiveCamera(50, 1, 0.08, 360);
   const kit = createGeometryKit(mobile);
@@ -1197,30 +1522,31 @@ function createWorld(mobile: boolean): BuiltScene {
     labLattice: null,
     labLens: null,
     domeRings: [],
+    leafClusters: [],
   };
 
   const sky = createSky(scene, mobile);
   const waterMaterial = createWater(scene, mobile);
   const stars = createPointField(
     scene,
-    mobile ? 340 : 980,
+    mobile ? 180 : 420,
     3111998,
-    { x: [-150, 150], y: [12, 115], z: [-205, 72] },
+    { x: [-150, 150], y: [18, 95], z: [-205, 72] },
     palette.ivory,
-    mobile ? 0.24 : 0.18,
-    0.72,
+    mobile ? 0.16 : 0.12,
+    0.34,
   );
   const dust = createPointField(
     scene,
-    mobile ? 90 : 310,
+    mobile ? 120 : 380,
     8052026,
-    { x: [-8.25, 8.25], y: [0.35, 6.7], z: [-84, -14] },
+    { x: [-14, 14], y: [0.35, 8.5], z: [-92, 18] },
     palette.fogBlue,
-    mobile ? 0.055 : 0.04,
-    0.24,
+    mobile ? 0.05 : 0.036,
+    0.28,
   );
 
-  createCauseway(scene, kit, materials, mobile);
+  createCauseway(scene, kit, materials, mobile, animated);
   createTicketHall(scene, kit, materials, mobile);
   const corridor = createCorridor(scene, kit, materials, mobile);
   createArtifacts(corridor, kit, materials, mobile, animated);
@@ -1229,17 +1555,21 @@ function createWorld(mobile: boolean): BuiltScene {
 
   const hemisphere = new THREE.HemisphereLight(
     0xfff2a8,
-    0x0b6380,
-    mobile ? 1.16 : 1.36,
+    0x07516f,
+    mobile ? 0.68 : 0.78,
   );
   scene.add(hemisphere);
 
-  const moon = new THREE.DirectionalLight(palette.ivory, mobile ? 2.15 : 2.5);
-  moon.position.set(-14, 34, 18);
-  scene.add(moon);
+  const sun = new THREE.DirectionalLight(0xfff3b0, mobile ? 1.45 : 1.72);
+  sun.position.set(16, 26, 34);
+  scene.add(sun);
 
-  const hallLight = new THREE.PointLight(palette.petal, 3.2, 32, 1.55);
-  hallLight.position.set(-1.4, 5.5, -5.5);
+  const rim = new THREE.DirectionalLight(0xff6f9f, mobile ? 0.48 : 0.64);
+  rim.position.set(-20, 9, -34);
+  scene.add(rim);
+
+  const hallLight = new THREE.PointLight(palette.petal, 2.15, 30, 1.65);
+  hallLight.position.set(-0.8, 5.9, -4.2);
   scene.add(hallLight);
 
   const bayLightData = [
@@ -1260,10 +1590,10 @@ function createWorld(mobile: boolean): BuiltScene {
     };
   });
 
-  const domeLight = new THREE.PointLight(palette.fogBlue, mobile ? 1.55 : 1.95, 31, 1.55);
-  domeLight.position.set(0, 9, -98);
+  const domeLight = new THREE.PointLight(palette.fogBlue, mobile ? 1.9 : 2.25, 36, 1.42);
+  domeLight.position.set(0, 8.5, -89.5);
   scene.add(domeLight);
-  flickerLights.push({ light: domeLight, base: mobile ? 1.55 : 1.95, phase: 3.1, speed: 0.31 });
+  flickerLights.push({ light: domeLight, base: mobile ? 1.9 : 2.25, phase: 3.1, speed: 0.31 });
 
   const pointerLight = new THREE.PointLight(palette.ivory, mobile ? 0.4 : 0.62, 18, 2);
   pointerLight.position.set(0, 4.8, 10);
@@ -1322,9 +1652,9 @@ export function createObservatoryScene(
   });
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = options.mobile ? 1.12 : 1.22;
-  renderer.setClearColor(palette.nightSlate, 1);
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = options.mobile ? 0.96 : 1;
+  renderer.setClearColor(0x58e0dc, 1);
 
   let world: BuiltScene;
   try {
@@ -1378,6 +1708,11 @@ export function createObservatoryScene(
       paper.rotation.y = index * 0.018 + Math.sin(elapsed * 0.22 + index) * 0.008;
     });
 
+    world.animated.leafClusters.forEach((cluster, index) => {
+      cluster.rotation.z = Math.sin(elapsed * 0.34 + index * 0.55) * 0.035;
+      cluster.rotation.x = Math.sin(elapsed * 0.28 + index * 0.45) * 0.018;
+    });
+
     if (world.animated.labLattice) {
       world.animated.labLattice.rotation.x = elapsed * 0.035;
       world.animated.labLattice.rotation.z = Math.sin(elapsed * 0.19) * 0.16;
@@ -1417,7 +1752,7 @@ export function createObservatoryScene(
     cameraTarget.y += pointerY * 0.12;
 
     world.camera.position.copy(cameraPosition);
-    world.camera.fov = mix(49, 58, smoothstep(0.79, 1, pathProgress));
+    world.camera.fov = mix(47, 57, smoothstep(0.79, 1, pathProgress));
     world.camera.updateProjectionMatrix();
     world.camera.lookAt(cameraTarget);
 
@@ -1516,7 +1851,7 @@ export function createObservatoryScene(
       }
     },
     resize(width, height, devicePixelRatio) {
-      const pixelRatioCap = options.mobile ? 1.15 : 1.6;
+      const pixelRatioCap = options.mobile ? 1.1 : 1.35;
       renderer.setPixelRatio(Math.min(pixelRatioCap, Math.max(1, devicePixelRatio)));
       renderer.setSize(Math.max(1, width), Math.max(1, height), false);
       world.camera.aspect = Math.max(1, width) / Math.max(1, height);

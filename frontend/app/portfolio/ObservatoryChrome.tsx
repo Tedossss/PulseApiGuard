@@ -4,9 +4,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import styles from './ObservatoryChrome.module.css';
 
 const LOADING_STEPS = [
-  'WARMING INSTRUMENTS',
-  'ALIGNING MIRRORS',
-  'SIGNAL PATH OPEN',
+  'WAKING GLASSHOUSE',
+  'OPENING CANOPY',
+  'CAUSEWAY READY',
 ] as const;
 
 const LOADER_EXIT_STAGE = LOADING_STEPS.length;
@@ -330,17 +330,17 @@ export function ObservatoryChrome() {
         aria-hidden={loadingComplete}
       >
         <div className={styles.loaderHeader} aria-hidden="true">
-          <span>THE SLEEP OBSERVATORY</span>
+          <span>THE LUCID VIVARIUM</span>
           <span>ENTRY PROTOCOL / 52.2297° N</span>
         </div>
 
         <div className={styles.instrument} aria-hidden="true">
           <i /><i /><i /><i />
-          <span>SO</span>
+          <span>LV</span>
         </div>
 
         <div className={styles.loadingReadout}>
-          <p className={styles.loadingKicker} aria-hidden="true">NIGHT INSTRUMENT ARRAY / STARTUP</p>
+          <p className={styles.loadingKicker} aria-hidden="true">DAYLIGHT VIVARIUM / STARTUP</p>
           <p className={styles.loadingStatus} role="status" aria-live="polite">
             <span>{String(visibleLoadingStage + 1).padStart(2, '0')}</span>
             {LOADING_STEPS[visibleLoadingStage]}
@@ -447,7 +447,7 @@ export function ObservatoryChrome() {
 
         <footer className={styles.planFooter} aria-hidden="true">
           <div className={styles.northMark}><i />N<span>TRUE NORTH</span></div>
-          <p>THE SLEEP OBSERVATORY <span>/</span> VISITOR MOVEMENT STUDY <span>/</span> REV. 04</p>
+          <p>THE LUCID VIVARIUM <span>/</span> VISITOR MOVEMENT STUDY <span>/</span> REV. 05</p>
           <div className={styles.scale}><span>0</span><i /><i /><i /><i /><span>20 M</span></div>
         </footer>
       </div>

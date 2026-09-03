@@ -213,8 +213,8 @@
 .ticketHall .actSticky::before {
   position: absolute;
   inset: 0;
-  opacity: calc(.2 + var(--hall-progress) * .8);
-  background: rgba(255,229,141,.94);
+  opacity: calc(.18 + var(--hall-progress) * .24);
+  background: linear-gradient(90deg, rgba(255,229,141,.92), rgba(255,229,141,.54) 45%, transparent 84%);
   content: '';
 }
 .hallBoard {
@@ -264,7 +264,7 @@
 .ticketHall .roomMark { color: rgba(17,23,29,.5); }
 
 /* 02 — four records, one continuous corridor */
-.archive .actSticky { background: linear-gradient(90deg, rgba(5,47,66,.86), rgba(36,71,199,.12) 48%, rgba(5,47,66,.82)); }
+.archive .actSticky { background: linear-gradient(90deg, rgba(5,47,66,.5), rgba(36,71,199,.03) 48%, rgba(5,47,66,.38)); }
 .archiveHeader {
   position: absolute;
   z-index: 8;
@@ -325,7 +325,7 @@
 .archiveInstruction { position: absolute; bottom: 24px; left: 28px; display: flex; gap: 24px; margin: 0; font-size: .47rem; font-weight: 700; letter-spacing: .14em; }.archiveInstruction span { color: var(--oxide); }
 
 /* 03 — a circular machine under the dome */
-.calibration .actSticky { background: rgba(36,71,199,.38); }
+.calibration .actSticky { background: linear-gradient(90deg, rgba(36,71,199,.24), transparent 64%); }
 .calibrationCopy { position: absolute; z-index: 3; top: 17vh; left: 6vw; width: min(560px, 42vw); transform: translateY(calc((.45 - var(--calibration-progress)) * 15vh)); }
 .calibrationCopy h2 { margin: 20px 0 28px; font: 400 clamp(4rem, 7.8vw, 9rem)/.77 var(--font-pg-display), serif; letter-spacing: -.05em; }
 .calibrationCopy > p:last-child { max-width: 390px; margin: 0; color: rgba(232,226,215,.63); font-size: .8rem; line-height: 1.55; }
@@ -347,9 +347,9 @@
 .roofline .actSticky::before {
   position: absolute;
   inset: 0;
-  background: linear-gradient(#ff9fbe 0 51%, #ffe58d 51% 100%);
+  background: linear-gradient(90deg, rgba(255,159,190,.9), rgba(255,229,141,.42) 48%, transparent 82%);
   content: '';
-  opacity: calc(.3 + var(--roofline-progress) * .7);
+  opacity: calc(.18 + var(--roofline-progress) * .28);
 }
 .roofline .actSticky::after { position: absolute; right: 0; bottom: 49%; left: 0; height: 1px; background: rgba(17,23,29,.32); content: ''; }
 .roofMeta { position: absolute; z-index: 2; top: 88px; right: 28px; left: 28px; display: flex; justify-content: space-between; font-size: .52rem; font-weight: 700; letter-spacing: .17em; }
