@@ -20,14 +20,28 @@ html:has([data-observatory-root]) {
   scroll-behavior: smooth;
 }
 
+html:has([data-dream-world]) {
+  scroll-behavior: auto;
+}
+
 body:has([data-observatory-root]) {
   display: block;
   color: #e8e2d7;
   background: #080d12;
 }
 
+body:has([data-dream-world]) {
+  display: block;
+  color: #171611;
+  background: linear-gradient(180deg, #9bd5ff 0 28%, #eef5f0 28% 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:has([data-observatory-root]) {
+    scroll-behavior: auto;
+  }
+
+  html:has([data-dream-world]) {
     scroll-behavior: auto;
   }
 }

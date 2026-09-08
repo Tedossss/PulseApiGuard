@@ -1,25 +1,25 @@
 import type { Metadata } from 'next';
-import { PortfolioExperience } from './portfolio/PortfolioExperience';
+import { DreamWorld } from './dreamworld/DreamWorld';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://falach.pl'),
-  title: { absolute: 'The Lucid Vivarium — Nazar Falach' },
-  description: 'Enter a bright procedural dream-world containing the systems, interfaces and experiments of full-stack engineer Nazar Falach.',
+  title: { absolute: 'The Remembered Street — Nazar Falach' },
+  description: 'Walk through six full-stack projects reimagined as places on one strange, familiar Dreamcore street by Nazar Falach.',
   alternates: { canonical: 'https://falach.pl' },
   openGraph: {
     type: 'profile',
     url: 'https://falach.pl',
-    title: 'The Lucid Vivarium — Nazar Falach',
-    description: 'A bright dream you accidentally entered through a URL—and a portfolio growing inside it.',
+    title: 'The Remembered Street — Nazar Falach',
+    description: 'Six real projects. One strange, familiar street. An interactive full-stack portfolio in Dreamcore daylight.',
     siteName: 'Nazar Falach',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'The Lucid Vivarium — Nazar Falach',
-    description: 'A vivid procedural dream-world hiding a full-stack engineering portfolio.',
+    title: 'The Remembered Street — Nazar Falach',
+    description: 'Walk a procedural Dreamcore neighborhood built from six real projects.',
   },
 };
 
 export default function PortfolioPage() {
-  return <PortfolioExperience />;
+  return <DreamWorld />;
 }

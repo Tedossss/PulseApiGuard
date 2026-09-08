@@ -25,8 +25,7 @@
   background:
     radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.58), transparent 0 18%),
     radial-gradient(circle at 82% 14%, rgba(255, 255, 255, 0.42), transparent 0 20%),
-    radial-gradient(circle at 50% 76%, rgba(153, 210, 122, 0.22), transparent 0 28%),
-    linear-gradient(180deg, #8fd2ff 0%, #dff5ff 32%, #f8f2e5 100%);
+    linear-gradient(180deg, #70b8e7 0%, #a6d9f1 52%, #d7e5d4 100%);
   transition: opacity 320ms ease;
 }
 
@@ -39,12 +38,14 @@
 }
 
 .poster::before {
-  left: -14vw;
-  bottom: -18vh;
-  width: 52vw;
-  height: 24vh;
-  background: #8dcf6d;
-  box-shadow: 42vw 2vh 0 4vh #79be5f;
+  left: -16vw;
+  bottom: -22vh;
+  width: 66vw;
+  height: 54vh;
+  background: #8eca64;
+  box-shadow:
+    48vw 4vh 0 7vh #79b95a,
+    92vw -1vh 0 2vh #90c96c;
 }
 
 .poster::after {
@@ -57,6 +58,103 @@
   box-shadow:
     -12vw 8vh 0 1.6vh rgba(255, 255, 255, 0.8),
     18vw 5vh 0 1.1vh rgba(255, 255, 255, 0.76);
+}
+
+.posterRoad {
+  position: absolute;
+  z-index: 1;
+  left: 48%;
+  bottom: -4vh;
+  width: min(34vw, 520px);
+  height: 57vh;
+  background: #f4ecd6;
+  clip-path: polygon(45% 0, 58% 0, 69% 29%, 61% 48%, 78% 68%, 100% 100%, 21% 100%, 46% 69%, 51% 49%, 58% 30%);
+  filter: drop-shadow(0 8px 10px rgba(50, 71, 48, 0.13));
+}
+
+.posterBuildings {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+}
+
+.posterBuildings span {
+  position: absolute;
+  width: clamp(34px, 5vw, 78px);
+  height: clamp(38px, 6.4vw, 98px);
+  bottom: 32vh;
+  background: #efb4aa;
+  border: clamp(2px, 0.3vw, 5px) solid #f7f0dc;
+  box-shadow: 0 13px 24px rgba(42, 62, 52, 0.16);
+}
+
+.posterBuildings span::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 130%;
+  aspect-ratio: 2 / 1;
+  background: #555b6b;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transform: translateX(-50%);
+}
+
+.posterBuildings span::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  bottom: 18%;
+  width: 22%;
+  height: 38%;
+  background: #b9d8e3;
+  box-shadow: 1.65em 0 0 #f2e4c8;
+}
+
+.posterBuildings span:nth-child(1) {
+  right: 8vw;
+  bottom: 19vh;
+  width: clamp(92px, 12vw, 180px);
+  height: clamp(112px, 15vw, 220px);
+}
+
+.posterBuildings span:nth-child(2) {
+  right: 28vw;
+  background: #e6bbc0;
+  transform: scale(0.78);
+  transform-origin: bottom;
+}
+
+.posterBuildings span:nth-child(3) {
+  left: 47vw;
+  bottom: 37vh;
+  background: #eee5d4;
+  transform: scale(0.65);
+  transform-origin: bottom;
+}
+
+.posterBuildings span:nth-child(4) {
+  left: 37vw;
+  bottom: 40vh;
+  background: #d29486;
+  transform: scale(0.54);
+  transform-origin: bottom;
+}
+
+.posterBuildings span:nth-child(5) {
+  left: 29vw;
+  bottom: 42vh;
+  background: #dfc486;
+  transform: scale(0.44);
+  transform-origin: bottom;
+}
+
+.posterBuildings span:nth-child(6) {
+  left: 22vw;
+  bottom: 44vh;
+  background: #a9c0c7;
+  transform: scale(0.35);
+  transform-origin: bottom;
 }
 
 .root[data-state='ready'] .canvas {
@@ -76,5 +174,33 @@
   .canvas,
   .poster {
     transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .poster::before {
+    width: 88vw;
+    box-shadow:
+      60vw 4vh 0 8vh #79b95a,
+      118vw -1vh 0 2vh #90c96c;
+  }
+
+  .posterRoad {
+    left: 35%;
+    width: 68vw;
+  }
+
+  .posterBuildings span:nth-child(1) {
+    right: -4vw;
+    bottom: 22vh;
+  }
+
+  .posterBuildings span:nth-child(2) {
+    right: 39vw;
+    bottom: 35vh;
+  }
+
+  .posterBuildings span:nth-child(n + 4) {
+    display: none;
   }
 }

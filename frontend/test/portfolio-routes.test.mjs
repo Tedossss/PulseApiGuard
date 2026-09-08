@@ -6,10 +6,11 @@ const rootPage = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8
 const dreamPage = readFileSync(new URL('../app/dream/page.tsx', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('../app/sitemap.ts', import.meta.url), 'utf8');
 
-test('the previous Sleep Observatory remains the root portfolio', () => {
-  assert.match(rootPage, /PortfolioExperience/);
-  assert.match(rootPage, /The Sleep Observatory/);
-  assert.doesNotMatch(rootPage, /DreamWorld/);
+test('the Remembered Street is served as the root portfolio', () => {
+  assert.match(rootPage, /DreamWorld/);
+  assert.match(rootPage, /The Remembered Street/);
+  assert.doesNotMatch(rootPage, /PortfolioExperience/);
+  assert.doesNotMatch(rootPage, /Observatory|Vivarium/i);
 });
 
 test('the new bright dream world is served at /dream without redirecting', () => {

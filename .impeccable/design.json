@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-08T15:50:00+02:00",
+  "title": "Design System: The Remembered Street",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Civic Ink",
+        "canonical": "#123451",
+        "tonalRamp": ["oklch(15% 0.040 245)", "oklch(26% 0.055 245)", "oklch(38% 0.064 245)", "oklch(50% 0.060 245)", "oklch(62% 0.050 245)", "oklch(74% 0.038 245)", "oklch(86% 0.024 245)", "oklch(95% 0.010 245)"]
+      },
+      "ink-hover": {
+        "role": "primary",
+        "displayName": "Porch Ink",
+        "canonical": "#275373",
+        "tonalRamp": ["oklch(15% 0.044 245)", "oklch(26% 0.061 245)", "oklch(38% 0.072 245)", "oklch(50% 0.070 245)", "oklch(62% 0.058 245)", "oklch(74% 0.043 245)", "oklch(86% 0.026 245)", "oklch(95% 0.011 245)"]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#3e5e71",
+        "tonalRamp": ["oklch(15% 0.026 235)", "oklch(26% 0.037 235)", "oklch(38% 0.044 235)", "oklch(50% 0.044 235)", "oklch(62% 0.038 235)", "oklch(74% 0.030 235)", "oklch(86% 0.019 235)", "oklch(95% 0.008 235)"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Notice Paper",
+        "canonical": "#fffaf0",
+        "tonalRamp": ["oklch(15% 0.010 85)", "oklch(26% 0.014 85)", "oklch(38% 0.018 85)", "oklch(50% 0.021 85)", "oklch(62% 0.023 85)", "oklch(74% 0.025 85)", "oklch(86% 0.023 85)", "oklch(95% 0.014 85)"]
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Aged Paper",
+        "canonical": "#eee4d2",
+        "tonalRamp": ["oklch(15% 0.013 78)", "oklch(26% 0.019 78)", "oklch(38% 0.025 78)", "oklch(50% 0.030 78)", "oklch(62% 0.034 78)", "oklch(74% 0.036 78)", "oklch(86% 0.031 78)", "oklch(95% 0.017 78)"]
+      },
+      "sky": {
+        "role": "secondary",
+        "displayName": "Open Sky",
+        "canonical": "#7fc5ee",
+        "tonalRamp": ["oklch(15% 0.055 235)", "oklch(26% 0.084 235)", "oklch(38% 0.110 235)", "oklch(50% 0.128 235)", "oklch(62% 0.125 235)", "oklch(74% 0.102 235)", "oklch(86% 0.063 235)", "oklch(95% 0.024 235)"]
+      },
+      "sky-light": {
+        "role": "secondary",
+        "displayName": "Haze Sky",
+        "canonical": "#bce5f4",
+        "tonalRamp": ["oklch(15% 0.035 225)", "oklch(26% 0.052 225)", "oklch(38% 0.067 225)", "oklch(50% 0.076 225)", "oklch(62% 0.073 225)", "oklch(74% 0.060 225)", "oklch(86% 0.038 225)", "oklch(95% 0.016 225)"]
+      },
+      "grass": {
+        "role": "secondary",
+        "displayName": "Remembered Grass",
+        "canonical": "#83b95a",
+        "tonalRamp": ["oklch(15% 0.050 135)", "oklch(26% 0.078 135)", "oklch(38% 0.104 135)", "oklch(50% 0.122 135)", "oklch(62% 0.120 135)", "oklch(74% 0.096 135)", "oklch(86% 0.058 135)", "oklch(95% 0.022 135)"]
+      },
+      "grass-deep": {
+        "role": "secondary",
+        "displayName": "Hill Shadow",
+        "canonical": "#4f863f",
+        "tonalRamp": ["oklch(15% 0.047 140)", "oklch(26% 0.071 140)", "oklch(38% 0.091 140)", "oklch(50% 0.104 140)", "oklch(62% 0.101 140)", "oklch(74% 0.080 140)", "oklch(86% 0.049 140)", "oklch(95% 0.019 140)"]
+      },
+      "grass-light": {
+        "role": "secondary",
+        "displayName": "Sunlit Hill",
+        "canonical": "#abd170",
+        "tonalRamp": ["oklch(15% 0.048 125)", "oklch(26% 0.073 125)", "oklch(38% 0.096 125)", "oklch(50% 0.112 125)", "oklch(62% 0.109 125)", "oklch(74% 0.087 125)", "oklch(86% 0.053 125)", "oklch(95% 0.020 125)"]
+      },
+      "lavender": {
+        "role": "tertiary",
+        "displayName": "Lavender Distance",
+        "canonical": "#9d9fc8",
+        "tonalRamp": ["oklch(15% 0.032 285)", "oklch(26% 0.050 285)", "oklch(38% 0.065 285)", "oklch(50% 0.075 285)", "oklch(62% 0.072 285)", "oklch(74% 0.058 285)", "oklch(86% 0.036 285)", "oklch(95% 0.014 285)"]
+      },
+      "peach": {
+        "role": "tertiary",
+        "displayName": "Parcel Peach",
+        "canonical": "#e9a183",
+        "tonalRamp": ["oklch(15% 0.052 45)", "oklch(26% 0.083 45)", "oklch(38% 0.112 45)", "oklch(50% 0.134 45)", "oklch(62% 0.132 45)", "oklch(74% 0.105 45)", "oklch(86% 0.063 45)", "oklch(95% 0.023 45)"]
+      },
+      "signal": {
+        "role": "tertiary",
+        "displayName": "Route Signal",
+        "canonical": "#f3bc58",
+        "tonalRamp": ["oklch(15% 0.060 80)", "oklch(26% 0.098 80)", "oklch(38% 0.132 80)", "oklch(50% 0.158 80)", "oklch(62% 0.155 80)", "oklch(74% 0.124 80)", "oklch(86% 0.073 80)", "oklch(95% 0.027 80)"]
+      },
+      "focus": {
+        "role": "tertiary",
+        "displayName": "Focus Yellow",
+        "canonical": "#fff08b",
+        "tonalRamp": ["oklch(15% 0.055 100)", "oklch(26% 0.090 100)", "oklch(38% 0.120 100)", "oklch(50% 0.142 100)", "oklch(62% 0.140 100)", "oklch(74% 0.112 100)", "oklch(86% 0.067 100)", "oklch(95% 0.025 100)"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Ledger Line",
+        "canonical": "rgba(18, 52, 81, 0.28)",
+        "tonalRamp": ["oklch(15% 0.025 245)", "oklch(26% 0.036 245)", "oklch(38% 0.044 245)", "oklch(50% 0.043 245)", "oklch(62% 0.036 245)", "oklch(74% 0.027 245)", "oklch(86% 0.017 245)", "oklch(95% 0.007 245)"]
+      },
+      "shadow": {
+        "role": "neutral",
+        "displayName": "Street Shadow",
+        "canonical": "rgba(27, 52, 62, 0.26)",
+        "tonalRamp": ["oklch(15% 0.018 215)", "oklch(26% 0.028 215)", "oklch(38% 0.034 215)", "oklch(50% 0.034 215)", "oklch(62% 0.029 215)", "oklch(74% 0.022 215)", "oklch(86% 0.014 215)", "oklch(95% 0.006 215)"]
+      },
+      "parcel-colab": {
+        "role": "tertiary",
+        "displayName": "CoLab Blue",
+        "canonical": "#9fc5d8",
+        "tonalRamp": ["oklch(15% 0.032 225)", "oklch(26% 0.049 225)", "oklch(38% 0.063 225)", "oklch(50% 0.072 225)", "oklch(62% 0.069 225)", "oklch(74% 0.056 225)", "oklch(86% 0.034 225)", "oklch(95% 0.014 225)"]
+      },
+      "parcel-foundation": {
+        "role": "tertiary",
+        "displayName": "Foundation Gold",
+        "canonical": "#e7c772",
+        "tonalRamp": ["oklch(15% 0.052 90)", "oklch(26% 0.084 90)", "oklch(38% 0.112 90)", "oklch(50% 0.133 90)", "oklch(62% 0.130 90)", "oklch(74% 0.104 90)", "oklch(86% 0.062 90)", "oklch(95% 0.023 90)"]
+      },
+      "parcel-prime": {
+        "role": "tertiary",
+        "displayName": "Prime Leather",
+        "canonical": "#c87e68",
+        "tonalRamp": ["oklch(15% 0.047 38)", "oklch(26% 0.075 38)", "oklch(38% 0.101 38)", "oklch(50% 0.120 38)", "oklch(62% 0.117 38)", "oklch(74% 0.093 38)", "oklch(86% 0.056 38)", "oklch(95% 0.021 38)"]
+      },
+      "parcel-bookshelf": {
+        "role": "tertiary",
+        "displayName": "BookShelf Mauve",
+        "canonical": "#b48fb2",
+        "tonalRamp": ["oklch(15% 0.035 325)", "oklch(26% 0.055 325)", "oklch(38% 0.071 325)", "oklch(50% 0.082 325)", "oklch(62% 0.079 325)", "oklch(74% 0.063 325)", "oklch(86% 0.039 325)", "oklch(95% 0.015 325)"]
+      },
+      "parcel-local-ai": {
+        "role": "tertiary",
+        "displayName": "Local AI Mint",
+        "canonical": "#87b9ad",
+        "tonalRamp": ["oklch(15% 0.030 175)", "oklch(26% 0.046 175)", "oklch(38% 0.060 175)", "oklch(50% 0.069 175)", "oklch(62% 0.067 175)", "oklch(74% 0.054 175)", "oklch(86% 0.033 175)", "oklch(95% 0.013 175)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Public Sign Display", "purpose": "Nazar's identity and the largest About and Contact statements." },
+      "headline": { "displayName": "Parcel Headline", "purpose": "Project and dialog titles." },
+      "body": { "displayName": "Evidence Body", "purpose": "Summaries, facts, and explanatory copy." },
+      "label": { "displayName": "Civic Label", "purpose": "Actions, navigation, metadata, and status." }
+    },
+    "shadows": [
+      { "name": "physical-sign", "value": "-24px 30px 68px rgba(27, 52, 62, 0.26)", "purpose": "Plants HTML evidence signs into the street." },
+      { "name": "directory-rise", "value": "0 -18px 42px rgba(31, 52, 61, 0.15)", "purpose": "Separates the fixed route directory from the road." },
+      { "name": "dialog-foreground", "value": "-30px 38px 90px rgba(3, 23, 37, 0.42)", "purpose": "Places the inspected record above the inert scene." }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "120ms ease-out", "purpose": "Reduced-motion-safe color and opacity feedback." },
+      { "name": "state-standard", "value": "180ms ease-out", "purpose": "Buttons, links, and directory states." },
+      { "name": "loader-release", "value": "420ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Reveals the ready street after WebGL settles." },
+      { "name": "dialog-open", "value": "360ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Expands evidence from its triggering sign." },
+      { "name": "guided-scroll", "value": "1.15s", "purpose": "Lenis desktop travel between street parcels." },
+      { "name": "parcel-hold", "value": "50% of each scroll segment", "purpose": "Lets the camera inspect one landmark before moving on." }
+    ],
+    "breakpoints": [
+      { "name": "compact-desktop", "value": "1050px" },
+      { "name": "mobile-street", "value": "760px" },
+      { "name": "single-column-evidence", "value": "420px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Inspect Project",
+      "kind": "button",
+      "refersTo": "action-primary",
+      "description": "The single strong action on each project sign.",
+      "html": "<button class=\"ds-inspect\">INSPECT PROJECT <span aria-hidden=\"true\">↗</span></button>",
+      "css": ".ds-inspect { min-height: 3.1rem; border: 0; border-radius: 0; padding: .8rem .95rem; color: #fffaf0; background: #123451; font: 820 .68rem/1.2 sans-serif; letter-spacing: .12em; text-transform: uppercase; transition: background-color 180ms ease-out, transform 180ms ease-out; } .ds-inspect:hover { background: #275373; transform: translateY(-2px); } .ds-inspect:focus-visible { outline: 3px solid #fff08b; outline-offset: 4px; }"
+    },
+    {
+      "name": "Visited Project Action",
+      "kind": "button",
+      "refersTo": "action-primary-visited",
+      "description": "A quiet paper state showing that a record has already been inspected.",
+      "html": "<button class=\"ds-visited\">INSPECT AGAIN <span aria-hidden=\"true\">↗</span></button>",
+      "css": ".ds-visited { min-height: 3.1rem; border: 1px solid rgba(18,52,81,.28); border-radius: 0; padding: .8rem .95rem; color: #123451; background: #eee4d2; font: 820 .68rem/1.2 sans-serif; letter-spacing: .12em; text-transform: uppercase; transition: background-color 180ms ease-out; } .ds-visited:hover { background: #fffaf0; } .ds-visited:focus-visible { outline: 3px solid #fff08b; outline-offset: 4px; }"
+    },
+    {
+      "name": "Evidence Sign",
+      "kind": "card",
+      "refersTo": "evidence-sign",
+      "description": "A square civic notice carrying one project's readable evidence.",
+      "html": "<article class=\"ds-sign\"><p class=\"ds-sign-label\">CURRENT PLACE</p><h2>PulseGuard</h2><p>Monitoring made physical before its verified record opens.</p></article>",
+      "css": ".ds-sign { width: min(28rem, calc(100vw - 3rem)); border: 1px solid rgba(18,52,81,.28); border-radius: 0; border-top: .35rem solid #e9a183; padding: clamp(1.35rem,2.2vw,2rem); color: #123451; background: #fffaf0; box-shadow: -24px 30px 68px rgba(27,52,62,.26); font-family: sans-serif; } .ds-sign h2 { margin: .25rem 0 .7rem; font: 600 clamp(2.25rem,4.2vw,4.8rem)/.92 sans-serif; letter-spacing: -.035em; } .ds-sign-label { margin: 0; font-size: .68rem; font-weight: 820; letter-spacing: .12em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Street Directory",
+      "kind": "nav",
+      "refersTo": "street-directory",
+      "description": "The fixed six-stop route rail and current-place indicator.",
+      "html": "<nav class=\"ds-directory\" aria-label=\"Project street directory\"><button aria-current=\"step\">PulseGuard</button><button>CoLab</button><button>Foundation</button></nav>",
+      "css": ".ds-directory { display: grid; grid-template-columns: repeat(3,1fr); min-height: 5rem; color: #3e5e71; background: #fffaf0; box-shadow: 0 -18px 42px rgba(31,52,61,.15); } .ds-directory button { min-height: 3.1rem; border: 0; border-left: 1px solid rgba(18,52,81,.18); border-radius: 0; color: inherit; background: transparent; font: 820 .68rem/1.2 sans-serif; letter-spacing: .08em; } .ds-directory button[aria-current=step] { color: #123451; box-shadow: inset 0 3px #f3bc58; } .ds-directory button:hover { background: #eee4d2; } .ds-directory button:focus-visible { outline: 3px solid #fff08b; outline-offset: -4px; }"
+    },
+    {
+      "name": "Project Dialog",
+      "kind": "custom",
+      "refersTo": "dialog-surface",
+      "description": "The complete verified record shown above an inert street.",
+      "html": "<section class=\"ds-dialog\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ds-dialog-title\"><button class=\"ds-dialog-close\">CLOSE</button><h2 id=\"ds-dialog-title\">PulseGuard</h2><p>Verified engineering evidence lives in semantic HTML.</p></section>",
+      "css": ".ds-dialog { position: relative; width: min(72rem,100%); border: 1px solid rgba(18,52,81,.28); border-radius: 0; padding: clamp(2rem,4vw,4rem); color: #123451; background: #fffaf0; box-shadow: -30px 38px 90px rgba(3,23,37,.42); font-family: sans-serif; } .ds-dialog h2 { margin: 1rem 0; font: 600 clamp(3.2rem,6vw,6rem)/.9 sans-serif; letter-spacing: -.035em; } .ds-dialog-close { min-height: 3.1rem; border: 0; border-bottom: 2px solid #123451; border-radius: 0; color: #123451; background: transparent; font-weight: 820; letter-spacing: .12em; } .ds-dialog-close:hover { background: #eee4d2; } .ds-dialog-close:focus-visible { outline: 3px solid #fff08b; outline-offset: 4px; }"
+    },
+    {
+      "name": "Contact Row",
+      "kind": "button",
+      "refersTo": "action-outline",
+      "description": "A ruled destination row used for email, GitHub, Telegram, and CV.",
+      "html": "<a class=\"ds-contact\" href=\"#contact\">EMAIL <span aria-hidden=\"true\">→</span></a>",
+      "css": ".ds-contact { display: flex; min-height: 3.1rem; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(18,52,81,.28); color: #123451; background: transparent; font: 820 .68rem/1.2 sans-serif; letter-spacing: .12em; text-decoration: none; transition: padding 180ms ease-out, background-color 180ms ease-out; } .ds-contact:hover { padding-inline: .7rem; background: #eee4d2; } .ds-contact:focus-visible { outline: 3px solid #fff08b; outline-offset: 4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Systems Remembered as Places",
+    "overview": "The root portfolio is an Experience-mode walk through one empty daylight Dreamcore neighborhood. Huge blue sky, rolling green ground, pastel clapboard buildings, civic signs, analog grain, mild haze, and four restrained impossibilities make the street feel familiar but remembered incorrectly. Six verified projects become six parcels on one continuous road. Procedural Three.js supplies spatial memory and localized landmark behavior, while semantic HTML supplies every name, claim, control, link, and state.",
+    "keyCharacteristics": [
+      "One continuous S-road connects arrival, six project stops, About, and Contact.",
+      "Barlow Condensed gives public-sign scale; Afacad Flux keeps evidence warm, compact, and readable.",
+      "Paper, navy ink, thin rules, exposed posts, and directional shadows form the civic evidence layer.",
+      "Project-specific landmarks explain each system before a visitor opens its full record.",
+      "The live surface ships no raster scenery: WebGL and CSS geometry own the street; the generated direction mock remains reference-only."
+    ],
+    "rules": [
+      { "name": "The Material Assignment Rule", "body": "Pastels describe the world; paper and ink describe evidence. Project accents identify parcels, never primary actions.", "section": "colors" },
+      { "name": "The Two-Signal Rule", "body": "Amber marks route location and yellow marks access; neither becomes general decoration.", "section": "colors" },
+      { "name": "The Public Sign Rule", "body": "Barlow Condensed names people, places, and propositions; Afacad Flux owns facts, status, navigation, and action.", "section": "typography" },
+      { "name": "The One Street Rule", "body": "New work extends the road, parcel rhythm, and directory; it does not create detached grids, carousels, or a second visual world.", "section": "layout" },
+      { "name": "The Physical Cause Rule", "body": "Use shadow only to explain a sign, post, fixed rail, overlay sheet, or environmental object; never add ambient card elevation.", "section": "elevation" },
+      { "name": "The Semantic Foreground Rule", "body": "WebGL stays fixed, pointer-inert, and aria-hidden; paper evidence always occupies the readable foreground.", "section": "elevation" },
+      { "name": "The Civic Object Rule", "body": "Evidence should look mounted, printed, ruled, or filed—not glassy, pill-shaped, or generically rounded.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do keep all project facts and destinations sourced from the verified project data.",
+      "Do make a system understandable as a landmark, then let semantic evidence complete the explanation.",
+      "Do preserve skip navigation, live current-stop text, aria-current, dialog focus management, visible focus, and forced-colors borders.",
+      "Do retain the complete journey in mobile, reduced-motion, CSS-fallback, and WebGL-failure paths.",
+      "Do keep surreal events sparse, gentle, and subordinate to wayfinding."
+    ],
+    "donts": [
+      "Don't ship the approved generated mock, any photograph, or any other raster as live street scenery.",
+      "Don't move names, claims, navigation, or actions into canvas-only content.",
+      "Don't turn the street into a project-card grid, sci-fi observatory, vivarium, or dashboard skin.",
+      "Don't replace square civic evidence with rounded glass panels, glow, or decorative gradients.",
+      "Don't fabricate customers, endorsements, performance outcomes, or a completed Local LLM training result."
+    ]
+  }
+}

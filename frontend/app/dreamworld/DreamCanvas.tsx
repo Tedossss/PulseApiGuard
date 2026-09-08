@@ -209,7 +209,17 @@ export function DreamCanvas({
 
   return (
     <div ref={hostRef} className={classes} data-state="poster" aria-hidden="true">
-      <div className={styles.poster} />
+      <div className={styles.poster}>
+        <div className={styles.posterRoad} />
+        <div className={styles.posterBuildings}>
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" tabIndex={-1} />
     </div>
   );

@@ -61,7 +61,6 @@ export function DreamWorld() {
           sceneRef={sceneRef}
           mobile={mobile}
           reducedMotion={reducedMotion}
-          skipInitializationWhenReducedMotion
           onReady={handleCanvasReady}
           onFallback={handleCanvasFallback}
         />
