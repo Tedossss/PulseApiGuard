@@ -237,8 +237,9 @@ export const dreamSceneCopy = {
   hero: {
     firstTitle: 'You took the long way.',
     returnTitle: 'You came back.',
-    subtitle: 'Nazar Falach · Full-stack engineer · Poland',
-    body: 'A few production systems, one or two stranger ideas, and a road that keeps leading back here.',
+    subtitle: 'Full-stack engineer · Poland',
+    body: 'I build products, APIs, admin systems, media workflows, and applied AI tooling.',
+    value: 'The work usually starts with architecture and ends with something people can actually operate.',
   },
   about: {
     kicker: 'A quiet room',

@@ -64,7 +64,7 @@ type DialogState = {
 
 type LoaderState =
   | { phase: 'loading' }
-  | { phase: 'found' | 'hidden'; reason: 'canvas-ready' | 'fail-open' | 'reduced-motion' };
+  | { phase: 'hidden'; reason: 'canvas-ready' | 'fail-open' | 'reduced-motion' };
 
 type DreamPortfolioProps = {
   /** The visual world. Semantic content remains complete if this layer cannot boot. */
@@ -268,12 +268,6 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
     const syncMedia = () => {
       const nextReducedMotion = reducedMedia.matches;
       setReducedMotion(nextReducedMotion);
-      if (!nextReducedMotion) return;
-      setLoaderState((current) =>
-        current.phase === 'hidden' && current.reason === 'reduced-motion'
-          ? current
-          : { phase: 'hidden', reason: 'reduced-motion' },
-      );
     };
 
     syncFrame = window.requestAnimationFrame(syncMedia);
@@ -285,26 +279,17 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || loaderPhase !== 'loading' || !effectiveCanvasReady) return;
-    const foundTimer = window.setTimeout(() => setLoaderState({ phase: 'found', reason: 'canvas-ready' }), 0);
-    return () => window.clearTimeout(foundTimer);
-  }, [effectiveCanvasReady, loaderPhase, reducedMotion]);
-
-  useEffect(() => {
-    if (reducedMotion || loaderPhase !== 'loading') return;
-    const failOpenTimer = window.setTimeout(() => setLoaderState({ phase: 'found', reason: 'fail-open' }), 2200);
-    return () => window.clearTimeout(failOpenTimer);
-  }, [loaderPhase, reducedMotion]);
-
-  useEffect(() => {
-    if (loaderPhase !== 'found') return;
-    const hideTimer = window.setTimeout(() => {
-      setLoaderState((current) =>
-        current.phase === 'found' ? { phase: 'hidden', reason: current.reason } : current,
-      );
-    }, 420);
-    return () => window.clearTimeout(hideTimer);
-  }, [loaderPhase]);
+    if (loaderPhase !== 'loading') return;
+    const releaseFrame = window.requestAnimationFrame(() => {
+      const reason = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'reduced-motion'
+        : effectiveCanvasReady
+          ? 'canvas-ready'
+          : 'fail-open';
+      setLoaderState({ phase: 'hidden', reason });
+    });
+    return () => window.cancelAnimationFrame(releaseFrame);
+  }, [effectiveCanvasReady, loaderPhase]);
 
   useEffect(() => {
     let idleTimer = 0;
@@ -710,6 +695,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
       data-loader-release={loaderReleaseReason}
       data-reduced-motion={reducedMotion}
       data-idle={idle}
+      data-active-scene={activeScene}
       data-return-visit={visitedProjects.length > 0 || loopedExit}
       data-dialog-open={dialogState ? 'true' : 'false'}
     >
@@ -724,7 +710,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
 
         <div className={styles.loader} aria-live="polite" data-visible={loaderPhase !== 'hidden'}>
           <span>Loading the street</span>
-          <strong>{loaderPhase === 'loading' ? homeLoaderLine : 'ROAD READY'}</strong>
+          <strong>{homeLoaderLine}</strong>
         </div>
 
         <div className={styles.canvasSlot} aria-hidden="true" data-has-canvas={hasCanvasLayer}>
@@ -733,7 +719,12 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
         <div className={styles.grain} aria-hidden="true" />
 
         <header className={styles.siteHeader}>
-          <button type="button" className={styles.topContact} onClick={() => scrollToScene('contact')}>
+          <button
+            type="button"
+            className={styles.topContact}
+            aria-label="Go to contact section"
+            onClick={() => scrollToScene('contact')}
+          >
             <span>Contact</span>
             <ArrowDown aria-hidden="true" />
           </button>
@@ -757,18 +748,29 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
 
               <header className={styles.identitySign}>
                 <h1 id="dream-hero-title">Nazar Falach</h1>
-                <p>Full-stack engineer · Poland</p>
-                <strong>Six places. One remembered street.</strong>
+                <p className={styles.heroRole}>{dreamSceneCopy.hero.subtitle}</p>
+                <p className={styles.heroBody}>{dreamSceneCopy.hero.body}</p>
+                <p className={styles.heroValue}>{dreamSceneCopy.hero.value}</p>
+                <strong className={styles.heroAtmosphere}>Six places. One remembered street.</strong>
+                <div className={styles.heroActions}>
+                  <button
+                    type="button"
+                    className={styles.heroPrimaryAction}
+                    onClick={() => scrollToScene(orderedProjects[0]?.slug ?? 'about')}
+                  >
+                    <span>Explore selected work</span>
+                    <ArrowDown aria-hidden="true" />
+                  </button>
+                  <a
+                    className={styles.heroSecondaryAction}
+                    href="/assets/nazar-falach-cv.pdf"
+                    download
+                  >
+                    <span>View CV</span>
+                    <Download aria-hidden="true" />
+                  </a>
+                </div>
               </header>
-
-              <button
-                type="button"
-                className={styles.scrollCue}
-                onClick={() => scrollToScene(orderedProjects[0]?.slug ?? 'about')}
-              >
-                <span>Follow the road</span>
-                <ArrowDown aria-hidden="true" />
-              </button>
 
               {visitedProjects.length > 0 || loopedExit ? (
                 <p className={styles.returnNote}>The street remembered your footsteps.</p>
