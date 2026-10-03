@@ -1,6 +1,16 @@
 'use client';
 
-import { ArrowDown, ArrowUpRight, Download, Github, Mail, Send, X } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Download,
+  Github,
+  Mail,
+  Send,
+  X,
+} from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -15,6 +25,7 @@ import {
 } from 'react';
 import styles from './DreamPortfolio.module.css';
 import { dreamProjects, dreamSceneCopy, dreamSkills, type DreamProject } from './dreamData';
+import { getProjectDirectoryState } from './dreamNavigation';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const dialogCloseDuration = 360;
@@ -200,8 +211,6 @@ function ProjectScene({
 export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfolioProps) {
   const rootRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const directoryRef = useRef<HTMLElement>(null);
-  const directoryButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number>(0);
   const sceneRefs = useRef(new Map<DreamSceneId, HTMLElement>());
@@ -227,12 +236,8 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
   const effectiveCanvasReady = hasCanvasLayer ? canvasReady : true;
   const dialogStyle = getDialogStyle(dialogState);
   const activeDialogSlug = dialogState?.project.slug;
-  const activeProjectIndex = orderedProjects.findIndex((project) => project.slug === activeScene);
-  const directoryIndex = activeProjectIndex >= 0
-    ? activeProjectIndex
-    : activeScene === 'home'
-      ? 0
-      : orderedProjects.length - 1;
+  const projectDirectory = getProjectDirectoryState(orderedProjects, activeScene);
+  const directoryIndex = projectDirectory.index;
   const directoryProgress = orderedProjects.length > 1
     ? directoryIndex / (orderedProjects.length - 1)
     : 0;
@@ -244,22 +249,6 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
     ?? (activeScene === 'about' ? 'About' : activeScene === 'contact' ? 'Contact' : 'Home');
   const loaderPhase = loaderState.phase;
   const loaderReleaseReason = loaderPhase === 'loading' ? 'pending' : loaderState.reason;
-
-  useEffect(() => {
-    const directory = directoryRef.current;
-    const project = orderedProjects[directoryIndex];
-    const button = project ? directoryButtonRefs.current.get(project.slug) : undefined;
-    if (!directory || !button || directory.scrollWidth <= directory.clientWidth) return;
-
-    const frame = window.requestAnimationFrame(() => {
-      button.scrollIntoView({
-        behavior: reducedMotion ? 'auto' : 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [directoryIndex, reducedMotion]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -714,6 +703,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
       data-reduced-motion={reducedMotion}
       data-idle={idle}
       data-return-visit={visitedProjects.length > 0 || loopedExit}
+      data-dialog-open={dialogState ? 'true' : 'false'}
     >
       <div
         className={styles.experienceShell}
@@ -862,9 +852,9 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
         </div>
 
         <nav
-          ref={directoryRef}
           className={styles.streetDirectory}
           aria-label="Project street directory"
+          aria-hidden={dialogState ? true : undefined}
           style={directoryStyle}
         >
           <span className={styles.directoryLine} aria-hidden="true">
@@ -875,10 +865,6 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
             return (
               <button
                 key={project.slug}
-                ref={(element) => {
-                  if (element) directoryButtonRefs.current.set(project.slug, element);
-                  else directoryButtonRefs.current.delete(project.slug);
-                }}
                 type="button"
                 data-active={active}
                 data-visited={visitedProjects.includes(project.slug)}
@@ -890,6 +876,62 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
               </button>
             );
           })}
+        </nav>
+
+        <nav
+          className={styles.mobileStreetDirectory}
+          aria-label="Project navigation"
+          aria-hidden={dialogState ? true : undefined}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowLeft' && projectDirectory.previous) {
+              event.preventDefault();
+              scrollToScene(projectDirectory.previous.slug);
+            }
+            if (event.key === 'ArrowRight' && projectDirectory.next) {
+              event.preventDefault();
+              scrollToScene(projectDirectory.next.slug);
+            }
+          }}
+        >
+          <button
+            type="button"
+            className={styles.mobileDirectoryButton}
+            disabled={!projectDirectory.previous}
+            aria-label={
+              projectDirectory.previous
+                ? `Previous project: ${projectDirectory.previous.title}`
+                : 'No previous project'
+            }
+            onClick={() => {
+              if (projectDirectory.previous) scrollToScene(projectDirectory.previous.slug);
+            }}
+          >
+            <ArrowLeft aria-hidden="true" />
+          </button>
+
+          <div className={styles.mobileDirectoryCurrent} aria-live="polite" aria-atomic="true">
+            <span>
+              {String(projectDirectory.index + 1).padStart(2, '0')} /{' '}
+              {String(projectDirectory.total).padStart(2, '0')}
+            </span>
+            <strong>{projectDirectory.current.title}</strong>
+          </div>
+
+          <button
+            type="button"
+            className={styles.mobileDirectoryButton}
+            disabled={!projectDirectory.next}
+            aria-label={
+              projectDirectory.next
+                ? `Next project: ${projectDirectory.next.title}`
+                : 'No next project'
+            }
+            onClick={() => {
+              if (projectDirectory.next) scrollToScene(projectDirectory.next.slug);
+            }}
+          >
+            <ArrowRight aria-hidden="true" />
+          </button>
         </nav>
 
         <div className={styles.loopDoor} data-active={looping} aria-hidden="true">
