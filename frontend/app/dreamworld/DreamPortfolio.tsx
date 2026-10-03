@@ -24,8 +24,10 @@ import {
   useState,
 } from 'react';
 import styles from './DreamPortfolio.module.css';
+import { ProjectMedia } from './ProjectMedia';
 import { dreamProjects, dreamSceneCopy, dreamSkills, type DreamProject } from './dreamData';
 import { getProjectDirectoryState } from './dreamNavigation';
+import { getPrimaryProjectLinks, getSupportingProjectLinks } from './dreamProjectLinks';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const dialogCloseDuration = 360;
@@ -237,6 +239,12 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
   const dialogStyle = getDialogStyle(dialogState);
   const activeDialogSlug = dialogState?.project.slug;
   const projectDirectory = getProjectDirectoryState(orderedProjects, activeScene);
+  const dialogPrimaryLinks = dialogState
+    ? getPrimaryProjectLinks(dialogState.project.links)
+    : [];
+  const dialogSupportingLinks = dialogState
+    ? getSupportingProjectLinks(dialogState.project.links)
+    : [];
   const directoryIndex = projectDirectory.index;
   const directoryProgress = orderedProjects.length > 1
     ? directoryIndex / (orderedProjects.length - 1)
@@ -971,18 +979,38 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
             </button>
 
             <header className={styles.dialogHeader}>
+              <p className={styles.dialogMeta}>
+                {dialogState.project.label} · {dialogState.project.year}
+              </p>
               <h2 id={`${dialogState.project.slug}-dialog-title`} className={styles.dialogTitle}>
                 {dialogState.project.title}
               </h2>
               <p id={`${dialogState.project.slug}-dialog-summary`} className={styles.dialogSummary}>
                 {dialogState.project.summary}
               </p>
-              <p className={styles.dialogMeta}>
-                {dialogState.project.role} · {dialogState.project.year} · {dialogState.project.label}
-              </p>
             </header>
 
+            {dialogPrimaryLinks.length > 0 ? (
+              <div className={`${styles.dialogLinks} ${styles.dialogPrimaryLinks}`}>
+                {dialogPrimaryLinks.map((link) => (
+                  <a
+                    key={`${dialogState.project.slug}-${link.kind}`}
+                    href={link.href}
+                    target={link.external ? '_blank' : undefined}
+                    rel={link.external ? 'noreferrer noopener' : undefined}
+                  >
+                    <span>{link.label}</span>
+                    <ArrowUpRight aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            ) : null}
+
             <div className={styles.dialogFacts}>
+              <p>
+                <strong>Role</strong>
+                <span>{dialogState.project.role}</span>
+              </p>
               <p>
                 <strong>Description</strong>
                 <span>{dialogState.project.description}</span>
@@ -994,6 +1022,11 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
                 </p>
               ))}
             </div>
+
+            <ProjectMedia
+              projectSlug={dialogState.project.slug}
+              media={dialogState.project.media}
+            />
 
             <div className={styles.dialogColumns}>
               <section>
@@ -1014,20 +1047,20 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
               </section>
             </div>
 
-            <div className={styles.dialogLinks}>
-              {dialogState.project.links.map((link) => (
-                <a
-                  key={`${dialogState.project.slug}-${link.label}`}
-                  href={link.href}
-                  target={link.external ? '_blank' : undefined}
-                  rel={link.external ? 'noreferrer noopener' : undefined}
-                  onClick={(event) => followDialogLink(event, link.href)}
-                >
-                  <span>{link.label}</span>
-                  <ArrowUpRight aria-hidden="true" />
-                </a>
-              ))}
-            </div>
+            {dialogSupportingLinks.length > 0 ? (
+              <div className={`${styles.dialogLinks} ${styles.dialogSupportingLinks}`}>
+                {dialogSupportingLinks.map((link) => (
+                  <a
+                    key={`${dialogState.project.slug}-${link.kind}`}
+                    href={link.href}
+                    onClick={(event) => followDialogLink(event, link.href)}
+                  >
+                    <span>{link.label}</span>
+                    <ArrowUpRight aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

@@ -1,3 +1,29 @@
+export type DreamProjectLink = {
+  kind: 'live' | 'github' | 'contact';
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+export type DreamProjectMedia =
+  | ({
+      type: 'image';
+      src: string;
+      width: number;
+      height: number;
+      caption?: string;
+      presentation?: 'desktop' | 'mobile' | 'diagram';
+    } & ({ decorative: true; alt?: never } | { decorative?: false; alt: string }))
+  | {
+      type: 'video';
+      src: string;
+      title: string;
+      width: number;
+      height: number;
+      caption?: string;
+      poster?: string;
+    };
+
 export type DreamProject = {
   slug: string;
   title: string;
@@ -11,7 +37,8 @@ export type DreamProject = {
   technologies: readonly string[];
   facts: readonly string[];
   details: readonly { label: string; value: string }[];
-  links: readonly { label: string; href: string; external?: boolean }[];
+  links: readonly DreamProjectLink[];
+  media?: readonly DreamProjectMedia[];
   objectLabel: string;
   teaser: string;
   microcopy: string;
@@ -38,8 +65,8 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Engineering focus', value: 'Ownership-safe APIs, SSRF-conscious validation, bounded logs, and operational Docker deployment.' },
     ],
     links: [
-      { label: 'Open live product', href: '/PAG' },
-      { label: 'GitHub repository', href: 'https://github.com/Tedossss/PulseApiGuard', external: true },
+      { kind: 'live', label: 'View live product', href: '/PAG' },
+      { kind: 'github', label: 'GitHub repository', href: 'https://github.com/Tedossss/PulseApiGuard', external: true },
     ],
     objectLabel: 'Side door',
     teaser: 'One house on the road never turns its porch light off.',
@@ -64,7 +91,7 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Architecture', value: 'Next.js frontend at /colab over a same-origin Express API with MongoDB and authenticated SSE.' },
       { label: 'Engineering focus', value: 'Session revocation, durable notifications, bounded realtime fan-out, and pair-scoped safety controls.' },
     ],
-    links: [{ label: 'Open live product', href: '/colab' }],
+    links: [{ kind: 'live', label: 'View live product', href: '/colab' }],
     objectLabel: 'Stop cord',
     teaser: 'The bus keeps moving even when nobody is inside.',
     microcopy: 'someone left the route running',
@@ -88,7 +115,7 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Architecture', value: 'Next.js public frontend, separate React/Vite admin, and a Node.js service using Prisma and PostgreSQL.' },
       { label: 'Engineering focus', value: 'Structured content, draft/archive states, role-aware operations, media handling, and throttled administrative access.' },
     ],
-    links: [{ label: 'Ask about the case', href: '#contact' }],
+    links: [{ kind: 'contact', label: 'Ask about the case', href: '#contact' }],
     objectLabel: 'Checkout receipt',
     teaser: 'Every aisle contains the same announcement in a different language.',
     microcopy: 'the receipt is longer than the shop',
@@ -113,8 +140,8 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Engineering focus', value: 'Client-side image optimization, video handling, guarded admin auth, and practical deployment documentation.' },
     ],
     links: [
-      { label: 'Visit live site', href: 'https://primeleatherrepair.com', external: true },
-      { label: 'GitHub repository', href: 'https://github.com/Tedossss/LEATHERWORKS', external: true },
+      { kind: 'live', label: 'View live product', href: 'https://primeleatherrepair.com', external: true },
+      { kind: 'github', label: 'GitHub repository', href: 'https://github.com/Tedossss/LEATHERWORKS', external: true },
     ],
     objectLabel: 'Repair tag',
     teaser: 'One storefront looks cleaner than the rest of the dream.',
@@ -139,7 +166,7 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Approach', value: 'Uses one physical-to-digital story arc instead of isolated landing-page sections.' },
       { label: 'Engineering focus', value: 'Responsive choreography, tactile UI, and keeping the concept readable on every device size.' },
     ],
-    links: [{ label: 'Discuss the presentation', href: '#contact' }],
+    links: [{ kind: 'contact', label: 'Discuss the presentation', href: '#contact' }],
     objectLabel: 'Open book',
     teaser: 'A single book keeps landing on the wrong desk.',
     microcopy: 'you already opened this one',
@@ -163,7 +190,7 @@ export const dreamProjects: readonly DreamProject[] = [
       { label: 'Method', value: 'Deterministic preprocessing, explicit training parameters, and hardware-aware experiment setup.' },
       { label: 'Current status', value: 'The data and pipeline are prepared; no final artifacts, benchmark result, or deployment is claimed.' },
     ],
-    links: [{ label: 'Discuss the pipeline', href: '#contact' }],
+    links: [{ kind: 'contact', label: 'Discuss the pipeline', href: '#contact' }],
     objectLabel: 'Computer screen',
     teaser: 'The classroom is ready, but nobody pressed Run.',
     microcopy: 'the cursor is still blinking',

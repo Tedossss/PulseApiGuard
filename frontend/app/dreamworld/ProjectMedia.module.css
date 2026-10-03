@@ -1,0 +1,72 @@
+.section {
+  margin-top: 2rem;
+  border-top: 2px solid var(--ink);
+}
+
+.section h3 {
+  margin: 0;
+  padding: 0.9rem 0 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 830;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+}
+
+.item {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+}
+
+.item[data-presentation='desktop'],
+.item[data-presentation='diagram'] {
+  grid-column: 1 / -1;
+}
+
+.item[data-presentation='mobile'] {
+  justify-self: center;
+  width: min(100%, 24rem);
+}
+
+.visual {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: var(--paper-deep);
+}
+
+.item figcaption {
+  padding: 0.7rem 0.8rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 610;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item[data-presentation] {
+    grid-column: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  .section,
+  .item,
+  .item figcaption {
+    border-color: CanvasText;
+  }
+}

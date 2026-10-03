@@ -4,6 +4,11 @@ import { access } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { dreamProjects } from '../app/dreamworld/dreamData.ts';
+import {
+  getPrimaryProjectLinks,
+  getSupportingProjectLinks,
+  isSafeProjectHref,
+} from '../app/dreamworld/dreamProjectLinks.ts';
 
 const expectedProjects = [
   'pulseguard',
@@ -48,6 +53,45 @@ test('published project links are usable and do not include known private reposi
   assert.ok(links.includes('https://github.com/Tedossss/LEATHERWORKS'));
   assert.ok(!links.includes('https://github.com/Tedossss/CoLab'));
   assert.ok(!links.includes('https://github.com/Tedossss/BookShelf'));
+});
+
+test('project actions expose only existing live and GitHub destinations', () => {
+  const actionsByProject = Object.fromEntries(
+    dreamProjects.map((project) => [
+      project.slug,
+      getPrimaryProjectLinks(project.links).map((link) => link.kind),
+    ]),
+  );
+
+  assert.deepEqual(actionsByProject.pulseguard, ['live', 'github']);
+  assert.deepEqual(actionsByProject.colab, ['live']);
+  assert.deepEqual(actionsByProject.foundation, []);
+  assert.deepEqual(actionsByProject['prime-leather'], ['live', 'github']);
+  assert.deepEqual(actionsByProject.bookshelf, []);
+  assert.deepEqual(actionsByProject['local-ai-lab'], []);
+
+  for (const project of dreamProjects) {
+    for (const link of project.links) assert.equal(isSafeProjectHref(link.href), true);
+  }
+
+  assert.equal(isSafeProjectHref('javascript:alert(1)'), false);
+  assert.equal(isSafeProjectHref('//untrusted.example/project'), false);
+});
+
+test('contact links stay supporting actions instead of duplicating modal primary actions', () => {
+  const foundation = dreamProjects.find((project) => project.slug === 'foundation');
+  assert.ok(foundation);
+  assert.deepEqual(getPrimaryProjectLinks(foundation.links), []);
+  assert.deepEqual(
+    getSupportingProjectLinks(foundation.links).map((link) => link.href),
+    ['#contact'],
+  );
+});
+
+test('project media remains optional until verified product assets are supplied', () => {
+  for (const project of dreamProjects) {
+    assert.ok(project.media === undefined || Array.isArray(project.media));
+  }
 });
 
 test('Local LLM copy does not claim an unverified training result', () => {

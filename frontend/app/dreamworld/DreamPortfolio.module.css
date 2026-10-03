@@ -960,7 +960,7 @@
 }
 
 .dialogMeta {
-  margin: 0.85rem 0 0;
+  margin: 0 0 0.85rem;
   color: #50654e;
   font-size: 0.65rem;
   font-weight: 790;
@@ -1043,6 +1043,17 @@
   margin-top: 2rem;
   padding-top: 1.2rem;
   border-top: 2px solid var(--ink);
+}
+
+.dialogPrimaryLinks {
+  max-width: 54rem;
+  margin-top: 1.25rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.dialogSupportingLinks {
+  justify-content: flex-start;
 }
 
 .dialogLinks a {
