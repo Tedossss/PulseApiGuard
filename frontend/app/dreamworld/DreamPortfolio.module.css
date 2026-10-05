@@ -1681,6 +1681,134 @@
   }
 }
 
+/* Authored town pass: the plaque is a roadside object, while the canvas owns the street and doors. */
+.canvasSlot {
+  pointer-events: auto;
+  touch-action: pan-y;
+}
+
+.scene {
+  min-height: 108svh;
+}
+
+.scene[data-scene='home'] {
+  min-height: 112svh;
+}
+
+.sceneFrame {
+  background: transparent;
+}
+
+.fallbackWorld {
+  background: linear-gradient(180deg, #a8d6e5 0 53%, #789c59 53% 100%);
+}
+
+.fallbackRoad {
+  left: 50%;
+  width: clamp(8rem, 19vw, 15rem);
+  background: #5b6570;
+  clip-path: polygon(34% 100%, 66% 100%, 59% 0, 41% 0);
+  transform: translateX(-50%);
+}
+
+.evidenceMarker {
+  width: min(25rem, calc(100vw - 3rem));
+  padding: 1.2rem 1.35rem 1.35rem;
+  border: 0;
+  border-top: 0.35rem solid var(--parcel-accent);
+  background: rgba(255, 250, 240, 0.94);
+  box-shadow: 0.45rem 0.55rem 0 rgba(18, 52, 81, 0.15), -0.5rem 1rem 2.2rem rgba(27, 52, 62, 0.22);
+  transform: perspective(900px) rotateY(var(--plaque-tilt, 0deg));
+  transform-origin: bottom center;
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.evidenceMarker[data-side='left'] { --plaque-tilt: 1.2deg; }
+.evidenceMarker[data-side='right'] { --plaque-tilt: -1.2deg; }
+.evidenceMarker[data-active='true'],
+.evidenceMarker[data-door-open='true'] {
+  border-top-color: var(--signal);
+  box-shadow: 0.55rem 0.65rem 0 rgba(18, 52, 81, 0.18), -0.3rem 1rem 2.8rem rgba(243, 188, 88, 0.24);
+  transform: perspective(900px) rotateY(0deg) translateY(-0.2rem);
+}
+
+.evidenceMarker::before {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.4rem;
+  width: 4.2rem;
+  height: 0.45rem;
+  background: var(--parcel-accent);
+  box-shadow: 0.28rem 0.28rem 0 rgba(18, 52, 81, 0.16);
+  content: '';
+}
+
+.evidenceMarker::after {
+  right: 1.6rem;
+  width: 0.58rem;
+  height: 13vh;
+  min-height: 4.8rem;
+  background: linear-gradient(90deg, #a99379, #f4ead6 42%, #b39d83);
+  box-shadow: 0.35rem 0.45rem 0.8rem rgba(38, 65, 54, 0.18);
+}
+
+.evidenceMarker[data-side='right']::after { right: auto; left: 1.6rem; }
+
+.projectTitle { font-size: clamp(2rem, 3.2vw, 3.5rem); }
+.projectSummary { margin-top: 0.75rem; font-size: 0.9rem; }
+.markerFacts { margin-top: 0.9rem; }
+.markerFacts div { grid-template-columns: 6.2rem 1fr; padding: 0.5rem 0; }
+.projectTeaser { margin-top: 0.7rem; }
+
+.markerActions {
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.enterPlaceButton,
+.inspectButton {
+  min-height: 2.85rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--ink);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.enterPlaceButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.enterPlaceButton svg { width: 0.95rem; height: 0.95rem; }
+.enterPlaceButton:hover,
+.enterPlaceButton:focus-visible { color: var(--paper); background: var(--ink); }
+
+@media (max-width: 760px) {
+  .canvasSlot { pointer-events: auto; }
+  .scene { min-height: 102svh; }
+  .scene[data-scene='home'] { min-height: 106svh; }
+  .evidenceMarker { top: 5.2rem; left: 1rem !important; right: 1rem !important; width: auto; transform: none; }
+  .evidenceMarker[data-active='true'], .evidenceMarker[data-door-open='true'] { transform: translateY(-0.15rem); }
+  .evidenceMarker::after { right: 1.15rem; }
+  .evidenceMarker[data-side='right']::after { right: 1.15rem; left: auto; }
+  .projectTitle { font-size: clamp(1.9rem, 10vw, 3rem); }
+  .projectSummary { font-size: 0.88rem; }
+  .markerFacts div { grid-template-columns: 5.5rem 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evidenceMarker,
+  .evidenceMarker[data-active='true'],
+  .evidenceMarker[data-door-open='true'],
+  .enterPlaceButton { transition: none; }
+}
+
 @media (forced-colors: active) {
   .grain,
   .fallbackCloudOne,

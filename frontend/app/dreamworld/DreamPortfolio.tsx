@@ -19,6 +19,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
   startTransition,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -139,14 +140,20 @@ function FallbackWorld() {
 
 function ProjectScene({
   activeScene,
+  hoveredDoor,
   index,
+  onEnterProject,
+  onDoorFocus,
   onOpenProject,
   project,
   registerScene,
   visited,
 }: {
   activeScene: DreamSceneId;
+  hoveredDoor: string | null;
   index: number;
+  onEnterProject: (project: DreamProject) => void;
+  onDoorFocus: (slug: string, open: boolean) => void;
   onOpenProject: (project: DreamProject, opener: HTMLButtonElement) => void;
   project: DreamProject;
   registerScene: (id: DreamSceneId, element: HTMLElement | null) => void;
@@ -168,7 +175,7 @@ function ProjectScene({
       <div className={styles.sceneFrame}>
         <FallbackWorld />
 
-        <article className={styles.evidenceMarker} data-side={side} data-active={active}>
+        <article className={styles.evidenceMarker} data-side={side} data-active={active} data-door-open={hoveredDoor === project.slug || active}>
           <h2 id={`${project.slug}-title`} className={styles.projectTitle}>
             {project.title}
             {active ? <span className={styles.srOnly}> Current stop.</span> : null}
@@ -189,6 +196,19 @@ function ProjectScene({
           <p className={styles.projectTeaser}>{project.teaser}</p>
 
           <div className={styles.markerActions}>
+            <button
+              type="button"
+              className={styles.enterPlaceButton}
+              aria-label={`Enter ${project.title}`}
+              onFocus={() => onDoorFocus(project.slug, true)}
+              onBlur={() => onDoorFocus(project.slug, false)}
+              onMouseEnter={() => onDoorFocus(project.slug, true)}
+              onMouseLeave={() => onDoorFocus(project.slug, false)}
+              onClick={() => onEnterProject(project)}
+            >
+              <span>Enter place</span>
+              <ArrowRight aria-hidden="true" />
+            </button>
             <button
               type="button"
               className={styles.inspectButton}
@@ -222,6 +242,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
   const loopRevealTimerRef = useRef<number | null>(null);
 
   const [activeScene, setActiveScene] = useState<DreamSceneId>('home');
+  const [hoveredDoor, setHoveredDoor] = useState<string | null>(null);
   const [dialogState, setDialogState] = useState<DialogState | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [loaderState, setLoaderState] = useState<LoaderState>({ phase: 'loading' });
@@ -585,7 +606,7 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
     else sceneRefs.current.delete(id);
   };
 
-  const scrollToScene = (sceneId: DreamSceneId) => {
+  const scrollToScene = useCallback((sceneId: DreamSceneId) => {
     const target = sceneRefs.current.get(sceneId);
     if (!target) return;
     if (lenisRef.current && !reducedMotion) {
@@ -593,6 +614,40 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
       return;
     }
     target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+  }, [reducedMotion]);
+
+  const enterProject = useCallback((project: DreamProject) => {
+    const destination = getPrimaryProjectLinks(project.links)[0]
+      ?? getSupportingProjectLinks(project.links)[0];
+    if (!destination) return;
+    if (destination.href.startsWith('#')) {
+      scrollToScene(destination.href.slice(1) as DreamSceneId);
+      return;
+    }
+    window.location.assign(destination.href);
+  }, [scrollToScene]);
+
+  useEffect(() => {
+    const handleDoorHover = (event: Event) => {
+      const slug = (event as CustomEvent<{ slug?: string | null }>).detail?.slug ?? null;
+      setHoveredDoor(slug);
+    };
+    const handleDoorActivate = (event: Event) => {
+      const slug = (event as CustomEvent<{ slug?: string }>).detail?.slug;
+      const project = slug ? projectLookup.get(slug) : undefined;
+      if (project) enterProject(project);
+    };
+    window.addEventListener('falach:dream-door-hover', handleDoorHover);
+    window.addEventListener('falach:dream-door-activate', handleDoorActivate);
+    return () => {
+      window.removeEventListener('falach:dream-door-hover', handleDoorHover);
+      window.removeEventListener('falach:dream-door-activate', handleDoorActivate);
+    };
+  }, [enterProject]);
+
+  const handleDoorFocus = (slug: string, open: boolean) => {
+    setHoveredDoor(open ? slug : null);
+    window.dispatchEvent(new CustomEvent('falach:dream-door-focus', { detail: { slug, open } }));
   };
 
   const rememberProjectVisit = (slug: string) => {
@@ -782,7 +837,10 @@ export function DreamPortfolio({ canvasLayer, canvasReady = false }: DreamPortfo
             <ProjectScene
               key={project.slug}
               activeScene={activeScene}
+              hoveredDoor={hoveredDoor}
               index={index}
+              onEnterProject={enterProject}
+              onDoorFocus={handleDoorFocus}
               onOpenProject={openProject}
               project={project}
               registerScene={registerScene}

@@ -17,6 +17,8 @@
 
 .canvas {
   display: block;
+  pointer-events: auto;
+  touch-action: pan-y;
   opacity: 0;
   transition: opacity 320ms ease;
 }
