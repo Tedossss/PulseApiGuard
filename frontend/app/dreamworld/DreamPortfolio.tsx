@@ -176,53 +176,53 @@ function ProjectScene({
         <FallbackWorld />
 
         <article className={styles.evidenceMarker} data-side={side} data-active={active} data-door-open={hoveredDoor === project.slug || active}>
-          <h2 id={`${project.slug}-title`} className={styles.projectTitle}>
-            {project.title}
-            {active ? <span className={styles.srOnly}> Current stop.</span> : null}
-          </h2>
-          <p className={styles.projectSummary}>{project.summary}</p>
+          <span className={styles.plaquePost} aria-hidden="true" />
+          <span className={styles.plaquePin} aria-hidden="true" />
+          <div className={styles.plaqueBoard}>
+            <p className={styles.plaqueEyebrow}>{project.label} · {project.year}</p>
+            <h2 id={`${project.slug}-title`} className={styles.projectTitle}>
+              {project.title}
+              {active ? <span className={styles.srOnly}> Current stop.</span> : null}
+            </h2>
+            <p className={styles.projectSummary}>{project.summary}</p>
 
-          <dl className={styles.markerFacts}>
-            <div>
-              <dt>Role</dt>
-              <dd>{project.role}</dd>
+            <dl className={styles.markerFacts}>
+              <div>
+                <dt>Role</dt>
+                <dd>{project.role}</dd>
+              </div>
+              <div>
+                <dt>Signal</dt>
+                <dd>{project.facts[0]}</dd>
+              </div>
+            </dl>
+
+            <div className={styles.markerActions}>
+              <button
+                type="button"
+                className={styles.enterPlaceButton}
+                aria-label={`Enter ${project.title}`}
+                onFocus={() => onDoorFocus(project.slug, true)}
+                onBlur={() => onDoorFocus(project.slug, false)}
+                onMouseEnter={() => onDoorFocus(project.slug, true)}
+                onMouseLeave={() => onDoorFocus(project.slug, false)}
+                onClick={() => onEnterProject(project)}
+              >
+                <span>Enter door</span>
+                <ArrowRight aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.inspectButton}
+                data-visited={visited}
+                aria-haspopup="dialog"
+                aria-controls={`${project.slug}-dialog`}
+                onClick={(event) => onOpenProject(project, event.currentTarget)}
+              >
+                <span>{visited ? 'Inspect again' : 'Inspect'}</span>
+                <ArrowUpRight aria-hidden="true" />
+              </button>
             </div>
-            <div>
-              <dt>Roadside signal</dt>
-              <dd>{project.facts[0]}</dd>
-            </div>
-          </dl>
-
-          <p className={styles.projectTeaser}>{project.teaser}</p>
-
-          <div className={styles.markerActions}>
-            <button
-              type="button"
-              className={styles.enterPlaceButton}
-              aria-label={`Enter ${project.title}`}
-              onFocus={() => onDoorFocus(project.slug, true)}
-              onBlur={() => onDoorFocus(project.slug, false)}
-              onMouseEnter={() => onDoorFocus(project.slug, true)}
-              onMouseLeave={() => onDoorFocus(project.slug, false)}
-              onClick={() => onEnterProject(project)}
-            >
-              <span>Enter place</span>
-              <ArrowRight aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.inspectButton}
-              data-visited={visited}
-              aria-haspopup="dialog"
-              aria-controls={`${project.slug}-dialog`}
-              onClick={(event) => onOpenProject(project, event.currentTarget)}
-            >
-              <span>{visited ? 'Inspect again' : 'Inspect project'}</span>
-              <ArrowUpRight aria-hidden="true" />
-            </button>
-            <span className={styles.markerMeta}>
-              {project.label} · {project.year}
-            </span>
           </div>
         </article>
       </div>

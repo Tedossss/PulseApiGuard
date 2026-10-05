@@ -1839,3 +1839,159 @@
     outline-color: Highlight;
   }
 }
+
+/* Diegetic plaque pass: project information is a small roadside object, not a page panel. */
+.evidenceMarker {
+  top: auto;
+  bottom: clamp(7.5rem, 15vh, 10.5rem);
+  width: min(19rem, calc(100vw - 2.5rem));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: perspective(900px) rotateY(var(--plaque-tilt, 0deg)) rotateX(1deg);
+  transform-origin: bottom center;
+}
+
+.evidenceMarker[data-side='left'] { left: clamp(1rem, 7vw, 8rem); }
+.evidenceMarker[data-side='right'] { right: clamp(1rem, 7vw, 8rem); }
+.evidenceMarker[data-active='true'],
+.evidenceMarker[data-door-open='true'] {
+  transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-0.35rem);
+}
+
+.plaqueBoard {
+  position: relative;
+  z-index: 2;
+  padding: 1.05rem 1.15rem 1rem;
+  border: 0.14rem solid #263d49;
+  border-radius: 0.18rem;
+  color: #f8eedc;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 38%),
+    #315565;
+  box-shadow: 0.35rem 0.45rem 0 #183541, 0.8rem 1.1rem 1.8rem rgba(26, 49, 51, 0.28);
+}
+
+.plaqueBoard::before,
+.plaqueBoard::after {
+  position: absolute;
+  top: 0.55rem;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: #e7c47d;
+  box-shadow: inset 0 0 0 0.08rem #8a6441;
+  content: '';
+}
+
+.plaqueBoard::before { left: 0.55rem; }
+.plaqueBoard::after { right: 0.55rem; }
+
+.plaquePost {
+  position: absolute;
+  z-index: 1;
+  right: 2.5rem;
+  bottom: -5.8rem;
+  width: 0.6rem;
+  height: 6rem;
+  background: linear-gradient(90deg, #6c4d3a, #b08258 48%, #533b2f);
+  box-shadow: 0.22rem 0.25rem 0.6rem rgba(26, 49, 51, 0.22);
+  content: '';
+}
+
+.plaquePin {
+  position: absolute;
+  z-index: 3;
+  right: 2.2rem;
+  bottom: -0.8rem;
+  width: 1.2rem;
+  height: 0.55rem;
+  border: 0.12rem solid #3d2b25;
+  background: #9f7049;
+  box-shadow: 0.15rem 0.2rem 0 rgba(26, 49, 51, 0.24);
+  content: '';
+}
+
+.plaqueEyebrow {
+  margin: 0 0 0.48rem;
+  color: #e7c47d;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.projectTitle {
+  max-width: 13ch;
+  color: #fff8e9;
+  font-size: clamp(1.45rem, 2.5vw, 2.25rem);
+  line-height: 0.95;
+}
+
+.projectSummary {
+  max-width: 34ch;
+  margin-top: 0.55rem;
+  color: #d8e4df;
+  font-size: 0.77rem;
+  line-height: 1.38;
+}
+
+.markerFacts {
+  margin-top: 0.65rem;
+  border-top: 1px solid rgba(248, 238, 220, 0.26);
+}
+
+.markerFacts div {
+  grid-template-columns: 3.8rem 1fr;
+  gap: 0.65rem;
+  padding: 0.4rem 0;
+  border-top: 1px solid rgba(248, 238, 220, 0.16);
+}
+
+.markerFacts dt { color: #e7c47d; font-size: 0.54rem; }
+.markerFacts dd { color: #e5eee8; font-size: 0.66rem; }
+
+.markerActions {
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.enterPlaceButton,
+.inspectButton {
+  min-height: 2.45rem;
+  padding: 0.55rem 0.62rem;
+  border-color: #e7c47d;
+  font-size: 0.59rem;
+}
+
+.enterPlaceButton { color: #183541; background: #e7c47d; }
+.enterPlaceButton:hover,
+.enterPlaceButton:focus-visible { color: #183541; background: #f4d99c; }
+.inspectButton { color: #f8eedc; background: transparent; }
+.inspectButton[data-visited='true'] { color: #183541; background: #d8e4df; }
+
+@media (max-width: 760px) {
+  .evidenceMarker,
+  .evidenceMarker[data-side='left'],
+  .evidenceMarker[data-side='right'] {
+    right: auto;
+    bottom: 7.1rem;
+    left: 1rem;
+    width: min(18rem, calc(100vw - 2rem));
+    transform: perspective(900px) rotateY(-1deg) rotateX(1deg);
+  }
+
+  .evidenceMarker[data-active='true'],
+  .evidenceMarker[data-door-open='true'] { transform: perspective(900px) rotateY(0deg) translateY(-0.25rem); }
+  .plaqueBoard { padding: 0.9rem 0.92rem 0.86rem; }
+  .projectSummary { font-size: 0.72rem; }
+  .markerFacts dd { font-size: 0.64rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evidenceMarker,
+  .evidenceMarker[data-active='true'],
+  .evidenceMarker[data-door-open='true'] { transform: none; }
+}
