@@ -15,6 +15,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    const documentRoutes = ["/", "/dream", "/PAG", "/auth", "/dashboard"];
+
+    return documentRoutes.map((source) => ({
+      source,
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "public, max-age=0, s-maxage=0, must-revalidate",
+        },
+      ],
+    }));
+  },
 };
 
 export default nextConfig;
