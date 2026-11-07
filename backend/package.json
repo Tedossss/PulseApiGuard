@@ -2,13 +2,18 @@
   "name": "pulseguard-api",
   "version": "1.0.0",
   "description": "PulseGuard API monitoring service",
-  "main": "app.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "worker": "node worker.js",
-    "dev": "nodemon server.js",
-    "test": "node --test"
+    "start": "node dist/server.js",
+    "worker": "node dist/worker.js",
+    "dev": "tsx watch src/server.ts",
+    "test": "node --import tsx --test test/unit.test.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "dev:worker": "tsx watch src/worker.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
+    "test:integration": "node --import tsx --test --test-concurrency=1 test/integration/*.test.ts"
   },
   "dependencies": {
     "axios": "^1.13.5",
@@ -23,10 +28,21 @@
     "ipaddr.js": "^2.4.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.3",
-    "rate-limit-redis": "^6.0.0",
-    "redis": "^6.1.0"
+    "rate-limit-redis": "^6.0.0"
+  },
+  "main": "dist/app.js",
+  "engines": {
+    "node": ">=22"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.20.5",
+    "@types/supertest": "^7.2.1",
+    "prettier": "^3.9.10",
+    "supertest": "^7.3.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
   }
 }
