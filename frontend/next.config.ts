@@ -15,8 +15,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [{ source: "/PAG", destination: "/", permanent: true }];
+  },
   async headers() {
-    const documentRoutes = ["/", "/dream", "/PAG", "/auth", "/dashboard"];
+    const documentRoutes = ["/", "/auth", "/dashboard"];
 
     return documentRoutes.map((source) => ({
       source,
