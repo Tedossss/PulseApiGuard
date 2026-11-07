@@ -14,7 +14,10 @@ or check logs.
 
 ```bash
 cd backend
+npm run lint
+npm run typecheck
 npm test
+npm run test:integration   # see backend/README.md
 npm audit --omit=dev
 
 cd ../frontend

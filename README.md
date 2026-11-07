@@ -1,167 +1,154 @@
 # PulseGuard
 
-PulseGuard is a full-stack API monitoring platform with configurable HTTP checks,
-latency and uptime history, incident state transitions, HttpOnly JWT sessions, and
-per-user dashboards.
+[![CI](https://github.com/Tedossss/PulseApiGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/Tedossss/PulseApiGuard/actions/workflows/ci.yml)
 
-<img width="1145" height="710" alt="image" src="https://github.com/user-attachments/assets/9bab81a0-83d9-4b50-985b-faf63b5fac57" />
+PulseGuard monitors API uptime. It checks your HTTP endpoints on a schedule, stores latency
+and uptime history, and declares an incident only after three failures in a row. It sends
+DOWN and recovery alerts to Telegram.
+
+**[Live demo](https://falach.pl/dashboard?demo=1)**: the dashboard with sample data, no account needed.
+
+<img width="1145" height="710" alt="PulseGuard dashboard with endpoint list, uptime trend and check history" src="https://github.com/user-attachments/assets/9bab81a0-83d9-4b50-985b-faf63b5fac57" />
 
 ## Features
 
-- Create, edit, delete, and search owned endpoint monitors.
-- Schedule `GET` or `HEAD` checks from every 30 seconds to every 24 hours.
-- Track latency, expected HTTP status, uptime trends, and cursor-paginated check history.
-- Confirm a `DOWN` incident after three consecutive failures and recover on success.
-- Connect Telegram from dashboard settings for confirmed incident and recovery alerts.
-- Run API and workers independently with BullMQ scheduling and distributed Redis locks.
-- Preview the dashboard without an account at `/dashboard?demo=1`.
-- Open the PulseGuard project presentation at `/PAG`; the deployment root is a small
-  project chooser shared with CoLab.
+- Create, edit, delete and search your own endpoint monitors (`GET` or `HEAD`, every 30 s to 24 h).
+- Track latency, expected HTTP status, uptime trends and cursor-paginated check history.
+- Mark a monitor `DOWN` after three consecutive failures and recover it on the next success.
+- Link Telegram from the dashboard settings to receive incident and recovery alerts.
+- Run the API and the workers as separate processes, and scale workers horizontally.
 
 ## Stack
 
-- Next.js, React, TypeScript, Recharts
-- Node.js, Express, MongoDB, Mongoose
-- BullMQ, Redis, Docker Compose, and dependency-aware health checks
-
-- <img width="1914" height="853" alt="image" src="https://github.com/user-attachments/assets/8a7ca274-46f0-4dde-a84e-06117539933d" />
-
+| Layer    | Technology                                                    |
+| -------- | ------------------------------------------------------------- |
+| Backend  | Node.js 22, TypeScript (strict), Express 5, Mongoose 9        |
+| Jobs     | BullMQ job schedulers on Redis, per-monitor Redis locks       |
+| Frontend | Next.js 16 (App Router), React 19, TypeScript, Recharts       |
+| Infra    | Docker Compose, GitHub Actions, MongoDB 7, Redis 7            |
+| Tests    | `node:test`, Supertest against real MongoDB and Redis         |
 
 ## Architecture
 
 ```text
 Browser → Next.js UI → same-origin /api proxy → Express API → MongoDB
-                                             ↘ Redis rate limits
-Express API → BullMQ job schedulers → Redis → monitoring workers → external endpoints
-                                                     ↘ Telegram Bot API
+                                             ↘ Redis (rate limits)
+Express API → BullMQ job schedulers → Redis → monitor workers → external endpoints
+                                                       ↘ Telegram Bot API
 ```
 
-Each monitor has a BullMQ job scheduler that respects its configured interval between
-30 seconds and 24 hours. Dedicated workers use distributed per-monitor locks, controlled
-concurrency, and exponential retry for infrastructure failures. A monitor moves to `DOWN`
-after three consecutive failures. HTTP checks time out after ten seconds. A Redis lease
-elects one worker as the Telegram polling leader when multiple workers are running.
-Alert messages omit URL query strings and fragments so endpoint credentials are not
-copied into Telegram or lock-screen notifications.
+The API and the worker share one codebase and run as two processes (`dist/server.js`,
+`dist/worker.js`). The API owns users, monitors and dashboards. Workers own checks, state
+transitions and alerts.
 
-## Security
+## Key engineering decisions
 
-- Real `.env` files, build output, caches, logs, and dependencies are excluded.
-- JWT secrets must contain at least 32 characters; browser sessions use HttpOnly,
-  SameSite=Strict cookies that expire after 12 hours by default.
-- Authentication, general API, and manual checks use Redis-backed shared rate limits.
-- Accounts are limited to 20 monitors by default and checks run no more often than every 30 seconds.
-- API and worker processes are separate; workers can scale horizontally without running
-  the same monitor concurrently.
-- Monitoring logs have compound query indexes and expire automatically after 30 days.
-- Dashboard summaries and time-series trends are calculated in MongoDB aggregations
-  instead of loading all logs into application memory.
-- CORS uses an explicit origin allowlist.
-- Monitor ownership is checked before reads, updates, and deletes.
-- Update fields and HTTP methods are allowlisted.
-- Monitoring requests reject local/private network destinations, credentials in URLs,
-  non-HTTP protocols, and redirects to reduce SSRF risk.
+**SSRF protection is applied after DNS resolution.** PulseGuard sends requests to URLs that
+users supply, so URL checks alone are not enough: a public hostname can resolve to
+`127.0.0.1`. The HTTP agents use a custom `lookup` that rejects private, reserved,
+IPv4-mapped and NAT64 addresses at connect time. Redirects, credentials in URLs and other
+methods are refused. See [`apiTester.ts`](backend/src/services/apiTester.ts).
 
-## API overview
+**One check per monitor at a time.** Every monitor has its own BullMQ job scheduler. A
+worker takes a Redis lock (`SET NX PX` with a random token) before it checks a monitor, and
+releases the lock with a compare-and-delete Lua script. Several workers can therefore run
+without checking the same monitor twice. The Telegram alert goes out after the lock is
+released. See [`monitorWorker.ts`](backend/src/workers/monitorWorker.ts).
 
-- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`
-- `GET /api/auth/session` returns the current cookie-authenticated user.
-- `POST /api/monitor/add`, `GET /api/monitor`, `PUT /api/monitor/:id`,
-  `DELETE /api/monitor/:id` implement the monitor lifecycle.
-- `GET /api/dashboard/summary` returns per-monitor status and aggregate uptime.
-- `GET /api/dashboard/trend?hours=24` returns five-minute buckets; ranges above 48
-  hours use hourly buckets and are capped at seven days.
-- `GET /api/dashboard/logs?limit=50&cursor=...&monitorId=...` provides ownership-safe
-  cursor pagination. `limit` is capped at 100.
-- `GET /api/system/live` checks the API process; `/api/system/ready` verifies MongoDB
-  and Redis connectivity.
-- `GET /api/telegram/status`, `POST /api/telegram/link`, and `DELETE /api/telegram/link`
-  manage the authenticated user's Telegram connection.
+**Three failures before an incident.** A single timeout should not wake anyone up.
+`calculateMonitorState` is a pure function with unit tests, and the worker persists its result.
 
-Set `TRUST_PROXY` to the exact number of trusted reverse proxies when deploying behind
-one. Bearer tokens remain accepted for non-browser API clients, while the web application
-does not expose its session token to JavaScript. Set `SESSION_COOKIE_SECURE=true` whenever
-the public deployment uses HTTPS; the Docker Compose default remains `false` for local HTTP.
+**Aggregate in the database.** Summaries and trends are MongoDB aggregations
+(`$lookup`, `$dateTrunc`). Logs have compound indexes and a 30-day TTL. History pages use
+an opaque `(createdAt, _id)` cursor, so ties on equal timestamps are neither skipped nor
+duplicated, which offset pagination cannot guarantee.
 
-## Run with Docker
+**Quotas hold under concurrency.** Two parallel requests can both pass a
+"count < limit" check. A monitor created past the limit compares its own ObjectId position
+and backs out. An integration test fires 8 parallel creates against a limit of 3.
+
+**Sessions the browser cannot read.** Sessions are JWTs in `HttpOnly`, `SameSite=Strict`
+cookies with an issuer and audience, valid for 12 h by default. Bearer tokens remain
+accepted for non-browser clients. Auth, the general API and manual checks have rate limits
+stored in Redis.
+
+## Quick start (Docker)
 
 ```bash
 cp .env.example .env
-# Replace JWT_SECRET in .env with: openssl rand -hex 32
-# Add TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME to enable Telegram alerts.
+# Set JWT_SECRET to the output of: openssl rand -hex 32
+# Optional: TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME enable alerts.
 docker compose up --build
 ```
 
-Open `http://localhost:3000`. The API readiness endpoint is available through
-`http://localhost:3000/api/system/ready`; frontend liveness is exposed at
-`http://localhost:3000/health`. Docker publishes the frontend on loopback only;
-set `FRONTEND_BIND_PORT` when a reverse proxy needs a different host port.
-production traffic should reach it through the host reverse proxy. Compose also
-caps each container's JSON logs at three 10 MB files to prevent unbounded disk use.
-In the shared `falach.pl` deployment, Nginx sends `/colab` to CoLab and every other
-path to this frontend, so `/`, `/PAG`, authentication, dashboard, API, and health
-routes stay within the PulseGuard service.
+Open `http://localhost:3000`. Readiness: `http://localhost:3000/api/system/ready`.
+Docker publishes the frontend on loopback only. Set `FRONTEND_BIND_PORT` if a reverse
+proxy needs another host port, `TRUST_PROXY` to the number of proxies in front, and
+`SESSION_COOKIE_SECURE=true` behind HTTPS.
 
-## Run locally
+## Local development
 
-Backend:
+```bash
+# MongoDB and Redis on the ports backend/.env.example expects
+docker run -d --name pulseguard-mongo -p 127.0.0.1:27017:27017 mongo:7
+docker run -d --name pulseguard-redis -p 127.0.0.1:6379:6379 redis:7-alpine
+
+# API and worker (two terminals)
+cd backend && cp .env.example .env && npm ci
+npm run dev
+npm run dev:worker
+
+# Dashboard
+cd frontend && cp .env.local.example .env.local && npm ci && npm run dev
+```
+
+## Tests and checks
 
 ```bash
 cd backend
-cp .env.example .env
-npm ci
-npm run dev
+npm run lint && npm run typecheck
+npm test                    # unit tests, no services needed
+npm run test:integration    # needs TEST_MONGO_URI and TEST_REDIS_URL, see backend/README.md
+
+cd ../frontend
+npm test && npm run lint && npm run build
 ```
 
-Frontend, in another terminal:
+CI runs all of these on every pull request and on every push to `main`. It starts MongoDB
+and Redis as service containers, runs production dependency audits, validates the Compose
+file and builds the backend image.
 
-```bash
-cd frontend
-cp .env.local.example .env.local
-npm ci
-npm run dev
-```
+## API overview
 
-## Checks
+| Method and path                                           | Purpose                                         |
+| --------------------------------------------------------- | ----------------------------------------------- |
+| `POST /api/auth/register`, `/login`, `/logout`            | Account and cookie session                      |
+| `GET /api/auth/session`                                   | Current user                                    |
+| `GET /api/monitor`, `GET /api/monitor/:id`                | List or read your monitors                      |
+| `POST /api/monitor/add`, `PUT/DELETE /api/monitor/:id`    | Monitor lifecycle (ownership enforced)          |
+| `POST /api/test`                                          | One-off safe check, rate limited                |
+| `GET /api/dashboard/summary`                              | Per-monitor status and uptime                   |
+| `GET /api/dashboard/trend?hours=24`                       | 5-minute buckets (hourly above 48 h, max 7 d)   |
+| `GET /api/dashboard/logs?limit=50&cursor=…&monitorId=…`   | Cursor-paginated history, `limit` ≤ 100         |
+| `GET/POST/DELETE /api/telegram/…`                         | Telegram link status, one-time link, disconnect |
+| `GET /api/system/live`, `/api/system/ready`               | Liveness; MongoDB + Redis readiness             |
 
-```bash
-cd backend && npm test
-cd ../frontend && npm test && npm run lint && npm run build
-cd .. && JWT_SECRET=test-secret-that-is-at-least-32-characters docker compose config
-```
-
-GitHub Actions runs tests, production dependency audits, lint, and the frontend build
-for every pull request and push to `main`.
+Errors always have the shape `{ "error": string, "code"?: string }`.
 
 ## Project structure
 
 ```text
-backend/                 Express API, MongoDB models, BullMQ queues and worker
-frontend/app/            Next.js routes and UI
-frontend/lib/            Shared browser API transport
-.github/workflows/       Continuous integration
-docker-compose.yml       Local production-like stack
+backend/src/          API, worker, models, queues, services (TypeScript)
+backend/test/         Unit tests and integration/ tests
+frontend/app/         Next.js routes: landing, auth, dashboard
+frontend/lib/         Browser API client
+.github/workflows/    CI
+docker-compose.yml    Production-like local stack
 ```
 
 ## Current scope
 
-- Checks intentionally support only `GET` and `HEAD`; request bodies and custom headers
-  are not implemented.
-- PulseGuard delivers Telegram alerts; email, SMS, and Slack are not implemented.
-- Logs expire after 30 days. There is no long-term analytics export yet.
-- The repository does not currently declare an open-source license. Reuse permission
-  must be chosen by the repository owner before public distribution.
+- Checks support only `GET` and `HEAD`, without request bodies or custom headers.
+- Telegram is the only alert channel. Email, Slack and webhooks are not implemented.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and
-[SECURITY.md](SECURITY.md) for vulnerability reporting.
-
-## Repository safety
-
-Run this before the first push and confirm that no command prints a real secret:
-
-```bash
-git status --short
-git ls-files | grep -E '(^|/)\.env($|\.)' || true
-```
-
-Only the example environment files should be committed.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
