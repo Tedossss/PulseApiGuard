@@ -1,28 +1,33 @@
-const express = require("express");
-const router = express.Router();
-const testApiEndpoint = require("../services/apiTester");
-const auth = require("../middleware/auth");
-const createRateLimiter = require("../middleware/rateLimit");
-const { normalizeMonitorFields } = require("../controllers/monitorController");
+import { Router } from "express"
+import { normalizeMonitorFields, type MonitorFields } from "../controllers/monitorController"
+import auth from "../middleware/auth"
+import createRateLimiter from "../middleware/rateLimit"
+import testApiEndpoint from "../services/apiTester"
+import { errorMessage, sendError } from "../utils/errors"
 
-const testRateLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  max: 10,
-  message: "Too many manual endpoint tests. Try again shortly.",
-  prefix: "manual-test",
-});
+// A factory, so the Redis-backed rate limiter is created with the app rather than on import.
+const createTestRoutes = () => {
+  const router = Router()
 
-router.post("/", auth, testRateLimiter, async (req, res) => {
-  let monitor;
-  try {
-    monitor = normalizeMonitorFields(req.body);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
+  const testRateLimiter = createRateLimiter({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: "Too many manual endpoint tests. Try again shortly.",
+    prefix: "manual-test",
+  })
 
-  const result = await testApiEndpoint(monitor);
+  router.post("/", auth, testRateLimiter, async (req, res) => {
+    let monitor: MonitorFields
+    try {
+      monitor = normalizeMonitorFields(req.body)
+    } catch (error) {
+      return sendError(res, 400, errorMessage(error))
+    }
 
-  return res.json(result);
-});
+    return res.json(await testApiEndpoint(monitor))
+  })
 
-module.exports = router;
+  return router
+}
+
+export default createTestRoutes

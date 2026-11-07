@@ -1,9 +1,11 @@
-const router = require("express").Router()
-const auth = require("../middleware/auth")
-const telegramController = require("../controllers/telegramController")
+import { Router } from "express"
+import { createLink, disconnect, getStatus } from "../controllers/telegramController"
+import auth from "../middleware/auth"
 
-router.get("/status", auth, telegramController.getStatus)
-router.post("/link", auth, telegramController.createLink)
-router.delete("/link", auth, telegramController.disconnect)
+const router = Router()
 
-module.exports = router
+router.get("/status", auth, getStatus)
+router.post("/link", auth, createLink)
+router.delete("/link", auth, disconnect)
+
+export default router

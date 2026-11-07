@@ -1,8 +1,16 @@
-const { rateLimit } = require("express-rate-limit")
-const { RedisStore } = require("rate-limit-redis")
-const { getRedisClient } = require("../config/redis")
+import { rateLimit } from "express-rate-limit"
+import { RedisStore, type RedisReply } from "rate-limit-redis"
+import { getRedisClient } from "../config/redis"
+import { sendError } from "../utils/errors"
 
-const createRateLimiter = ({ windowMs, max, message, prefix = "global" }) => {
+interface RateLimiterOptions {
+  windowMs: number
+  max: number
+  message: string
+  prefix?: string
+}
+
+const createRateLimiter = ({ windowMs, max, message, prefix = "global" }: RateLimiterOptions) => {
   const client = getRedisClient()
 
   return rateLimit({
@@ -12,12 +20,13 @@ const createRateLimiter = ({ windowMs, max, message, prefix = "global" }) => {
     legacyHeaders: false,
     store: new RedisStore({
       prefix: `pulseguard:rate-limit:${prefix}:`,
-      sendCommand: (...args) => client.sendCommand(args),
+      sendCommand: (command: string, ...args: string[]) =>
+        client.call(command, ...args) as Promise<RedisReply>,
     }),
-    handler(req, res) {
-      return res.status(429).json({ message })
+    handler(_req, res) {
+      return sendError(res, 429, message, "RATE_LIMITED")
     },
   })
 }
 
-module.exports = createRateLimiter
+export default createRateLimiter

@@ -63,7 +63,7 @@ services:
     build: ./backend
     restart: unless-stopped
     logging: *default-logging
-    command: ["npm", "run", "worker"]
+    command: ["node", "dist/worker.js"]
     environment:
       NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/pulseguard

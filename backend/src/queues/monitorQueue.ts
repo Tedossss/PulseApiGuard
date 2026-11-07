@@ -1,30 +1,40 @@
-const { Queue } = require("bullmq")
-const { getBullConnectionOptions } = require("../config/redis")
+import { Queue, type JobsOptions } from "bullmq"
+import type { Types } from "mongoose"
+import { getBullConnectionOptions } from "../config/redis"
 
-const QUEUE_NAME = "monitor-checks"
+export const QUEUE_NAME = "monitor-checks"
 const SCHEDULER_PREFIX = "monitor-"
 
-let monitorQueue
+export interface MonitorJobData {
+  monitorId: string
+}
 
-const getMonitorQueue = () => {
-  if (!monitorQueue) {
-    monitorQueue = new Queue(QUEUE_NAME, {
-      connection: getBullConnectionOptions(),
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 1000 },
-        removeOnComplete: { age: 3600, count: 1000 },
-        removeOnFail: { age: 86400, count: 5000 },
-      },
-    })
-  }
+export interface SchedulableMonitor {
+  _id: Types.ObjectId | string
+  interval?: number | null
+}
 
+const JOB_OPTIONS: JobsOptions = {
+  attempts: 3,
+  backoff: { type: "exponential", delay: 1000 },
+  removeOnComplete: { age: 3600, count: 1000 },
+  removeOnFail: { age: 86400, count: 5000 },
+}
+
+let monitorQueue: Queue<MonitorJobData> | undefined
+
+export const getMonitorQueue = () => {
+  monitorQueue ??= new Queue<MonitorJobData>(QUEUE_NAME, {
+    connection: getBullConnectionOptions(),
+    defaultJobOptions: JOB_OPTIONS,
+  })
   return monitorQueue
 }
 
-const schedulerIdFor = (monitorId) => `${SCHEDULER_PREFIX}${monitorId}`
+export const schedulerIdFor = (monitorId: Types.ObjectId | string) =>
+  `${SCHEDULER_PREFIX}${monitorId.toString()}`
 
-const getIntervalMs = (monitor) => {
+export const getIntervalMs = (monitor: Pick<SchedulableMonitor, "interval">) => {
   const seconds = Number(monitor.interval)
   const safeSeconds = Number.isFinite(seconds)
     ? Math.min(86400, Math.max(30, Math.round(seconds)))
@@ -32,69 +42,49 @@ const getIntervalMs = (monitor) => {
   return safeSeconds * 1000
 }
 
-const scheduleMonitor = async (monitor, { runImmediately = true } = {}) => {
+export const scheduleMonitor = async (
+  monitor: SchedulableMonitor,
+  { runImmediately = true } = {},
+) => {
   const queue = getMonitorQueue()
   const monitorId = monitor._id.toString()
 
   await queue.upsertJobScheduler(
     schedulerIdFor(monitorId),
     { every: getIntervalMs(monitor) },
-    {
-      name: "check-monitor",
-      data: { monitorId },
-      opts: {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 1000 },
-        removeOnComplete: { age: 3600, count: 1000 },
-        removeOnFail: { age: 86400, count: 5000 },
-      },
-    },
+    { name: "check-monitor", data: { monitorId }, opts: JOB_OPTIONS },
   )
 
   if (runImmediately) {
     const windowId = Math.floor(Date.now() / 30000)
-    await queue.add("check-monitor", { monitorId }, {
-      jobId: `initial-${monitorId}-${windowId}`,
-    })
+    await queue.add("check-monitor", { monitorId }, { jobId: `initial-${monitorId}-${windowId}` })
   }
 }
 
-const removeMonitorSchedule = async (monitorId) => {
-  return getMonitorQueue().removeJobScheduler(schedulerIdFor(monitorId.toString()))
-}
+export const removeMonitorSchedule = (monitorId: Types.ObjectId | string) =>
+  getMonitorQueue().removeJobScheduler(schedulerIdFor(monitorId))
 
-const synchronizeMonitorSchedules = async (monitors) => {
+export const synchronizeMonitorSchedules = async (monitors: SchedulableMonitor[]) => {
   const queue = getMonitorQueue()
-  const activeSchedulerIds = new Set()
+  const activeSchedulerIds = new Set<string>()
 
   for (const monitor of monitors) {
-    const schedulerId = schedulerIdFor(monitor._id.toString())
-    activeSchedulerIds.add(schedulerId)
+    activeSchedulerIds.add(schedulerIdFor(monitor._id))
     await scheduleMonitor(monitor)
   }
 
   const schedulers = await queue.getJobSchedulers(0, -1, true)
   for (const scheduler of schedulers) {
-    if (scheduler.id?.startsWith(SCHEDULER_PREFIX) && !activeSchedulerIds.has(scheduler.id)) {
-      await queue.removeJobScheduler(scheduler.id)
+    const id = scheduler.id ?? scheduler.key
+    if (id?.startsWith(SCHEDULER_PREFIX) && !activeSchedulerIds.has(id)) {
+      await queue.removeJobScheduler(id)
     }
   }
 }
 
-const closeMonitorQueue = async () => {
+export const closeMonitorQueue = async () => {
   if (monitorQueue) {
     await monitorQueue.close()
     monitorQueue = undefined
   }
-}
-
-module.exports = {
-  QUEUE_NAME,
-  closeMonitorQueue,
-  getIntervalMs,
-  getMonitorQueue,
-  removeMonitorSchedule,
-  scheduleMonitor,
-  schedulerIdFor,
-  synchronizeMonitorSchedules,
 }

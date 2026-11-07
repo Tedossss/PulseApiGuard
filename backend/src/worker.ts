@@ -1,10 +1,9 @@
-require("dotenv").config()
-
-const mongoose = require("mongoose")
-const connectDB = require("./config/db")
-const { closeMonitorQueue } = require("./queues/monitorQueue")
-const { closeMonitorWorker, startMonitorWorker } = require("./workers/monitorWorker")
-const { closeTelegramBot, startTelegramBot } = require("./services/telegramBot")
+import "dotenv/config"
+import mongoose from "mongoose"
+import connectDB from "./config/db"
+import { closeMonitorQueue } from "./queues/monitorQueue"
+import { closeTelegramBot, startTelegramBot } from "./services/telegramBot"
+import { closeMonitorWorker, startMonitorWorker } from "./workers/monitorWorker"
 
 const validateEnvironment = () => {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required")
@@ -19,7 +18,7 @@ const start = async () => {
   await startMonitorWorker()
   startTelegramBot()
 
-  const shutdown = async (signal) => {
+  const shutdown = async (signal: NodeJS.Signals) => {
     console.log(`${signal} received, stopping monitor worker`)
     await closeTelegramBot()
     await closeMonitorWorker()
@@ -28,8 +27,8 @@ const start = async () => {
     process.exit(0)
   }
 
-  process.once("SIGTERM", () => shutdown("SIGTERM"))
-  process.once("SIGINT", () => shutdown("SIGINT"))
+  process.once("SIGTERM", () => void shutdown("SIGTERM"))
+  process.once("SIGINT", () => void shutdown("SIGINT"))
 }
 
 start().catch((error) => {

@@ -1,37 +1,50 @@
-const { createClient } = require("redis")
+import IORedis, { type RedisOptions } from "ioredis"
+import type { ConnectionOptions } from "bullmq"
 
-let client
+let client: IORedis | undefined
 
-const getRedisClient = () => {
+const requireRedisUrl = () => {
+  const url = process.env.REDIS_URL
+  if (!url) throw new Error("REDIS_URL is required")
+  return url
+}
+
+/** Shared connection for rate limiting and readiness checks. */
+export const getRedisClient = () => {
   if (client) return client
 
-  const url = process.env.REDIS_URL
-  if (!url) {
-    throw new Error("REDIS_URL is required")
-  }
-
-  client = createClient({ url })
-  client.on("error", (error) => {
+  client = new IORedis(requireRedisUrl(), { lazyConnect: true, maxRetriesPerRequest: 1 })
+  client.on("error", (error: Error) => {
     console.error("Redis error:", error.message)
   })
 
   return client
 }
 
-const connectRedis = async () => {
+/** Dedicated connection for long-lived blocking work such as locks and leases. */
+export const createRedisConnection = (label: string, options: RedisOptions = {}) => {
+  const connection = new IORedis(requireRedisUrl(), { maxRetriesPerRequest: null, ...options })
+  connection.on("error", (error: Error) => {
+    console.error(`${label} Redis error:`, error.message)
+  })
+  return connection
+}
+
+export const connectRedis = async () => {
   const redis = getRedisClient()
-  if (!redis.isOpen) await redis.connect()
+  if (redis.status === "wait") await redis.connect()
   await redis.ping()
   console.log("Redis connected")
   return redis
 }
 
-const closeRedis = async () => {
-  if (client?.isOpen) await client.quit()
+export const closeRedis = async () => {
+  if (client && client.status !== "end") await client.quit()
+  client = undefined
 }
 
-const getBullConnectionOptions = ({ worker = false } = {}) => {
-  const redisUrl = new URL(process.env.REDIS_URL)
+export const getBullConnectionOptions = ({ worker = false } = {}): ConnectionOptions => {
+  const redisUrl = new URL(requireRedisUrl())
   if (!["redis:", "rediss:"].includes(redisUrl.protocol)) {
     throw new Error("REDIS_URL must use redis:// or rediss://")
   }
@@ -46,11 +59,4 @@ const getBullConnectionOptions = ({ worker = false } = {}) => {
     tls: redisUrl.protocol === "rediss:" ? {} : undefined,
     maxRetriesPerRequest: worker ? null : 1,
   }
-}
-
-module.exports = {
-  getRedisClient,
-  getBullConnectionOptions,
-  connectRedis,
-  closeRedis,
 }

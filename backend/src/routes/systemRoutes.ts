@@ -1,8 +1,10 @@
-const router = require("express").Router()
-const systemController = require("../controllers/systemController")
+import { Router } from "express"
+import { healthCheck, liveCheck, readyCheck } from "../controllers/systemController"
 
-router.get("/health", systemController.healthCheck)
-router.get("/live", systemController.liveCheck)
-router.get("/ready", systemController.readyCheck)
+const router = Router()
 
-module.exports = router
+router.get("/health", healthCheck)
+router.get("/live", liveCheck)
+router.get("/ready", readyCheck)
+
+export default router

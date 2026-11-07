@@ -1,19 +1,22 @@
-const { randomBytes } = require("node:crypto")
-const User = require("../models/User")
-const {
+import { randomBytes } from "node:crypto"
+import type { Request, Response } from "express"
+import { requireUserId } from "../middleware/auth"
+import User from "../models/User"
+import { sendError } from "../utils/errors"
+import {
   getTelegramBotToken,
   getTelegramBotUsername,
   hashTelegramLinkToken,
-} = require("../utils/telegram")
+} from "../utils/telegram"
 
 const LINK_TOKEN_TTL_MS = 10 * 60 * 1000
 
-const getStatus = async (req, res) => {
-  const user = await User.findById(req.user)
+export const getStatus = async (req: Request, res: Response) => {
+  const user = await User.findById(requireUserId(req))
     .select("telegramChatId telegramUsername telegramLinkedAt")
     .lean()
 
-  if (!user) return res.status(404).json({ message: "User not found" })
+  if (!user) return sendError(res, 404, "User not found")
 
   return res.json({
     configured: Boolean(getTelegramBotToken() && getTelegramBotUsername()),
@@ -23,31 +26,28 @@ const getStatus = async (req, res) => {
   })
 }
 
-const createLink = async (req, res) => {
+export const createLink = async (req: Request, res: Response) => {
   const botUsername = getTelegramBotUsername()
   if (!getTelegramBotToken() || !botUsername) {
-    return res.status(503).json({ message: "Telegram notifications are not configured" })
+    return sendError(res, 503, "Telegram notifications are not configured")
   }
 
   const token = randomBytes(24).toString("base64url")
   const expiresAt = new Date(Date.now() + LINK_TOKEN_TTL_MS)
-  const user = await User.findByIdAndUpdate(req.user, {
+  const user = await User.findByIdAndUpdate(requireUserId(req), {
     $set: {
       telegramLinkTokenHash: hashTelegramLinkToken(token),
       telegramLinkTokenExpiresAt: expiresAt,
     },
   })
 
-  if (!user) return res.status(404).json({ message: "User not found" })
+  if (!user) return sendError(res, 404, "User not found")
 
-  return res.json({
-    link: `https://t.me/${botUsername}?start=${token}`,
-    expiresAt,
-  })
+  return res.json({ link: `https://t.me/${botUsername}?start=${token}`, expiresAt })
 }
 
-const disconnect = async (req, res) => {
-  const user = await User.findByIdAndUpdate(req.user, {
+export const disconnect = async (req: Request, res: Response) => {
+  const user = await User.findByIdAndUpdate(requireUserId(req), {
     $unset: {
       telegramChatId: 1,
       telegramUsername: 1,
@@ -57,12 +57,6 @@ const disconnect = async (req, res) => {
     },
   })
 
-  if (!user) return res.status(404).json({ message: "User not found" })
+  if (!user) return sendError(res, 404, "User not found")
   return res.status(204).end()
-}
-
-module.exports = {
-  createLink,
-  disconnect,
-  getStatus,
 }

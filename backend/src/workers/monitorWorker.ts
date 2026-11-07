@@ -1,23 +1,36 @@
-const { randomUUID } = require("node:crypto")
-const { Worker } = require("bullmq")
-const IORedis = require("ioredis")
-const EndpointMonitor = require("../models/EndpointMonitor")
-const MonitoringLog = require("../models/MonitoringLog")
-const testApiEndpoint = require("../services/apiTester")
-const { sendTelegramMonitorAlert } = require("../services/telegramBot")
-const { getBullConnectionOptions } = require("../config/redis")
-const {
+import { randomUUID } from "node:crypto"
+import { Worker } from "bullmq"
+import type IORedis from "ioredis"
+import { createRedisConnection, getBullConnectionOptions } from "../config/redis"
+import EndpointMonitor, { type MonitorStatus } from "../models/EndpointMonitor"
+import MonitoringLog from "../models/MonitoringLog"
+import {
   QUEUE_NAME,
   synchronizeMonitorSchedules,
-} = require("../queues/monitorQueue")
+  type MonitorJobData,
+} from "../queues/monitorQueue"
+import testApiEndpoint from "../services/apiTester"
+import { sendTelegramMonitorAlert, type MonitorAlert } from "../services/telegramBot"
+import { errorMessage } from "../utils/errors"
 
 const FAILURE_THRESHOLD = 3
 const DEFAULT_WORKER_CONCURRENCY = 10
 const DEFAULT_LOCK_TTL_MS = 25000
+const RELEASE_LOCK_SCRIPT =
+  "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
 
-let worker
-let lockConnection
-let lastWorkerRun = null
+interface MonitorLock {
+  key: string
+  token: string
+}
+
+type CheckOutcome =
+  | { skipped: true; reason: "already-running" | "monitor-not-found" }
+  | { skipped?: false; success: boolean; statusCode: number | null }
+
+let worker: Worker<MonitorJobData, CheckOutcome> | undefined
+let lockConnection: IORedis | undefined
+let lastWorkerRun: Date | null = null
 
 const getWorkerConcurrency = () => {
   const configured = Number(process.env.WORKER_CONCURRENCY)
@@ -28,77 +41,56 @@ const getWorkerConcurrency = () => {
 
 const getLockTtlMs = () => {
   const configured = Number(process.env.MONITOR_LOCK_TTL_MS)
-  return Number.isInteger(configured) && configured >= 15000
-    ? configured
-    : DEFAULT_LOCK_TTL_MS
+  return Number.isInteger(configured) && configured >= 15000 ? configured : DEFAULT_LOCK_TTL_MS
 }
 
-const calculateMonitorState = ({ status, failureCount }, isSuccess) => {
+export const calculateMonitorState = (
+  { status, failureCount }: { status?: string | null; failureCount?: number | null },
+  isSuccess: boolean,
+) => {
   const nextFailureCount = isSuccess ? 0 : Number(failureCount || 0) + 1
-  const nextStatus = isSuccess
-    ? "UP"
-    : nextFailureCount >= FAILURE_THRESHOLD
-      ? "DOWN"
-      : status
+  const nextStatus = (
+    isSuccess ? "UP" : nextFailureCount >= FAILURE_THRESHOLD ? "DOWN" : status
+  ) as MonitorStatus
 
   return { nextFailureCount, nextStatus }
 }
 
-const shouldSendStatusAlert = (previousStatus, nextStatus) => (
-  nextStatus === "DOWN" || (previousStatus === "DOWN" && nextStatus === "UP")
-)
+export const shouldSendStatusAlert = (
+  previousStatus: string | null | undefined,
+  nextStatus: string,
+) => nextStatus === "DOWN" || (previousStatus === "DOWN" && nextStatus === "UP")
 
 const getLockConnection = () => {
-  if (!lockConnection) {
-    lockConnection = new IORedis(process.env.REDIS_URL, {
-      maxRetriesPerRequest: null,
-    })
-    lockConnection.on("error", (error) => {
-      console.error("Monitor lock Redis error:", error.message)
-    })
-  }
+  lockConnection ??= createRedisConnection("Monitor lock")
   return lockConnection
 }
 
-const acquireMonitorLock = async (monitorId) => {
+const acquireMonitorLock = async (monitorId: string): Promise<MonitorLock | null> => {
   const token = randomUUID()
   const key = `pulseguard:monitor-lock:${monitorId}`
-  const result = await getLockConnection().set(
-    key,
-    token,
-    "PX",
-    getLockTtlMs(),
-    "NX",
-  )
-
+  const result = await getLockConnection().set(key, token, "PX", getLockTtlMs(), "NX")
   return result === "OK" ? { key, token } : null
 }
 
-const releaseMonitorLock = async (lock) => {
-  if (!lock) return
-  await getLockConnection().eval(
-    "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
-    1,
-    lock.key,
-    lock.token,
-  )
+const releaseMonitorLock = async (lock: MonitorLock) => {
+  await getLockConnection().eval(RELEASE_LOCK_SCRIPT, 1, lock.key, lock.token)
 }
 
-const processMonitorCheck = async (monitorId) => {
+export const processMonitorCheck = async (monitorId: string): Promise<CheckOutcome> => {
   const lock = await acquireMonitorLock(monitorId)
   if (!lock) return { skipped: true, reason: "already-running" }
 
-  let alertPayload
-  let outcome
+  let alertPayload: MonitorAlert | undefined
+  let outcome: CheckOutcome
   try {
     const monitor = await EndpointMonitor.findById(monitorId)
     if (!monitor) return { skipped: true, reason: "monitor-not-found" }
 
     const result = await testApiEndpoint(monitor)
-    const isSuccess = result.statusCode === monitor.expectedStatus
     const previousStatus = monitor.status
     const previousDownSince = monitor.downSince
-    const { nextFailureCount, nextStatus } = calculateMonitorState(monitor, isSuccess)
+    const { nextFailureCount, nextStatus } = calculateMonitorState(monitor, result.success)
 
     const statusChanged = previousStatus !== nextStatus
     if (statusChanged) {
@@ -117,7 +109,7 @@ const processMonitorCheck = async (monitorId) => {
       monitor: monitor._id,
       statusCode: result.statusCode,
       responseTime: result.responseTime,
-      success: isSuccess,
+      success: result.success,
       message: String(result.message || "").slice(0, 500),
     })
 
@@ -132,13 +124,13 @@ const processMonitorCheck = async (monitorId) => {
     }
 
     lastWorkerRun = new Date()
-    outcome = { success: isSuccess, statusCode: result.statusCode }
+    outcome = { success: result.success, statusCode: result.statusCode }
   } finally {
     try {
       await releaseMonitorLock(lock)
     } catch (error) {
       // Do not retry an already persisted check only because lock cleanup failed.
-      console.error(`Unable to release monitor lock ${monitorId}:`, error.message)
+      console.error(`Unable to release monitor lock ${monitorId}:`, errorMessage(error))
     }
   }
 
@@ -146,13 +138,13 @@ const processMonitorCheck = async (monitorId) => {
   return outcome
 }
 
-const startMonitorWorker = async () => {
+export const startMonitorWorker = async () => {
   const monitors = await EndpointMonitor.find().select("_id interval").lean()
   await synchronizeMonitorSchedules(monitors)
 
-  worker = new Worker(
+  worker = new Worker<MonitorJobData, CheckOutcome>(
     QUEUE_NAME,
-    job => processMonitorCheck(job.data.monitorId),
+    (job) => processMonitorCheck(job.data.monitorId),
     {
       connection: getBullConnectionOptions({ worker: true }),
       concurrency: getWorkerConcurrency(),
@@ -173,7 +165,7 @@ const startMonitorWorker = async () => {
   return worker
 }
 
-const closeMonitorWorker = async () => {
+export const closeMonitorWorker = async () => {
   if (worker) {
     await worker.close()
     worker = undefined
@@ -184,14 +176,7 @@ const closeMonitorWorker = async () => {
   }
 }
 
-module.exports = {
-  calculateMonitorState,
-  closeMonitorWorker,
-  getWorkerState: () => ({
-    isRunning: Boolean(worker?.isRunning()),
-    lastRun: lastWorkerRun,
-  }),
-  processMonitorCheck,
-  shouldSendStatusAlert,
-  startMonitorWorker,
-}
+export const getWorkerState = () => ({
+  isRunning: Boolean(worker?.isRunning()),
+  lastRun: lastWorkerRun,
+})

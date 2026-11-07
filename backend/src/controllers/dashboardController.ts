@@ -1,39 +1,39 @@
-const mongoose = require("mongoose")
-const EndpointMonitor = require("../models/EndpointMonitor")
-const MonitoringLog = require("../models/MonitoringLog")
+import type { Request, Response } from "express"
+import mongoose, { type Types } from "mongoose"
+import { requireUserId } from "../middleware/auth"
+import EndpointMonitor from "../models/EndpointMonitor"
+import MonitoringLog from "../models/MonitoringLog"
+import { errorMessage, sendError } from "../utils/errors"
 
 const DEFAULT_LOG_LIMIT = 50
 const MAX_LOG_LIMIT = 100
 const DEFAULT_TREND_HOURS = 24
 const MAX_TREND_HOURS = 24 * 7
 
-const normalizeBoundedInteger = (value, fallback, min, max) => {
+interface LogCursor {
+  createdAt: Date
+  id: Types.ObjectId
+}
+
+const normalizeBoundedInteger = (value: unknown, fallback: number, min: number, max: number) => {
   if (value === undefined || value === null || value === "") return fallback
   const parsed = Number(value)
   if (!Number.isInteger(parsed)) return fallback
   return Math.min(max, Math.max(min, parsed))
 }
 
-const normalizeLogLimit = value => normalizeBoundedInteger(
-  value,
-  DEFAULT_LOG_LIMIT,
-  1,
-  MAX_LOG_LIMIT,
-)
+export const normalizeLogLimit = (value: unknown) =>
+  normalizeBoundedInteger(value, DEFAULT_LOG_LIMIT, 1, MAX_LOG_LIMIT)
 
-const normalizeTrendHours = value => normalizeBoundedInteger(
-  value,
-  DEFAULT_TREND_HOURS,
-  1,
-  MAX_TREND_HOURS,
-)
+export const normalizeTrendHours = (value: unknown) =>
+  normalizeBoundedInteger(value, DEFAULT_TREND_HOURS, 1, MAX_TREND_HOURS)
 
-const encodeCursor = log => Buffer.from(JSON.stringify({
-  createdAt: log.createdAt.toISOString(),
-  id: log._id.toString(),
-})).toString("base64url")
+export const encodeCursor = (log: { createdAt: Date; _id: Types.ObjectId }) =>
+  Buffer.from(
+    JSON.stringify({ createdAt: log.createdAt.toISOString(), id: log._id.toString() }),
+  ).toString("base64url")
 
-const decodeCursor = (value) => {
+export const decodeCursor = (value: unknown): LogCursor | null => {
   if (!value) return null
   if (typeof value !== "string" || value.length > 512) {
     throw new Error("Invalid cursor")
@@ -45,20 +45,20 @@ const decodeCursor = (value) => {
     if (Number.isNaN(createdAt.getTime()) || !mongoose.isValidObjectId(parsed.id)) {
       throw new Error("Invalid cursor")
     }
-    return { createdAt, id: new mongoose.Types.ObjectId(parsed.id) }
+    return { createdAt, id: new mongoose.Types.ObjectId(String(parsed.id)) }
   } catch {
     throw new Error("Invalid cursor")
   }
 }
 
-const getUserMonitorIds = async (userId) => {
+const getUserMonitorIds = async (userId: string) => {
   const monitors = await EndpointMonitor.find({ user: userId }).select("_id").lean()
-  return monitors.map(monitor => monitor._id)
+  return monitors.map((monitor) => monitor._id)
 }
 
-exports.getSummary = async (req, res) => {
+export const getSummary = async (req: Request, res: Response) => {
   try {
-    const userId = new mongoose.Types.ObjectId(req.user)
+    const userId = new mongoose.Types.ObjectId(requireUserId(req))
     const summary = await EndpointMonitor.aggregate([
       { $match: { user: userId } },
       {
@@ -101,12 +101,7 @@ exports.getSummary = async (req, res) => {
               { $gt: [{ $ifNull: ["$logStats.total", 0] }, 0] },
               {
                 $round: [
-                  {
-                    $multiply: [
-                      { $divide: ["$logStats.successful", "$logStats.total"] },
-                      100,
-                    ],
-                  },
+                  { $multiply: [{ $divide: ["$logStats.successful", "$logStats.total"] }, 100] },
                   2,
                 ],
               },
@@ -121,13 +116,13 @@ exports.getSummary = async (req, res) => {
     return res.json(summary)
   } catch (error) {
     console.error("GetSummary Error:", error)
-    return res.status(500).json({ error: "Server error" })
+    return sendError(res, 500, "Server error")
   }
 }
 
-exports.getTrend = async (req, res) => {
+export const getTrend = async (req: Request, res: Response) => {
   try {
-    const monitorIds = await getUserMonitorIds(req.user)
+    const monitorIds = await getUserMonitorIds(requireUserId(req))
     if (monitorIds.length === 0) return res.json([])
 
     const hours = normalizeTrendHours(req.query.hours)
@@ -138,13 +133,7 @@ exports.getTrend = async (req, res) => {
       { $match: { monitor: { $in: monitorIds }, createdAt: { $gte: since } } },
       {
         $group: {
-          _id: {
-            $dateTrunc: {
-              date: "$createdAt",
-              unit: "minute",
-              binSize,
-            },
-          },
+          _id: { $dateTrunc: { date: "$createdAt", unit: "minute", binSize } },
           total: { $sum: 1 },
           successful: { $sum: { $cond: ["$success", 1, 0] } },
           latency: { $avg: "$responseTime" },
@@ -155,12 +144,7 @@ exports.getTrend = async (req, res) => {
         $project: {
           _id: 0,
           checkedAt: "$_id",
-          uptime: {
-            $round: [
-              { $multiply: [{ $divide: ["$successful", "$total"] }, 100] },
-              1,
-            ],
-          },
+          uptime: { $round: [{ $multiply: [{ $divide: ["$successful", "$total"] }, 100] }, 1] },
           latency: { $round: [{ $ifNull: ["$latency", 0] }, 0] },
         },
       },
@@ -169,36 +153,38 @@ exports.getTrend = async (req, res) => {
     return res.json(trend)
   } catch (error) {
     console.error("GetTrend Error:", error)
-    return res.status(500).json({ error: "Server error" })
+    return sendError(res, 500, "Server error")
   }
 }
 
-exports.getLogs = async (req, res) => {
+export const getLogs = async (req: Request, res: Response) => {
   try {
-    const monitorIds = await getUserMonitorIds(req.user)
+    const monitorIds = await getUserMonitorIds(requireUserId(req))
     if (monitorIds.length === 0) return res.json({ logs: [], nextCursor: null })
 
     let selectedMonitorIds = monitorIds
-    if (req.query.monitorId) {
-      if (!mongoose.isValidObjectId(req.query.monitorId)) {
-        return res.status(400).json({ error: "Invalid monitor id" })
+    const requestedId = req.query.monitorId
+    if (requestedId) {
+      if (typeof requestedId !== "string" || !mongoose.isValidObjectId(requestedId)) {
+        return sendError(res, 400, "Invalid monitor id")
       }
 
-      const requestedId = req.query.monitorId.toString()
-      const ownedMonitor = monitorIds.find(id => id.toString() === requestedId)
-      if (!ownedMonitor) return res.status(404).json({ error: "Monitor not found" })
+      const ownedMonitor = monitorIds.find((id) => id.toString() === requestedId)
+      if (!ownedMonitor) return sendError(res, 404, "Monitor not found")
       selectedMonitorIds = [ownedMonitor]
     }
 
-    let cursor
+    let cursor: LogCursor | null
     try {
       cursor = decodeCursor(req.query.cursor)
     } catch (error) {
-      return res.status(400).json({ error: error.message })
+      return sendError(res, 400, errorMessage(error))
     }
 
     const limit = normalizeLogLimit(req.query.limit)
-    const query = { monitor: { $in: selectedMonitorIds } }
+    const query: Record<string, unknown> = {
+      monitor: { $in: selectedMonitorIds },
+    }
     if (cursor) {
       query.$or = [
         { createdAt: { $lt: cursor.createdAt } },
@@ -214,16 +200,12 @@ exports.getLogs = async (req, res) => {
 
     const hasMore = rows.length > limit
     const logs = hasMore ? rows.slice(0, limit) : rows
-    const nextCursor = hasMore ? encodeCursor(logs[logs.length - 1]) : null
+    const last = logs[logs.length - 1]
+    const nextCursor = hasMore && last ? encodeCursor(last) : null
 
     return res.json({ logs, nextCursor })
   } catch (error) {
     console.error("GetLogs Error:", error)
-    return res.status(500).json({ error: "Server error" })
+    return sendError(res, 500, "Server error")
   }
 }
-
-exports.decodeCursor = decodeCursor
-exports.encodeCursor = encodeCursor
-exports.normalizeLogLimit = normalizeLogLimit
-exports.normalizeTrendHours = normalizeTrendHours

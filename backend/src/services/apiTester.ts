@@ -1,13 +1,28 @@
-const axios = require("axios")
-const dns = require("node:dns")
-const http = require("node:http")
-const https = require("node:https")
-const net = require("node:net")
-const ipaddr = require("ipaddr.js")
+import axios from "axios"
+import dns, { type LookupAddress, type LookupOptions } from "node:dns"
+import http from "node:http"
+import https from "node:https"
+import net from "node:net"
+import ipaddr from "ipaddr.js"
+import { MONITOR_METHODS, type MonitorMethod } from "../models/EndpointMonitor"
+import { errorMessage } from "../utils/errors"
 
-const ALLOWED_METHODS = new Set(["GET", "HEAD"])
+export interface CheckTarget {
+  url: string
+  method?: string | null
+  expectedStatus?: number | null
+}
 
-const isPrivateAddress = (address) => {
+export interface CheckResult {
+  statusCode: number | null
+  success: boolean
+  responseTime: number
+  message: string
+}
+
+const ALLOWED_METHODS = new Set<string>(MONITOR_METHODS)
+
+export const isPrivateAddress = (address: string) => {
   if (!net.isIP(address)) return true
 
   try {
@@ -15,7 +30,7 @@ const isPrivateAddress = (address) => {
 
     // Reject every mapped/translated representation. DNS A records still arrive
     // as regular IPv4 addresses, while mapped forms create SSRF ambiguity.
-    if (parsed.kind() === "ipv6" && parsed.isIPv4MappedAddress()) return true
+    if (parsed.kind() === "ipv6" && (parsed as ipaddr.IPv6).isIPv4MappedAddress()) return true
 
     // ipaddr.js classifies loopback, private, link-local, carrier-grade NAT,
     // documentation, benchmarking, multicast, reserved and translation ranges.
@@ -25,7 +40,10 @@ const isPrivateAddress = (address) => {
   }
 }
 
-const selectSafeLookupAddress = (addresses, lookupOptions = {}) => {
+export const selectSafeLookupAddress = (
+  addresses: LookupAddress[],
+  lookupOptions: { family?: number | string } = {},
+) => {
   if (!Array.isArray(addresses) || addresses.length === 0) {
     throw new Error("Target did not resolve to an address")
   }
@@ -34,11 +52,14 @@ const selectSafeLookupAddress = (addresses, lookupOptions = {}) => {
     throw new Error("Target resolved to a private or unsupported address")
   }
 
-  return addresses.find(({ family }) => !lookupOptions.family || family === lookupOptions.family) || addresses[0]
+  return (
+    addresses.find(({ family }) => !lookupOptions.family || family === lookupOptions.family) ??
+    addresses[0]!
+  )
 }
 
-const normalizeTargetUrl = (value) => {
-  let target
+export const normalizeTargetUrl = (value: unknown) => {
+  let target: URL
 
   try {
     target = new URL(String(value || ""))
@@ -68,34 +89,45 @@ const normalizeTargetUrl = (value) => {
   return target.toString()
 }
 
-const normalizeMethod = (value) => {
+export const normalizeMethod = (value: unknown): MonitorMethod => {
   const method = String(value || "GET").toUpperCase()
   if (!ALLOWED_METHODS.has(method)) {
     throw new Error("Only GET and HEAD checks are allowed")
   }
-  return method
+  return method as MonitorMethod
 }
 
-const safeLookup = (hostname, options, callback) => {
-  const lookupOptions = typeof options === "object" ? options : { family: options }
+type LookupCallback = (
+  error: NodeJS.ErrnoException | null,
+  address: string | LookupAddress[],
+  family?: number,
+) => void
+
+const safeLookup = (
+  hostname: string,
+  options: LookupOptions | number,
+  callback: LookupCallback,
+) => {
+  const lookupOptions: LookupOptions = typeof options === "object" ? options : { family: options }
 
   dns.lookup(hostname, { all: true, verbatim: true }, (error, addresses) => {
-    if (error) return callback(error)
+    if (error) return callback(error, "")
     try {
       const selected = selectSafeLookupAddress(addresses, lookupOptions)
       if (lookupOptions.all) return callback(null, addresses)
       return callback(null, selected.address, selected.family)
     } catch (lookupError) {
-      return callback(lookupError)
+      return callback(lookupError as NodeJS.ErrnoException, "")
     }
   })
 }
 
-const httpAgent = new http.Agent({ lookup: safeLookup })
-const httpsAgent = new https.Agent({ lookup: safeLookup })
+const httpAgent = new http.Agent({ lookup: safeLookup as net.LookupFunction })
+const httpsAgent = new https.Agent({ lookup: safeLookup as net.LookupFunction })
 
-const testApiEndpoint = async (monitor) => {
+const testApiEndpoint = async (monitor: CheckTarget): Promise<CheckResult> => {
   const start = Date.now()
+  const expectedStatus = monitor.expectedStatus ?? 200
 
   try {
     const url = normalizeTargetUrl(monitor.url)
@@ -113,25 +145,20 @@ const testApiEndpoint = async (monitor) => {
       validateStatus: () => true,
     })
 
-    const responseTime = Date.now() - start
     return {
       statusCode: response.status,
-      success: response.status === monitor.expectedStatus,
-      responseTime,
+      success: response.status === expectedStatus,
+      responseTime: Date.now() - start,
       message: "OK",
     }
   } catch (error) {
     return {
-      statusCode: error.response?.status ?? null,
+      statusCode: axios.isAxiosError(error) ? (error.response?.status ?? null) : null,
       success: false,
       responseTime: Date.now() - start,
-      message: error.message,
+      message: errorMessage(error),
     }
   }
 }
 
-module.exports = testApiEndpoint
-module.exports.isPrivateAddress = isPrivateAddress
-module.exports.normalizeTargetUrl = normalizeTargetUrl
-module.exports.normalizeMethod = normalizeMethod
-module.exports.selectSafeLookupAddress = selectSafeLookupAddress
+export default testApiEndpoint

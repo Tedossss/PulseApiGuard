@@ -1,16 +1,12 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middleware/auth")
-const {
-  getSession,
-  loginUser,
-  logoutUser,
-  registerUser,
-} = require("../controllers/authController");
+import { Router } from "express"
+import { getSession, loginUser, logoutUser, registerUser } from "../controllers/authController"
+import auth from "../middleware/auth"
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.get("/session", auth, getSession);
-router.post("/logout", logoutUser);
+const router = Router()
 
-module.exports = router;
+router.post("/register", registerUser)
+router.post("/login", loginUser)
+router.get("/session", auth, getSession)
+router.post("/logout", logoutUser)
+
+export default router

@@ -1,11 +1,12 @@
-require("dotenv").config()
+import "dotenv/config"
+import type { Server } from "node:http"
+import mongoose from "mongoose"
+import { createApp } from "./app"
+import connectDB from "./config/db"
+import { closeRedis, connectRedis } from "./config/redis"
+import { closeMonitorQueue } from "./queues/monitorQueue"
 
-const mongoose = require("mongoose")
-const connectDB = require("./config/db")
-const { connectRedis, closeRedis } = require("./config/redis")
-const { closeMonitorQueue } = require("./queues/monitorQueue")
-
-const PORT = process.env.PORT || 3001
+const PORT = Number(process.env.PORT) || 3001
 
 const validateEnvironment = () => {
   if (!process.env.MONGO_URI) {
@@ -35,13 +36,12 @@ const start = async () => {
 
   await connectRedis()
 
-  const app = require("./app")
-  const server = app.listen(PORT, () => {
+  const server: Server = createApp().listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
 
   let shuttingDown = false
-  const shutdown = async (signal) => {
+  const shutdown = async (signal: NodeJS.Signals) => {
     if (shuttingDown) return
     shuttingDown = true
     console.log(`${signal} received, shutting down`)
@@ -53,22 +53,22 @@ const start = async () => {
     forceShutdown.unref()
 
     server.closeIdleConnections?.()
-    await new Promise(resolve => server.close(resolve))
+    await new Promise((resolve) => server.close(resolve))
 
     const cleanup = await Promise.allSettled([
       closeMonitorQueue(),
       closeRedis(),
       mongoose.disconnect(),
     ])
-    const failed = cleanup.filter(result => result.status === "rejected")
+    const failed = cleanup.filter((result) => result.status === "rejected")
     for (const result of failed) console.error("Shutdown cleanup failed:", result.reason)
 
     clearTimeout(forceShutdown)
     process.exit(failed.length > 0 ? 1 : 0)
   }
 
-  process.once("SIGTERM", () => shutdown("SIGTERM"))
-  process.once("SIGINT", () => shutdown("SIGINT"))
+  process.once("SIGTERM", () => void shutdown("SIGTERM"))
+  process.once("SIGINT", () => void shutdown("SIGINT"))
 }
 
 start().catch((err) => {

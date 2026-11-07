@@ -1,62 +1,71 @@
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const jwt = require("jsonwebtoken")
+import test from "node:test"
+import assert from "node:assert/strict"
+import type { NextFunction, Request, Response } from "express"
+import jwt from "jsonwebtoken"
+import mongoose from "mongoose"
 
-const {
+import {
   isPrivateAddress,
   normalizeMethod,
   normalizeTargetUrl,
   selectSafeLookupAddress,
-} = require("../services/apiTester")
-const {
+} from "../src/services/apiTester"
+import {
   getMaxMonitorsPerUser,
   normalizeInterval,
   normalizeMonitorFields,
-} = require("../controllers/monitorController")
-const {
-  calculateMonitorState,
-  shouldSendStatusAlert,
-} = require("../workers/monitorWorker")
-const auth = require("../middleware/auth")
-const { buildReadiness, liveCheck, readyCheck } = require("../controllers/systemController")
-const {
+} from "../src/controllers/monitorController"
+import { calculateMonitorState, shouldSendStatusAlert } from "../src/workers/monitorWorker"
+import auth from "../src/middleware/auth"
+import { buildReadiness, liveCheck, readyCheck } from "../src/controllers/systemController"
+import {
   SESSION_COOKIE_NAME,
   getBearerToken,
   getSessionToken,
   parseCookies,
   serializeExpiredSessionCookie,
   serializeSessionCookie,
-} = require("../utils/session")
-const {
+} from "../src/utils/session"
+import {
   decodeCursor,
   encodeCursor,
   normalizeLogLimit,
   normalizeTrendHours,
-} = require("../controllers/dashboardController")
-const {
+} from "../src/controllers/dashboardController"
+import {
   buildMonitorAlert,
   escapeHtml,
   formatDuration,
   parseStartToken,
   processUpdateBatch,
   redactMonitorUrl,
-} = require("../services/telegramBot")
-const {
-  getTelegramBotUsername,
-  hashTelegramLinkToken,
-} = require("../utils/telegram")
-const telegramController = require("../controllers/telegramController")
-const User = require("../models/User")
+} from "../src/services/telegramBot"
+import { getTelegramBotUsername, hashTelegramLinkToken } from "../src/utils/telegram"
+import * as telegramController from "../src/controllers/telegramController"
+import User from "../src/models/User"
 
-const createResponse = () => ({
+// Controllers only touch the parts of Request/Response these fakes implement.
+const asRequest = (value: object) => value as unknown as Request
+const asResponse = (value: object) => value as unknown as Response
+
+interface FakeResponse {
+  statusCode: number
+  body: any
+  ended: boolean
+  status(code: number): FakeResponse
+  json(body: unknown): FakeResponse
+  end(): FakeResponse
+}
+
+const createResponse = (): FakeResponse => ({
   statusCode: 200,
   body: undefined,
   ended: false,
-  status(code) {
+  status(code: number) {
     this.statusCode = code
     return this
   },
-  json(body) {
+  json(body: unknown) {
     this.body = body
     return this
   },
@@ -99,17 +108,21 @@ test("DNS results reject empty, private and mixed address sets", () => {
     /private or unsupported/,
   )
   assert.throws(
-    () => selectSafeLookupAddress([
-      { address: "8.8.8.8", family: 4 },
-      { address: "::ffff:7f00:1", family: 6 },
-    ]),
+    () =>
+      selectSafeLookupAddress([
+        { address: "8.8.8.8", family: 4 },
+        { address: "::ffff:7f00:1", family: 6 },
+      ]),
     /private or unsupported/,
   )
   assert.deepEqual(
-    selectSafeLookupAddress([
-      { address: "8.8.8.8", family: 4 },
-      { address: "2606:4700:4700::1111", family: 6 },
-    ], { family: 6 }),
+    selectSafeLookupAddress(
+      [
+        { address: "8.8.8.8", family: 4 },
+        { address: "2606:4700:4700::1111", family: 6 },
+      ],
+      { family: 6 },
+    ),
     { address: "2606:4700:4700::1111", family: 6 },
   )
 })
@@ -170,18 +183,18 @@ test("monitor quotas use a safe default and accept a positive override", () => {
 })
 
 test("monitor state changes after three failures and recovers on success", () => {
-  assert.deepEqual(
-    calculateMonitorState({ status: "UP", failureCount: 1 }, false),
-    { nextFailureCount: 2, nextStatus: "UP" },
-  )
-  assert.deepEqual(
-    calculateMonitorState({ status: "UP", failureCount: 2 }, false),
-    { nextFailureCount: 3, nextStatus: "DOWN" },
-  )
-  assert.deepEqual(
-    calculateMonitorState({ status: "DOWN", failureCount: 5 }, true),
-    { nextFailureCount: 0, nextStatus: "UP" },
-  )
+  assert.deepEqual(calculateMonitorState({ status: "UP", failureCount: 1 }, false), {
+    nextFailureCount: 2,
+    nextStatus: "UP",
+  })
+  assert.deepEqual(calculateMonitorState({ status: "UP", failureCount: 2 }, false), {
+    nextFailureCount: 3,
+    nextStatus: "DOWN",
+  })
+  assert.deepEqual(calculateMonitorState({ status: "DOWN", failureCount: 5 }, true), {
+    nextFailureCount: 0,
+    nextStatus: "UP",
+  })
   assert.equal(shouldSendStatusAlert("PENDING", "UP"), false)
   assert.equal(shouldSendStatusAlert("UP", "DOWN"), true)
   assert.equal(shouldSendStatusAlert("DOWN", "UP"), true)
@@ -198,22 +211,21 @@ test("Telegram link tokens are hashed and start commands are parsed strictly", (
 })
 
 test("Telegram polling only advances past successfully processed updates", async () => {
-  const handled = []
-  const result = await processUpdateBatch([
-    { update_id: 10 },
-    { update_id: 11 },
-    { update_id: 12 },
-  ], {
-    offset: 10,
-    handler: async (update) => {
-      handled.push(update.update_id)
-      if (update.update_id === 11) throw new Error("temporary database failure")
+  const handled: number[] = []
+  const result = await processUpdateBatch(
+    [{ update_id: 10 }, { update_id: 11 }, { update_id: 12 }],
+    {
+      offset: 10,
+      handler: async (update) => {
+        handled.push(update.update_id)
+        if (update.update_id === 11) throw new Error("temporary database failure")
+      },
     },
-  })
+  )
 
   assert.deepEqual(handled, [10, 11])
   assert.equal(result.offset, 11)
-  assert.match(result.error.message, /temporary database failure/)
+  assert.match((result.error as Error).message, /temporary database failure/)
 })
 
 test("Telegram controllers expose status and store only a hashed link token", async (t) => {
@@ -232,7 +244,7 @@ test("Telegram controllers expose status and store only a hashed link token", as
 
   process.env.TELEGRAM_BOT_TOKEN = "test-token"
   process.env.TELEGRAM_BOT_USERNAME = "PulseApiGuard_bot"
-  User.findById = () => ({
+  User.findById = (() => ({
     select: () => ({
       lean: async () => ({
         telegramChatId: "123",
@@ -240,22 +252,22 @@ test("Telegram controllers expose status and store only a hashed link token", as
         telegramLinkedAt: new Date("2026-08-07T12:00:00.000Z"),
       }),
     }),
-  })
+  })) as unknown as typeof User.findById
 
   const statusResponse = createResponse()
-  await telegramController.getStatus({ user: "user-1" }, statusResponse)
+  await telegramController.getStatus(asRequest({ user: "user-1" }), asResponse(statusResponse))
   assert.equal(statusResponse.body.configured, true)
   assert.equal(statusResponse.body.connected, true)
   assert.equal(statusResponse.body.username, "pulse_owner")
 
-  let storedUpdate
-  User.findByIdAndUpdate = async (userId, update) => {
+  let storedUpdate: any
+  User.findByIdAndUpdate = (async (userId: string, update: unknown) => {
     assert.equal(userId, "user-1")
     storedUpdate = update
     return { _id: userId }
-  }
+  }) as unknown as typeof User.findByIdAndUpdate
   const linkResponse = createResponse()
-  await telegramController.createLink({ user: "user-1" }, linkResponse)
+  await telegramController.createLink(asRequest({ user: "user-1" }), asResponse(linkResponse))
 
   const link = new URL(linkResponse.body.link)
   const rawToken = link.searchParams.get("start")
@@ -316,12 +328,13 @@ test("dashboard query limits are bounded", () => {
 
 test("log cursors round-trip and reject malformed input", () => {
   const log = {
-    _id: new (require("mongoose").Types.ObjectId)(),
+    _id: new mongoose.Types.ObjectId(),
     createdAt: new Date("2026-01-01T12:00:00.000Z"),
   }
   const cursor = encodeCursor(log)
   const decoded = decodeCursor(cursor)
 
+  assert.ok(decoded)
   assert.equal(decoded.id.toString(), log._id.toString())
   assert.equal(decoded.createdAt.toISOString(), log.createdAt.toISOString())
   assert.throws(() => decodeCursor("not-a-cursor"), /Invalid cursor/)
@@ -353,9 +366,12 @@ test("authentication accepts cookie sessions and keeps Bearer compatibility", ()
     issuer: "pulseguard-api",
     audience: "pulseguard-web",
   })
-  const request = { headers: { cookie: `${SESSION_COOKIE_NAME}=${token}` } }
+  const request = asRequest({ headers: { cookie: `${SESSION_COOKIE_NAME}=${token}` } })
   let nextCalled = false
-  auth(request, {}, () => { nextCalled = true })
+  const next: NextFunction = () => {
+    nextCalled = true
+  }
+  auth(request, asResponse({}), next)
 
   assert.equal(nextCalled, true)
   assert.equal(request.user, "user-123")
@@ -369,37 +385,39 @@ test("authentication accepts cookie sessions and keeps Bearer compatibility", ()
 
 test("readiness requires both MongoDB and Redis", () => {
   assert.equal(buildReadiness({ mongoReady: true, redisReady: true }).ready, true)
-  assert.deepEqual(
-    buildReadiness({ mongoReady: true, redisReady: false }).body,
-    {
-      status: "not_ready",
-      checks: { mongodb: "up", redis: "down" },
-    },
-  )
+  assert.deepEqual(buildReadiness({ mongoReady: true, redisReady: false }).body, {
+    status: "not_ready",
+    checks: { mongodb: "up", redis: "down" },
+  })
 })
 
 test("health checks disable response caching", async () => {
   const createResponse = () => {
-    const result = { headers: {}, statusCode: 200, body: undefined }
-    result.response = {
-      set(name, value) {
+    const result: {
+      headers: Record<string, string>
+      statusCode: number
+      body: any
+      response: Response
+    } = { headers: {}, statusCode: 200, body: undefined, response: undefined as never }
+    result.response = asResponse({
+      set(name: string, value: string) {
         result.headers[name] = value
         return this
       },
-      status(value) {
+      status(value: number) {
         result.statusCode = value
         return this
       },
-      json(value) {
+      json(value: unknown) {
         result.body = value
         return this
       },
-    }
+    })
     return result
   }
 
   const live = createResponse()
-  liveCheck({}, live.response)
+  liveCheck(asRequest({}), live.response)
 
   assert.equal(live.headers["Cache-Control"], "no-store")
   assert.equal(live.body.status, "ok")
@@ -412,7 +430,7 @@ test("health checks disable response caching", async () => {
   console.error = () => {}
 
   try {
-    await readyCheck({}, ready.response)
+    await readyCheck(asRequest({}), ready.response)
   } finally {
     console.error = originalConsoleError
     if (originalRedisUrl === undefined) delete process.env.REDIS_URL

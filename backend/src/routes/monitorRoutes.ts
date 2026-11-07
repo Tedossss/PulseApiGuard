@@ -1,18 +1,19 @@
-const express = require("express")
-const router = express.Router()
-const auth = require("../middleware/auth")
-const monitorController = require("../controllers/monitorController")
+import { Router } from "express"
+import {
+  createMonitor,
+  deleteMonitor,
+  getMonitorById,
+  getMonitors,
+  updateMonitor,
+} from "../controllers/monitorController"
+import auth from "../middleware/auth"
 
-// Створення
-router.post("/add", auth, monitorController.createMonitor)
+const router = Router()
 
-// Отримання всіх
-router.get("/", auth, monitorController.getMonitors)
+router.post("/add", auth, createMonitor)
+router.get("/", auth, getMonitors)
+router.get("/:id", auth, getMonitorById)
+router.put("/:id", auth, updateMonitor)
+router.delete("/:id", auth, deleteMonitor)
 
-// ОНОВЛЕННЯ (додай це)
-router.put("/:id", auth, monitorController.updateMonitor)
-
-// ВИДАЛЕННЯ (додай це)
-router.delete("/:id", auth, monitorController.deleteMonitor)
-
-module.exports = router
+export default router
